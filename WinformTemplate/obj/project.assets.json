@@ -339,23 +339,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Andrew\\.nuget\\packages\\": {},
-    "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Mumte\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Work\\Project\\CSharpProject\\WinformTemplate\\WinformTemplate\\WinformTemplate.csproj",
+      "projectUniqueName": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\WinformTemplate.csproj",
       "projectName": "WinformTemplate",
-      "projectPath": "E:\\Work\\Project\\CSharpProject\\WinformTemplate\\WinformTemplate\\WinformTemplate.csproj",
-      "packagesPath": "C:\\Users\\Andrew\\.nuget\\packages\\",
-      "outputPath": "E:\\Work\\Project\\CSharpProject\\WinformTemplate\\WinformTemplate\\obj\\",
+      "projectPath": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\WinformTemplate.csproj",
+      "packagesPath": "C:\\Users\\Mumte\\.nuget\\packages\\",
+      "outputPath": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Andrew\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Mumte\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -364,7 +364,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -412,7 +411,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
