@@ -18,3 +18,4 @@ E:\Work\Project\CSharpProject\WinformTemplate\WinformTemplate\obj\Debug\net8.0-w
 E:\Work\Project\CSharpProject\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\WinformTemplate.pdb
 E:\Work\Project\CSharpProject\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\WinformTemplate.genruntimeconfig.cache
 E:\Work\Project\CSharpProject\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\ref\WinformTemplate.dll
+E:\Work\Project\CSharpProject\WinformTemplate\WinformTemplate\bin\Debug\net8.0-windows\Resources\Config\config.json

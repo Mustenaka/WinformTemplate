@@ -1,4 +1,3 @@
-using log4net.Config;
 using Debug = WinformTemplate.Src.Logger.Debug;
 
 namespace WinformTemplate

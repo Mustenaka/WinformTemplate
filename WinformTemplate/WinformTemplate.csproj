@@ -9,14 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Src\Locker\" />
     <Folder Include="Src\Logger\" />
-    <Folder Include="Src\Tools\" />
     <Folder Include="Src\ScreenAdapt\" />
     <Folder Include="Src\Business\" />
     <Folder Include="Src\Pools\" />
     <Folder Include="Src\Middleware\" />
     <Folder Include="Src\Installer\" />
+    <Folder Include="Src\Serialize\" />
+    <Folder Include="Src\FIO\" />
+    <Folder Include="Src\Tools\Encryption\Symmetric\AESHelper\" />
     <Folder Include="UI\" />
   </ItemGroup>
 
@@ -25,6 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\Config\config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\Log4net\log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
