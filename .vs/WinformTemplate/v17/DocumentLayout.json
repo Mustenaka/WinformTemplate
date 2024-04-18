@@ -30,12 +30,8 @@
       "DocumentGroups": [
         {
           "DockedHeight": 356,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -44,7 +40,7 @@
               "RelativeDocumentMoniker": "WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
               "ToolTip": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
               "RelativeToolTip": "WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAA2wCMAAAAhAAAA",
+              "ViewState": "AQIAAAoAAAAAAAAAAAA2wBoAAAAyAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-15T10:42:15.8Z",
               "EditorCaption": ""
