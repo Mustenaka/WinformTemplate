@@ -398,3 +398,6 @@ FodyWeavers.xsd
 *.sln.iml
 /WinformTemplate/obj/Debug/net8.0-windows/WinformTemplate.AssemblyInfo.cs
 /WinformTemplate/obj/Debug/net8.0-windows/WinformTemplate.AssemblyInfoInputs.cache
+/WinformTemplate/obj/Debug/
+/WinformTemplate/obj/Release/
+.vs/
