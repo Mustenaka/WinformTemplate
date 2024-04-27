@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Src\Business\" />
     <Folder Include="Src\Logger\" />
     <Folder Include="Src\ScreenAdapt\" />
-    <Folder Include="Src\Business\" />
     <Folder Include="Src\Pools\" />
     <Folder Include="Src\Middleware\" />
     <Folder Include="Src\Installer\" />
