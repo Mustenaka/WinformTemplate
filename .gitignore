@@ -401,3 +401,9 @@ FodyWeavers.xsd
 /WinformTemplate/obj/Debug/
 /WinformTemplate/obj/Release/
 .vs/
+/.vs/WinformTemplate/v17/.suo
+/WinformTemplate/obj/Debug/net8.0-windows/WinformTemplate.assets.cache
+/WinformTemplate/obj/Debug/net8.0-windows/WinformTemplate.GeneratedMSBuildEditorConfig.editorconfig
+/WinformTemplate/obj/project.assets.json
+/WinformTemplate/obj/project.nuget.cache
+/WinformTemplate/obj/WinformTemplate.csproj.nuget.dgspec.json
