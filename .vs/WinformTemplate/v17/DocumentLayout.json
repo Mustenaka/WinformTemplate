@@ -1,26 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Projects\\CSharp\\WinformTemplate\\",
+  "WorkspaceRootPath": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|d:\\projects\\csharp\\winformtemplate\\winformtemplate\\src\\config\\loadjsonconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\src\\config\\loadjsonconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|D:\\Projects\\CSharp\\WinformTemplate\\winformtemplate\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|d:\\work\\projects\\csharp\\winformtemplate\\winformtemplate\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|D:\\Projects\\CSharp\\WinformTemplate\\winformtemplate\\resources\\log4net\\log4net.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\resources\\log4net\\log4net.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|D:\\Projects\\CSharp\\WinformTemplate\\winformtemplate\\src\\logger\\debug.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\src\\logger\\debug.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|D:\\Projects\\CSharp\\WinformTemplate\\winformtemplate\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|d:\\work\\projects\\csharp\\winformtemplate\\winformtemplate\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,61 +23,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "LoadJsonConfig.cs",
-              "DocumentMoniker": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
-              "RelativeDocumentMoniker": "WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
-              "ToolTip": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
-              "RelativeToolTip": "WinformTemplate\\Src\\Config\\LoadJsonConfig.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAA2wB4AAAAAAAAA",
+              "Title": "MainForm.cs [\u8BBE\u8BA1]",
+              "DocumentMoniker": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.cs",
+              "RelativeDocumentMoniker": "WinformTemplate\\MainForm.cs",
+              "ToolTip": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.cs [\u8BBE\u8BA1]",
+              "RelativeToolTip": "WinformTemplate\\MainForm.cs [\u8BBE\u8BA1]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-15T10:42:15.8Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Program.cs",
-              "RelativeDocumentMoniker": "WinformTemplate\\Program.cs",
-              "ToolTip": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Program.cs",
-              "RelativeToolTip": "WinformTemplate\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-15T08:21:25.714Z"
+              "WhenOpened": "2024-05-12T15:05:00.607Z",
+              "EditorCaption": " [\u8BBE\u8BA1]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MainForm.cs [\u8BBE\u8BA1]",
-              "DocumentMoniker": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.cs",
-              "RelativeDocumentMoniker": "WinformTemplate\\MainForm.cs",
-              "ToolTip": "E:\\Work\\Project\\CSharpProject\\WinformTemplate\\WinformTemplate\\MainForm.cs [\u8BBE\u8BA1]",
+              "Title": "MainForm.Designer.cs",
+              "DocumentMoniker": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.Designer.cs",
+              "RelativeDocumentMoniker": "WinformTemplate\\MainForm.Designer.cs",
+              "ToolTip": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.Designer.cs",
+              "RelativeToolTip": "WinformTemplate\\MainForm.Designer.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAIBBwBgAAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-15T10:41:24.832Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "log4net.config",
-              "DocumentMoniker": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Resources\\Log4net\\log4net.config",
-              "RelativeDocumentMoniker": "WinformTemplate\\Resources\\Log4net\\log4net.config",
-              "ToolTip": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Resources\\Log4net\\log4net.config",
-              "RelativeToolTip": "WinformTemplate\\Resources\\Log4net\\log4net.config",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAASAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2024-04-15T10:08:23.355Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Debug.cs",
-              "DocumentMoniker": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Logger\\Debug.cs",
-              "RelativeDocumentMoniker": "WinformTemplate\\Src\\Logger\\Debug.cs",
-              "ToolTip": "D:\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Logger\\Debug.cs",
-              "RelativeToolTip": "WinformTemplate\\Src\\Logger\\Debug.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAAuwCcAAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-15T10:11:54.901Z"
+              "WhenOpened": "2024-05-12T15:03:05.689Z",
+              "EditorCaption": ""
             }
           ]
         }

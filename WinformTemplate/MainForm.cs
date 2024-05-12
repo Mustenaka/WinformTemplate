@@ -6,5 +6,10 @@ namespace WinformTemplate
         {
             InitializeComponent();
         }
+
+        private void iconError1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
