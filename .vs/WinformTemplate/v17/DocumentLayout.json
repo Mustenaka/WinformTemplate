@@ -7,8 +7,8 @@
       "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|d:\\work\\projects\\csharp\\winformtemplate\\winformtemplate\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\mainform.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|d:\\work\\projects\\csharp\\winformtemplate\\winformtemplate\\src\\locker\\applocker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BEF270AA-4047-4071-87AF-39352721EEC2}|WinformTemplate\\WinformTemplate.csproj|solutionrelative:winformtemplate\\src\\locker\\applocker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,8 +18,21 @@
       "DocumentGroups": [
         {
           "DockedHeight": 356,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppLocker.cs",
+              "DocumentMoniker": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Locker\\AppLocker.cs",
+              "RelativeDocumentMoniker": "WinformTemplate\\Src\\Locker\\AppLocker.cs",
+              "ToolTip": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\Src\\Locker\\AppLocker.cs",
+              "RelativeToolTip": "WinformTemplate\\Src\\Locker\\AppLocker.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-13T12:15:41.165Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -31,19 +44,6 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-12T15:05:00.607Z",
               "EditorCaption": " [\u8BBE\u8BA1]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MainForm.Designer.cs",
-              "DocumentMoniker": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.Designer.cs",
-              "RelativeDocumentMoniker": "WinformTemplate\\MainForm.Designer.cs",
-              "ToolTip": "D:\\Work\\Projects\\CSharp\\WinformTemplate\\WinformTemplate\\MainForm.Designer.cs",
-              "RelativeToolTip": "WinformTemplate\\MainForm.Designer.cs",
-              "ViewState": "AQIAAA0AAAAAAAAAAIBBwBgAAAAVAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-12T15:03:05.689Z",
-              "EditorCaption": ""
             }
           ]
         }

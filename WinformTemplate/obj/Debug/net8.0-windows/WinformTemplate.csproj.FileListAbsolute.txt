@@ -41,3 +41,4 @@ D:\Work\Projects\CSharp\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows
 D:\Work\Projects\CSharp\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\WinformTemplate.pdb
 D:\Work\Projects\CSharp\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\WinformTemplate.genruntimeconfig.cache
 D:\Work\Projects\CSharp\WinformTemplate\WinformTemplate\obj\Debug\net8.0-windows\ref\WinformTemplate.dll
+D:\Work\Projects\CSharp\WinformTemplate\WinformTemplate\bin\Debug\net8.0-windows\AntdUI.dll
