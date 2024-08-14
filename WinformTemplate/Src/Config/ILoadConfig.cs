@@ -1,4 +1,4 @@
-﻿namespace WinformTemplate.Src.Config;
+﻿namespace WinformTemplate.Config;
 
 public interface ILoadConfig
 {

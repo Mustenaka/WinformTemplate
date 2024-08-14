@@ -1,4 +1,4 @@
-﻿namespace WinformTemplate.Src.Config;
+﻿namespace WinformTemplate.Config;
 
 /// <summary>
 /// 加载Ini配置文件，由于Ini配置文件特殊性，不与Json、Xml、yaml等共享加载接口

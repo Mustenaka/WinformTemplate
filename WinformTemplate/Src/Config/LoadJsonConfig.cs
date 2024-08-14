@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace WinformTemplate.Src.Config;
+namespace WinformTemplate.Config;
 
 public class LoadJsonConfig : ILoadConfig
 {

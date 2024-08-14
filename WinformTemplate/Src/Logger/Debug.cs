@@ -1,6 +1,6 @@
 ﻿using log4net.Config;
 
-namespace WinformTemplate.Src.Logger;
+namespace WinformTemplate.Logger;
 
 //[assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", ConfigFileExtension = "config", Watch = true)]
 public class Debug
