@@ -28,43 +28,55 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Pan_Background = new AntdUI.Panel();
             Lab_Console = new AntdUI.Label();
+            SContainer_Main = new SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)SContainer_Main).BeginInit();
+            SContainer_Main.Panel2.SuspendLayout();
+            SContainer_Main.SuspendLayout();
             SuspendLayout();
-            // 
-            // Pan_Background
-            // 
-            Pan_Background.Dock = DockStyle.Fill;
-            Pan_Background.Location = new Point(0, 0);
-            Pan_Background.Name = "Pan_Background";
-            Pan_Background.Size = new Size(1258, 664);
-            Pan_Background.TabIndex = 0;
-            Pan_Background.Text = "panel1";
             // 
             // Lab_Console
             // 
-            Lab_Console.Dock = DockStyle.Bottom;
-            Lab_Console.Location = new Point(0, 630);
+            Lab_Console.Dock = DockStyle.Fill;
+            Lab_Console.Location = new Point(0, 0);
             Lab_Console.Name = "Lab_Console";
-            Lab_Console.Size = new Size(1258, 34);
+            Lab_Console.Size = new Size(1658, 25);
             Lab_Console.TabIndex = 1;
             Lab_Console.Text = "控制台";
+            // 
+            // SContainer_Main
+            // 
+            SContainer_Main.Dock = DockStyle.Fill;
+            SContainer_Main.IsSplitterFixed = true;
+            SContainer_Main.Location = new Point(0, 0);
+            SContainer_Main.Name = "SContainer_Main";
+            SContainer_Main.Orientation = Orientation.Horizontal;
+            // 
+            // SContainer_Main.Panel2
+            // 
+            SContainer_Main.Panel2.Controls.Add(Lab_Console);
+            SContainer_Main.Size = new Size(1658, 968);
+            SContainer_Main.SplitterDistance = 939;
+            SContainer_Main.TabIndex = 2;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1258, 664);
-            Controls.Add(Lab_Console);
-            Controls.Add(Pan_Background);
+            ClientSize = new Size(1658, 968);
+            Controls.Add(SContainer_Main);
+            MinimumSize = new Size(320, 160);
             Name = "MainForm";
             Text = "MainForm";
+            SizeChanged += MainForm_SizeChanged;
+            SContainer_Main.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)SContainer_Main).EndInit();
+            SContainer_Main.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-
-        private AntdUI.Panel Pan_Background;
         private AntdUI.Label Lab_Console;
+        private SplitContainer SContainer_Main;
     }
 }
