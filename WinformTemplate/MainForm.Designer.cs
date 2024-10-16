@@ -30,7 +30,9 @@
         {
             Lab_Console = new AntdUI.Label();
             SContainer_Main = new SplitContainer();
+            Panel_Bg = new AntdUI.Panel();
             ((System.ComponentModel.ISupportInitialize)SContainer_Main).BeginInit();
+            SContainer_Main.Panel1.SuspendLayout();
             SContainer_Main.Panel2.SuspendLayout();
             SContainer_Main.SuspendLayout();
             SuspendLayout();
@@ -52,12 +54,25 @@
             SContainer_Main.Name = "SContainer_Main";
             SContainer_Main.Orientation = Orientation.Horizontal;
             // 
+            // SContainer_Main.Panel1
+            // 
+            SContainer_Main.Panel1.Controls.Add(Panel_Bg);
+            // 
             // SContainer_Main.Panel2
             // 
             SContainer_Main.Panel2.Controls.Add(Lab_Console);
             SContainer_Main.Size = new Size(1658, 968);
             SContainer_Main.SplitterDistance = 939;
             SContainer_Main.TabIndex = 2;
+            // 
+            // Panel_Bg
+            // 
+            Panel_Bg.Dock = DockStyle.Fill;
+            Panel_Bg.Location = new Point(0, 0);
+            Panel_Bg.Name = "Panel_Bg";
+            Panel_Bg.Size = new Size(1658, 939);
+            Panel_Bg.TabIndex = 0;
+            Panel_Bg.Text = "panel1";
             // 
             // MainForm
             // 
@@ -69,6 +84,7 @@
             Name = "MainForm";
             Text = "MainForm";
             SizeChanged += MainForm_SizeChanged;
+            SContainer_Main.Panel1.ResumeLayout(false);
             SContainer_Main.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)SContainer_Main).EndInit();
             SContainer_Main.ResumeLayout(false);
@@ -78,5 +94,6 @@
         #endregion
         private AntdUI.Label Lab_Console;
         private SplitContainer SContainer_Main;
+        private AntdUI.Panel Panel_Bg;
     }
 }
