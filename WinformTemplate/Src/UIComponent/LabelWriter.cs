@@ -2,9 +2,12 @@
 
 namespace WinformTemplate.UIComponent;
 
+/// <summary>
+/// 配合AntdUI的一个终端控制台输出接口
+/// </summary>
 public class LabelWriter : TextWriter
 {
-    private AntdUI.Label _textBox;
+    private readonly AntdUI.Label _textBox;
 
     public LabelWriter(AntdUI.Label textBox)
     {

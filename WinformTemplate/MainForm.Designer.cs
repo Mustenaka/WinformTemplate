@@ -28,13 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            AntdUI.Tabs.StyleLine styleLine1 = new AntdUI.Tabs.StyleLine();
             Lab_Console = new AntdUI.Label();
             SContainer_Main = new SplitContainer();
             Panel_Bg = new AntdUI.Panel();
+            Tab_Main = new AntdUI.Tabs();
+            TPageTest01 = new AntdUI.TabPage();
+            TPageTest02 = new AntdUI.TabPage();
             ((System.ComponentModel.ISupportInitialize)SContainer_Main).BeginInit();
             SContainer_Main.Panel1.SuspendLayout();
             SContainer_Main.Panel2.SuspendLayout();
             SContainer_Main.SuspendLayout();
+            Panel_Bg.SuspendLayout();
+            Tab_Main.SuspendLayout();
             SuspendLayout();
             // 
             // Lab_Console
@@ -67,12 +73,44 @@
             // 
             // Panel_Bg
             // 
+            Panel_Bg.Controls.Add(Tab_Main);
             Panel_Bg.Dock = DockStyle.Fill;
             Panel_Bg.Location = new Point(0, 0);
             Panel_Bg.Name = "Panel_Bg";
             Panel_Bg.Size = new Size(1658, 939);
             Panel_Bg.TabIndex = 0;
             Panel_Bg.Text = "panel1";
+            // 
+            // Tab_Main
+            // 
+            Tab_Main.Dock = DockStyle.Fill;
+            Tab_Main.Location = new Point(0, 0);
+            Tab_Main.Name = "Tab_Main";
+            Tab_Main.Pages.Add(TPageTest01);
+            Tab_Main.Pages.Add(TPageTest02);
+            Tab_Main.Size = new Size(1658, 939);
+            Tab_Main.Style = styleLine1;
+            Tab_Main.TabIndex = 0;
+            Tab_Main.Text = "tabs1";
+            Tab_Main.SelectedIndexChanged += Tab_Main_SelectedIndexChanged;
+            // 
+            // TPageTest01
+            // 
+            TPageTest01.Dock = DockStyle.Fill;
+            TPageTest01.Location = new Point(3, 41);
+            TPageTest01.Name = "TPageTest01";
+            TPageTest01.Size = new Size(1652, 895);
+            TPageTest01.TabIndex = 0;
+            TPageTest01.Text = "测试页1";
+            // 
+            // TPageTest02
+            // 
+            TPageTest02.Dock = DockStyle.Fill;
+            TPageTest02.Location = new Point(0, 0);
+            TPageTest02.Name = "TPageTest02";
+            TPageTest02.Size = new Size(0, 0);
+            TPageTest02.TabIndex = 0;
+            TPageTest02.Text = "测试页2";
             // 
             // MainForm
             // 
@@ -88,6 +126,8 @@
             SContainer_Main.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)SContainer_Main).EndInit();
             SContainer_Main.ResumeLayout(false);
+            Panel_Bg.ResumeLayout(false);
+            Tab_Main.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -95,5 +135,8 @@
         private AntdUI.Label Lab_Console;
         private SplitContainer SContainer_Main;
         private AntdUI.Panel Panel_Bg;
+        private AntdUI.Tabs Tab_Main;
+        private AntdUI.TabPage TPageTest01;
+        private AntdUI.TabPage TPageTest02;
     }
 }

@@ -3,6 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace WinformTemplate.Common.ViewModel;
 
+/// <summary>
+/// ViewModel
+///     视图模型 层基类，ViewModel可以快速通过OnPropertyChanged实现触发响应
+/// </summary>
 public class BaseViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;

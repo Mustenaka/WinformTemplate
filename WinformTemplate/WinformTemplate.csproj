@@ -16,13 +16,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Src\Common\Command\Detail\**" />
+	  <Compile Remove="Src\Common\Model\Detail\**" />
+	  <EmbeddedResource Remove="Src\Common\Command\Detail\**" />
+	  <EmbeddedResource Remove="Src\Common\Model\Detail\**" />
+	  <None Remove="Src\Common\Command\Detail\**" />
+	  <None Remove="Src\Common\Model\Detail\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="Resources\Business\" />
 		<Folder Include="Resources\Img\" />
 		<Folder Include="Resources\Package\" />
 		<Folder Include="Src\Business\" />
-		<Folder Include="Src\Common\Command\Detail\" />
-		<Folder Include="Src\Common\Extend\" />
-		<Folder Include="Src\Common\Model\Detail\" />
 		<Folder Include="Src\Common\Model\Config\" />
 		<Folder Include="Src\Common\ViewModel\" />
 		<Folder Include="Src\FIO\CSV\" />
@@ -32,15 +38,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AntdUI" Version="1.6.16" />
+		<PackageReference Include="AntdUI" Version="1.7.0" />
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="LiveCharts.WinForms.NetCore3" Version="0.9.8" />
-		<PackageReference Include="log4net" Version="3.0.1" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="log4net" Version="3.0.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="MySql.Data" Version="9.1.0" />
 		<PackageReference Include="MySqlConnector" Version="2.3.7" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="NPOI" Version="2.7.1" />
+		<PackageReference Include="NPOI" Version="2.7.2" />
 		<PackageReference Include="NUnit" Version="3.14.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 		<PackageReference Include="System.Management" Version="8.0.0" />

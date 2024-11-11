@@ -2,7 +2,9 @@
 
 namespace WinformTemplate.Logger;
 
-//[assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", ConfigFileExtension = "config", Watch = true)]
+/// <summary>
+/// 改写的测试输出模块
+/// </summary>
 public class Debug
 {
     private static readonly log4net.ILog logInfo = log4net.LogManager.GetLogger("loginfo");

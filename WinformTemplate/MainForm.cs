@@ -1,10 +1,53 @@
+using WinformTemplate.Logger;
+using WinformTemplate.UIComponent;
+
 namespace WinformTemplate
 {
+    /// <summary>
+    /// @View
+    ///     主程序UI入口
+    /// </summary>
     public partial class MainForm : Form
     {
+        // UI 控制台
+        private readonly LabelWriter? _labelWriter;
+
         public MainForm()
         {
             InitializeComponent();
+
+            // 创建并设置默认 UI Console
+            _labelWriter ??= new LabelWriter(this.Lab_Console);
+            Console.SetOut(_labelWriter);
+        }
+
+        /// <summary>
+        /// 切换选项卡
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Tab_Main_SelectedIndexChanged(object sender, AntdUI.IntEventArgs e)
+        {
+            var selectPage = this.Tab_Main.SelectedTab;
+            var selectIndex = this.Tab_Main.SelectedIndex;
+            selectPage?.Controls.Clear();
+
+            UserControl? userControl = null;
+
+            switch (selectIndex)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+            }
+
+            if (userControl == null) return;
+
+            userControl.Dock = DockStyle.Fill;
+            selectPage?.Controls.Add(userControl);
+
+            Debug.Info($"{this.GetType().Name} 切换页面 {selectIndex}");
         }
 
         /// <summary>
@@ -14,9 +57,6 @@ namespace WinformTemplate
         /// <param name="e"></param>
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
-            //var dis = Math.Abs(this.Size.Height - Lab_Console.Size.Height);
-            //SContainer_Main.SplitterDistance = dis;
-
             // 检查窗体是否最小化
             if (this.WindowState == FormWindowState.Minimized)
             {
@@ -33,5 +73,20 @@ namespace WinformTemplate
 
             SContainer_Main.SplitterDistance = newSplitterDistance;
         }
+
+        #region Function
+
+        /// <summary>
+        /// 初次加载页面
+        /// </summary>
+        /// <param name="firstLoad"></param>
+        private void FirstLoadTabPage(UserControl firstLoad)
+        {
+            var selectPage = this.Tab_Main.SelectedTab;
+            firstLoad.Dock = DockStyle.Fill;
+            selectPage?.Controls.Add(firstLoad);
+        }
+
+        #endregion
     }
 }
