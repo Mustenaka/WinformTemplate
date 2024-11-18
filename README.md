@@ -32,7 +32,7 @@
 > 4. log4net 用于日志处理
 > 5. Newtonsoft.Json 用于json的交互处理
 > 6. NUnit、Nunit3TestAdapter、Microsoft.NET.Test.Sdk 用于进行单元测试
-> 7. Microsoft.EntityFrameworkCore; EF框架，ORM丽娜姐SQL数据库
+> 7. Microsoft.EntityFrameworkCore; EF框架，通过ORM操作MySQL数据库 
 > 8. MySqlConnector 用于链接Mysql
 > 9. LiveCharts2 https://livecharts.dev/docs/winforms/2.0.0-rc2/gallery 图表UI库
 > 在你理解我使用的技术栈之后，我将会有很多相关的开发问题需要咨询，请你直接且准确的回复我
