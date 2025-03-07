@@ -7,7 +7,7 @@ public class ProjectConfig
 {
     #region FromConfig  
 
-    public string? DB { get; set; }
+    public string? DB { get; set; }     // 正式服务
 
     #endregion 
 
