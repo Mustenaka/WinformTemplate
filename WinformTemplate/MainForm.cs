@@ -19,6 +19,18 @@ namespace WinformTemplate
             // 创建并设置默认 UI Console
             _labelWriter ??= new LabelWriter(this.Lab_Console);
             Console.SetOut(_labelWriter);
+
+            // 加载主窗体信息时显示版本 
+            LoadBaseInfo();
+        }
+
+        /// <summary>
+        /// 加载窗体时，上方显示信息+版本号
+        /// </summary>
+        private void LoadBaseInfo()
+        {
+            var title = this.Text + " --- " + Application.ProductVersion;
+            this.Text = title;
         }
 
         /// <summary>
