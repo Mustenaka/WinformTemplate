@@ -1,6 +1,6 @@
 ﻿using WinformTemplate.Common.Patterns;
 
-namespace WinformTemplate.Business.Sys.Context.Factory;
+namespace WinformTemplate.Business.Sys.Context;
 
 /// <summary>
 /// 所有工厂类上下文
