@@ -29,6 +29,8 @@
 		<Folder Include="Resources\Img\" />
 		<Folder Include="Resources\Package\" />
 		<Folder Include="Src\Business\Sys\Context\Mgr\" />
+		<Folder Include="Src\Business\Sys\Context\Full\" />
+		<Folder Include="Src\Business\Sys\Service\" />
 		<Folder Include="Src\Common\Model\Config\" />
 		<Folder Include="Src\Common\ViewModel\" />
 		<Folder Include="Src\FIO\CSV\" />
