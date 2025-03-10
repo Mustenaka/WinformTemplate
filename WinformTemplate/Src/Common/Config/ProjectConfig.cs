@@ -1,4 +1,4 @@
-﻿namespace WinformTemplate.Common.Model;
+﻿namespace WinformTemplate.Common.Config;
 
 /// <summary>
 /// 项目配置文件，可以独立使用，也可以扩展作为基类继承

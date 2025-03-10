@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using WinformTemplate.Common.Model;
+using WinformTemplate.Common.Config;
 using WinformTemplate.Common.Patterns;
 using WinformTemplate.Config;
 using WinformTemplate.Logger;

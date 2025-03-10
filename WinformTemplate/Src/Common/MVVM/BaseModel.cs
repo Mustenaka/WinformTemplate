@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace WinformTemplate.Common.Model;
+namespace WinformTemplate.Common.MVVM;
 
 /// <summary>
 /// Model
@@ -40,7 +40,7 @@ public abstract class BaseModel
     /// <param name="value"></param>
     /// <param name="propertyName"></param>
     /// <returns></returns>
-    protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+    protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (Equals(field, value)) return false;
         field = value;

@@ -17,11 +17,8 @@
 
 	<ItemGroup>
 	  <Compile Remove="Src\Common\Command\Detail\**" />
-	  <Compile Remove="Src\Common\Model\Detail\**" />
 	  <EmbeddedResource Remove="Src\Common\Command\Detail\**" />
-	  <EmbeddedResource Remove="Src\Common\Model\Detail\**" />
 	  <None Remove="Src\Common\Command\Detail\**" />
-	  <None Remove="Src\Common\Model\Detail\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,10 +26,7 @@
 		<Folder Include="Resources\Img\" />
 		<Folder Include="Resources\Package\" />
 		<Folder Include="Src\Business\Sys\Context\Mgr\" />
-		<Folder Include="Src\Business\Sys\Context\Full\" />
-		<Folder Include="Src\Business\Sys\Service\" />
-		<Folder Include="Src\Common\Model\Config\" />
-		<Folder Include="Src\Common\ViewModel\" />
+		<Folder Include="Src\Common\Config\" />
 		<Folder Include="Src\FIO\CSV\" />
 		<Folder Include="Src\FIO\DB\" />
 		<Folder Include="Src\Logger\" />

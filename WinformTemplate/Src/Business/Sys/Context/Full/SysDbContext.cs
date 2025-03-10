@@ -1,9 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WinformTemplate.Business.Sys.Model;
+using WinformTemplate.Serialize;
 
-namespace WinformTemplate.Business.Sys.Context.Full;
+namespace WinformTemplate.Business.Sys.Context;
 
-public class FullDbContext : DbContext
+/// <summary>
+/// 系统数据库上下文 sys_db
+///     一套DbContext管理所有系统模型
+/// </summary>
+public class SysDbContext : DbContext
 {
     /// <summary>
     /// 系统账户
@@ -34,8 +39,25 @@ public class FullDbContext : DbContext
     /// 构造函数
     /// </summary>
     /// <param name="options">数据库上下文选项</param>
-    public FullDbContext(DbContextOptions<FullDbContext> options) : base(options)
+    public SysDbContext(DbContextOptions<SysDbContext> options) : base(options)
     {
+    }
+
+    /// <summary>
+    /// 配置数据库连接
+    /// </summary>
+    /// <param name="optionsBuilder"></param>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (optionsBuilder.IsConfigured)
+        {
+            return;
+        }
+
+        var connectionString = GlobalProjectConfig.Instance.Config?.DB;
+        optionsBuilder.UseMySql(connectionString,
+            new MySqlServerVersion(new Version(8, 0, 21))
+        );
     }
 
     /// <summary>

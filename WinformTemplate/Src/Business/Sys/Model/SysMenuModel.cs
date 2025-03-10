@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using WinformTemplate.Common.Model;
+using WinformTemplate.Common.MVVM;
 
 namespace WinformTemplate.Business.Sys.Model;
 
