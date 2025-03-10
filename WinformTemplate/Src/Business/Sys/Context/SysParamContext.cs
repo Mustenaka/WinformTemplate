@@ -5,15 +5,15 @@ using WinformTemplate.Serialize;
 namespace WinformTemplate.Business.Sys.Context;
 
 /// <summary>
-/// 系统账户类 数据库上下文
+/// 系统参数模型 数据库上下文
 /// </summary>
 /// <param name="options"></param>
-public class SysAccountContext(DbContextOptions<SysAccountContext> options) : DbContext(options)
+public class SysParamContext(DbContextOptions<SysParamContext> options) : DbContext(options)
 {
     /// <summary>
-    /// 系统账户模型
+    /// 系统参数模型
     /// </summary>
-    public DbSet<SysAccountModel> SysAccounts { get; set; }
+    public DbSet<SysParamModel> SysParams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -39,17 +39,17 @@ public class SysAccountContext(DbContextOptions<SysAccountContext> options) : Db
 }
 
 /// <summary>
-/// 系统账户类 数据库上下文工厂
+/// 系统参数模型 数据库上下文工厂
 /// </summary>
-public class SysAccountContextFactory : IDbContextFactory<SysAccountContext>
+public class SysParamContextFactory : IDbContextFactory<SysParamContext>
 {
-    public SysAccountContext CreateDbContext()
+    public SysParamContext CreateDbContext()
     {
         var connectionString = GlobalProjectConfig.Instance.Config?.DB;
-        var options = new DbContextOptionsBuilder<SysAccountContext>()
+        var options = new DbContextOptionsBuilder<SysParamContext>()
             .UseMySql(connectionString!, new MySqlServerVersion(new Version(8, 0, 21)))
             .Options;
 
-        return new SysAccountContext(options);
+        return new SysParamContext(options);
     }
 }
