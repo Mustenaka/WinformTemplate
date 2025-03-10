@@ -36,6 +36,11 @@ public class SysDbContext : DbContext
     public DbSet<SysRoleAuthModel> SysRoleAuths { get; set; }
 
     /// <summary>
+    /// 系统账户扩展
+    /// </summary>
+    public DbSet<SysExtendModel> SysExtends { get; set; }
+
+    /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="options">数据库上下文选项</param>
