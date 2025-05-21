@@ -2,6 +2,9 @@
 
 namespace WinformTemplate.Business.Sys.Repositories;
 
+/// <summary>
+/// ISysParamRepository
+/// </summary>
 public interface ISysParamRepository
 {
     Task<List<SysParamModel>> GetAllAsync();
