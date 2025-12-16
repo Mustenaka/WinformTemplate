@@ -3,6 +3,8 @@ using System;
 using WinformTemplate.Business.Sys.Repositories;
 using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Sys.Service.Full;
+using WinformTemplate.Business.Sys.View;
+using WinformTemplate.Business.Sys.ViewModel;
 using WinformTemplate.Serialize;
 using Debug = WinformTemplate.Logger.Debug;
 
@@ -10,7 +12,7 @@ namespace WinformTemplate
 {
     internal static class Program
     {
-        private static IServiceProvider _serviceProvider;
+        private static IServiceProvider? _serviceProvider;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -29,9 +31,14 @@ namespace WinformTemplate
             // Load Config system
             GlobalProjectConfig.Instance.CheckConfigLoaded();
 
-            // Load Locker system
+            // Configure dependency injection
+            ConfigureServices();
 
-            Application.Run(new MainForm());
+            // Initialize database
+            InitializeDatabaseAsync().GetAwaiter().GetResult();
+
+            // Show login form
+            ShowLoginForm();
         }
 
         /// <summary>
@@ -59,22 +66,21 @@ namespace WinformTemplate
         }
 
         /// <summary>
-        /// ע��ִ�
+        /// 注册仓储
         /// </summary>
-        /// <param name="services">���񼯺�</param>
         private static void RegisterRepositories(IServiceCollection services)
         {
-            // ע�����ִ�ʵ��
+            // 注册各个仓储实现
             services.AddScoped<ISysAccountRepository, SysAccountRepository>();
             services.AddScoped<ISysMenuRepository, SysMenuRepository>();
             services.AddScoped<ISysRoleRepository, SysRoleRepository>();
             services.AddScoped<ISysParamRepository, SysParamRepository>();
+            services.AddScoped<ISysRoleAuthRepository, SysRoleAuthRepository>();
         }
 
         /// <summary>
-        /// ע��ҵ�����
+        /// 注册业务服务
         /// </summary>
-        /// <param name="services">���񼯺�</param>
         private static void RegisterServices(IServiceCollection services)
         {
             // 注册业务服务
@@ -83,20 +89,71 @@ namespace WinformTemplate
             services.AddScoped<ISysMenuService, SysMenuService>();
             services.AddScoped<ISysParamService, SysParamService>();
             services.AddScoped<IPermissionService, PermissionService>();
+
+            // 注册 ViewModel
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<MainViewModel>();
+
+            // 注册窗体
+            services.AddTransient<LoginForm>();
+            services.AddTransient<MainForm>();
         }
 
         /// <summary>
-        /// ��ʼ�����ݿ�
+        /// 初始化数据库
         /// </summary>
         private static async Task InitializeDatabaseAsync()
         {
+            if (_serviceProvider == null) return;
+
             var dbService = _serviceProvider.GetRequiredService<SysDbContextService>();
 
-            // ȷ�����ݿⴴ��
+            // 确保数据库创建
             await dbService.EnsureDatabaseCreatedAsync();
 
-            // ��ʼ����������
+            // 初始化种子数据
             await dbService.InitializeDatabaseAsync();
+
+            Debug.Info("数据库初始化完成");
+        }
+
+        /// <summary>
+        /// 显示登录窗体
+        /// </summary>
+        private static void ShowLoginForm()
+        {
+            if (_serviceProvider == null)
+            {
+                Debug.Error("ServiceProvider 未初始化");
+                return;
+            }
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var loginViewModel = scope.ServiceProvider.GetRequiredService<LoginViewModel>();
+                var loginForm = new LoginForm(loginViewModel);
+
+                if (loginForm.ShowDialog() == DialogResult.OK && loginViewModel.CurrentAccount != null)
+                {
+                    Debug.Info($"登录成功，打开主界面: {loginViewModel.CurrentAccount.SysAccountName}");
+
+                    // 创建新的 scope 用于主窗体
+                    var mainScope = _serviceProvider.CreateScope();
+                    var mainViewModel = mainScope.ServiceProvider.GetRequiredService<MainViewModel>();
+                    var mainForm = mainScope.ServiceProvider.GetRequiredService<MainForm>();
+
+                    // 设置当前账户
+                    mainForm.SetCurrentAccount(loginViewModel.CurrentAccount);
+
+                    Application.Run(mainForm);
+
+                    mainScope.Dispose();
+                }
+                else
+                {
+                    Debug.Info("用户取消登录或登录失败");
+                }
+            }
         }
     }
 }

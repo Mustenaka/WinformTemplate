@@ -120,7 +120,7 @@ public class LoginViewModel : BaseViewModel
             CurrentAccount = account;
             ErrorMessage = string.Empty;
 
-            Debug.Info($"登录成功: Username={Username}, AccountId={account.SysId}");
+            Debug.Info($"登录成功: Username={Username}, AccountId={account.SysId}, AccountName={account.SysAccountName}");
 
             // 触发登录成功事件
             LoginSucceeded?.Invoke(this, account);
