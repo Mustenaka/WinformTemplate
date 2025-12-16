@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using WinformTemplate.Business.Sys.Repositories;
+using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Sys.Service.Full;
 using WinformTemplate.Serialize;
 using Debug = WinformTemplate.Logger.Debug;
@@ -34,36 +35,36 @@ namespace WinformTemplate
         }
 
         /// <summary>
-        /// ÅäÖÃÒÀÀµ×¢Èë·şÎñ
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         private static void ConfigureServices()
         {
             var services = new ServiceCollection();
 
-            // ×¢²áÊı¾İ¿â·şÎñ (¿ª·¢»·¾³ÆôÓÃÏêÏ¸´íÎó)
-            bool isDevelopment = true; // ÔÚÊµ¼ÊÓ¦ÓÃÖĞ¿ÉÒÔ´ÓÅäÖÃÎÄ¼ş¶ÁÈ¡
+            // ×¢ï¿½ï¿½ï¿½ï¿½ï¿½İ¿ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ï¿½ï¿½ï¿½)
+            bool isDevelopment = true; // ï¿½ï¿½Êµï¿½ï¿½Ó¦ï¿½ï¿½ï¿½Ğ¿ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½È¡
             SysDbContextService.AddSysDatabase(services, isDevelopment, isDevelopment);
 
-            // ×¢²á²Ö´¢
+            // ×¢ï¿½ï¿½Ö´ï¿½
             RegisterRepositories(services);
 
-            // ×¢²áÒµÎñ·şÎñ
+            // ×¢ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½
             RegisterServices(services);
 
-            // ×¢²á´°Ìå
+            // ×¢ï¿½á´°ï¿½ï¿½
             services.AddTransient<MainForm>();
 
-            // ¹¹½¨·şÎñÌá¹©Õß
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹©ï¿½ï¿½
             _serviceProvider = services.BuildServiceProvider();
         }
 
         /// <summary>
-        /// ×¢²á²Ö´¢
+        /// ×¢ï¿½ï¿½Ö´ï¿½
         /// </summary>
-        /// <param name="services">·şÎñ¼¯ºÏ</param>
+        /// <param name="services">ï¿½ï¿½ï¿½ñ¼¯ºï¿½</param>
         private static void RegisterRepositories(IServiceCollection services)
         {
-            // ×¢²á¾ßÌå²Ö´¢ÊµÏÖ
+            // ×¢ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Êµï¿½ï¿½
             services.AddScoped<ISysAccountRepository, SysAccountRepository>();
             services.AddScoped<ISysMenuRepository, SysMenuRepository>();
             services.AddScoped<ISysRoleRepository, SysRoleRepository>();
@@ -71,28 +72,30 @@ namespace WinformTemplate
         }
 
         /// <summary>
-        /// ×¢²áÒµÎñ·şÎñ
+        /// ×¢ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
-        /// <param name="services">·şÎñ¼¯ºÏ</param>
+        /// <param name="services">ï¿½ï¿½ï¿½ñ¼¯ºï¿½</param>
         private static void RegisterServices(IServiceCollection services)
         {
-            // ×¢²áÒµÎñ·şÎñ
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IMenuService, MenuService>();
+            // æ³¨å†Œä¸šåŠ¡æœåŠ¡
+            services.AddScoped<ISysAccountService, SysAccountService>();
+            services.AddScoped<ISysRoleService, SysRoleService>();
+            services.AddScoped<ISysMenuService, SysMenuService>();
+            services.AddScoped<ISysParamService, SysParamService>();
+            services.AddScoped<IPermissionService, PermissionService>();
         }
 
         /// <summary>
-        /// ³õÊ¼»¯Êı¾İ¿â
+        /// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½İ¿ï¿½
         /// </summary>
         private static async Task InitializeDatabaseAsync()
         {
             var dbService = _serviceProvider.GetRequiredService<SysDbContextService>();
 
-            // È·±£Êı¾İ¿â´´½¨
+            // È·ï¿½ï¿½ï¿½ï¿½ï¿½İ¿â´´ï¿½ï¿½
             await dbService.EnsureDatabaseCreatedAsync();
 
-            // ³õÊ¼»¯ÖÖ×ÓÊı¾İ
+            // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             await dbService.InitializeDatabaseAsync();
         }
     }

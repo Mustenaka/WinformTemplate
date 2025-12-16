@@ -1,3 +1,5 @@
 {
+  "DbType": "SQLite",
+  "SQLiteDB": ".\\Resources\\Database\\sys.db",
   "DB": "server=127.0.0.1;port=3306;user=root;database=base;password=123456;"
 }

@@ -5,9 +5,11 @@
 /// </summary>
 public class ProjectConfig
 {
-    #region FromConfig  
+    #region FromConfig
 
-    public string? DB { get; set; }     // 正式服务
+    public string? DB { get; set; }     // MySQL 数据库连接字符串
+    public string? SQLiteDB { get; set; }  // SQLite 数据库文件路径
+    public string? DbType { get; set; }  // 数据库类型: "SQLite" 或 "MySQL"
 
     #endregion 
 

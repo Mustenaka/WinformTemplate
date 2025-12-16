@@ -20,12 +20,12 @@ public class Debug
     /// <summary>
     /// Info（信息）级别日志
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="message">日志消息</param>
     public static void Info(string message)
     {
         if (Debug.IsStreamOnConsole)
         {
-            Console.WriteLine(message);
+            Console.WriteLine($"[INFO] {message}");
         }
 
         if (logInfo.IsInfoEnabled)
@@ -35,31 +35,51 @@ public class Debug
     }
 
     /// <summary>
+    /// Info（信息）级别日志，带格式化参数
+    /// </summary>
+    /// <param name="format">格式化字符串</param>
+    /// <param name="args">参数</param>
+    public static void Info(string format, params object[] args)
+    {
+        Info(string.Format(format, args));
+    }
+
+    /// <summary>
     /// Warn（警告）级别日志
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="message">日志消息</param>
     public static void Warn(string message)
     {
         if (Debug.IsStreamOnConsole)
         {
-            Console.WriteLine(message);
+            Console.WriteLine($"[WARN] {message}");
         }
 
         if (logWarn.IsWarnEnabled)
         {
-            logWarn.Fatal(message);
+            logWarn.Warn(message);
         }
+    }
+
+    /// <summary>
+    /// Warn（警告）级别日志，带格式化参数
+    /// </summary>
+    /// <param name="format">格式化字符串</param>
+    /// <param name="args">参数</param>
+    public static void Warn(string format, params object[] args)
+    {
+        Warn(string.Format(format, args));
     }
 
     /// <summary>
     /// Error（错误）级别日志
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="message">日志消息</param>
     public static void Error(string message)
     {
         if (Debug.IsStreamOnConsole)
         {
-            Console.WriteLine(message);
+            Console.WriteLine($"[ERROR] {message}");
         }
 
         if (logError.IsErrorEnabled)
@@ -69,20 +89,80 @@ public class Debug
     }
 
     /// <summary>
+    /// Error（错误）级别日志，带异常
+    /// </summary>
+    /// <param name="message">日志消息</param>
+    /// <param name="exception">异常对象</param>
+    public static void Error(string message, Exception exception)
+    {
+        var fullMessage = $"{message}\nException: {exception.GetType().Name}\nMessage: {exception.Message}\nStackTrace: {exception.StackTrace}";
+
+        if (Debug.IsStreamOnConsole)
+        {
+            Console.WriteLine($"[ERROR] {fullMessage}");
+        }
+
+        if (logError.IsErrorEnabled)
+        {
+            logError.Error(message, exception);
+        }
+    }
+
+    /// <summary>
+    /// Error（错误）级别日志，带格式化参数
+    /// </summary>
+    /// <param name="format">格式化字符串</param>
+    /// <param name="args">参数</param>
+    public static void Error(string format, params object[] args)
+    {
+        Error(string.Format(format, args));
+    }
+
+    /// <summary>
     /// Fatal（致命错误）级别日志
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="message">日志消息</param>
     public static void Fatal(string message)
     {
         if (Debug.IsStreamOnConsole)
         {
-            Console.WriteLine(message);
+            Console.WriteLine($"[FATAL] {message}");
         }
 
         if (logFatal.IsFatalEnabled)
         {
             logFatal.Fatal(message);
         }
+    }
+
+    /// <summary>
+    /// Fatal（致命错误）级别日志，带异常
+    /// </summary>
+    /// <param name="message">日志消息</param>
+    /// <param name="exception">异常对象</param>
+    public static void Fatal(string message, Exception exception)
+    {
+        var fullMessage = $"{message}\nException: {exception.GetType().Name}\nMessage: {exception.Message}\nStackTrace: {exception.StackTrace}";
+
+        if (Debug.IsStreamOnConsole)
+        {
+            Console.WriteLine($"[FATAL] {fullMessage}");
+        }
+
+        if (logFatal.IsFatalEnabled)
+        {
+            logFatal.Fatal(message, exception);
+        }
+    }
+
+    /// <summary>
+    /// Fatal（致命错误）级别日志，带格式化参数
+    /// </summary>
+    /// <param name="format">格式化字符串</param>
+    /// <param name="args">参数</param>
+    public static void Fatal(string format, params object[] args)
+    {
+        Fatal(string.Format(format, args));
     }
 
     /// <summary>
