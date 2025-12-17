@@ -3,9 +3,9 @@ using System;
 using WinformTemplate.Business.Sys.Repositories;
 using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Sys.Service.Full;
-using WinformTemplate.Business.Sys.View;
 using WinformTemplate.Business.Sys.ViewModel;
 using WinformTemplate.Serialize;
+using WinformTemplate.UI.Business.Sys.Login;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate

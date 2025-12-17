@@ -1,7 +1,7 @@
 using AntdUI;
 using WinformTemplate.Business.Sys.ViewModel;
 
-namespace WinformTemplate.Business.Sys.View;
+namespace WinformTemplate.UI.Business.Sys.Login;
 
 /// <summary>
 /// 登录窗体
@@ -211,7 +211,7 @@ public partial class LoginForm : Window
     /// <summary>
     /// 登录成功处理
     /// </summary>
-    private void OnLoginSucceeded(object? sender, Business.Sys.Model.SysAccountModel account)
+    private void OnLoginSucceeded(object? sender, WinformTemplate.Business.Sys.Model.SysAccountModel account)
     {
         if (InvokeRequired)
         {

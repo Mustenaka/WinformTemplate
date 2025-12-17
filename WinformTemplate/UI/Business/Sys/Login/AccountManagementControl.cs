@@ -2,7 +2,7 @@ using AntdUI;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.ViewModel;
 
-namespace WinformTemplate.Business.Sys.View;
+namespace WinformTemplate.UI.Business.Sys.Login;
 
 /// <summary>
 /// 账户管理用户控件
@@ -83,7 +83,7 @@ public partial class AccountManagementControl : UserControl
         pnlLeft = new System.Windows.Forms.Panel
         {
             Dock = DockStyle.Left,
-            Width = (int)(this.Width * 0.6),
+            Width = (int)(Width * 0.6),
             BackColor = Color.White,
             Padding = new Padding(10)
         };
@@ -347,9 +347,9 @@ public partial class AccountManagementControl : UserControl
 
         pnlMain.Controls.AddRange(new Control[] { pnlRight, pnlLeft });
 
-        this.Controls.AddRange(new Control[] { pnlMain, pnlTop });
-        this.BackColor = Color.FromArgb(240, 242, 245);
-        this.Padding = new Padding(10);
+        Controls.AddRange(new Control[] { pnlMain, pnlTop });
+        BackColor = Color.FromArgb(240, 242, 245);
+        Padding = new Padding(10);
     }
 
     /// <summary>
@@ -416,7 +416,7 @@ public partial class AccountManagementControl : UserControl
             a.SysAccountName,
             a.SysNickname,
             RoleName = "角色",  // TODO: 需要关联查询角色信息
-            StatusText = (a.SysStatus ?? false) ? "启用" : "冻结"
+            StatusText = a.SysStatus ?? false ? "启用" : "冻结"
         }).ToArray();
 
         tblAccounts.DataSource = data;
@@ -430,7 +430,7 @@ public partial class AccountManagementControl : UserControl
         selRole.Items.Clear();
         foreach (var role in _viewModel.Roles)
         {
-            selRole.Items.Add(new SelectItem(role.SrName ?? "", (object)role.SrId));
+            selRole.Items.Add(new SelectItem(role.SrName ?? "", role.SrId));
         }
     }
 
