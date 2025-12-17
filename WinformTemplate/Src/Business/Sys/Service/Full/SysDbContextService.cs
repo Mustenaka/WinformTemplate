@@ -35,32 +35,14 @@ public class SysDbContextService
         bool enableDetailedErrors = false,
         bool enableSensitiveDataLogging = false)
     {
-        // 获取全局配置中的连接字符串
-        var connectionString = GlobalProjectConfig.Instance.Config?.DB;
-        if (string.IsNullOrEmpty(connectionString))
+        // 获取数据库类型配置
+        var config = GlobalProjectConfig.Instance.Config;
+        var dbType = config?.DbType?.ToLower() ?? "sqlite";
+
+        // 注册SysDbContext - 使用从 SysDbContext.OnConfiguring 中读取的配置
+        // 不在这里指定数据库提供程序,而是让 SysDbContext 自己决定
+        services.AddDbContext<SysDbContext>((serviceProvider, options) =>
         {
-            throw new InvalidOperationException("Database connection string is not configured. Please check GlobalProjectConfig.");
-        }
-
-        // 注册SysDbContext
-        services.AddDbContext<SysDbContext>(options =>
-        {
-            // 使用MySQL数据库
-            options.UseMySql(
-                connectionString,
-                new MySqlServerVersion(new Version(8, 0, 21)),
-                mysqlOptions =>
-                {
-                    // 启用重试逻辑，以处理暂时性失败
-                    mysqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null);
-
-                    // 设置命令超时
-                    mysqlOptions.CommandTimeout(60);
-                });
-
             // 启用详细的错误信息（开发环境）
             if (enableDetailedErrors)
             {
@@ -72,6 +54,8 @@ public class SysDbContextService
             {
                 options.EnableSensitiveDataLogging();
             }
+
+            // 不在这里配置数据库连接,让 DbContext 的 OnConfiguring 处理
         });
 
         // 注册SysDbContextService
@@ -116,6 +100,10 @@ public class SysDbContextService
                 {
                     SrName = "管理员",
                     SrEnName = "Admin",
+                    SrRemark = "系统管理员角色",
+                    SrReserved1 = "",
+                    SrReserved2 = "",
+                    SysReserved3 = "",
                     SrStatus = false,
                     SrCreateAt = DateTime.Now
                 };
@@ -151,6 +139,7 @@ public class SysDbContextService
                     SmLevel = 0,
                     SmSort = 1,
                     SmIcon = "setting",
+                    SmRemark = "系统管理菜单",
                     SysStatus = false,
                     SysCreateAt = DateTime.Now
                 };
@@ -167,6 +156,7 @@ public class SysDbContextService
                     SmLevel = 1,
                     SmSort = 1,
                     SmIcon = "user",
+                    SmRemark = "用户账户管理",
                     SysStatus = false,
                     SysCreateAt = DateTime.Now
                 };
@@ -183,6 +173,7 @@ public class SysDbContextService
                     SmLevel = 1,
                     SmSort = 2,
                     SmIcon = "team",
+                    SmRemark = "角色权限管理",
                     SysStatus = false,
                     SysCreateAt = DateTime.Now
                 };

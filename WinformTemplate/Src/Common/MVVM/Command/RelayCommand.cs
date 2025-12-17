@@ -1,11 +1,12 @@
-﻿using WinformTemplate.Common.MVVM.Command.Interface;
+﻿using System.Windows.Input;
+using WinformTemplate.Common.MVVM.Command.Interface;
 
 namespace WinformTemplate.Common.MVVM.Command;
 
 /// <summary>
 /// 表示一个命令
 /// </summary>
-public class RelayCommand : IRelayCommand
+public class RelayCommand : IRelayCommand, ICommand
 {
     private readonly Action _execute;
     private readonly Func<bool> _canExecute;
@@ -22,6 +23,11 @@ public class RelayCommand : IRelayCommand
     }
 
     /// <summary>
+    /// 当命令可执行状态发生改变时触发
+    /// </summary>
+    public event EventHandler? CanExecuteChanged;
+
+    /// <summary>
     /// 判断命令是否可以执行
     /// </summary>
     /// <returns>是否可以执行</returns>
@@ -31,12 +37,36 @@ public class RelayCommand : IRelayCommand
     }
 
     /// <summary>
+    /// 判断命令是否可以执行 (ICommand)
+    /// </summary>
+    bool ICommand.CanExecute(object? parameter)
+    {
+        return CanExecute();
+    }
+
+    /// <summary>
     /// 执行命令
     /// </summary>
     public void Execute()
     {
         if (CanExecute())
             _execute();
+    }
+
+    /// <summary>
+    /// 执行命令 (ICommand)
+    /// </summary>
+    void ICommand.Execute(object? parameter)
+    {
+        Execute();
+    }
+
+    /// <summary>
+    /// 触发 CanExecuteChanged 事件
+    /// </summary>
+    public void RaiseCanExecuteChanged()
+    {
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }
 

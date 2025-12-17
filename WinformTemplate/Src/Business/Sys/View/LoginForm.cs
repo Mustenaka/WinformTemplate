@@ -189,7 +189,7 @@ public partial class LoginForm : Window
 
         if (_viewModel.IsBusy)
         {
-            btnLogin.Text = _viewModel.BusyMessage ?? "登录中...";
+            btnLogin.Text = "登录中...";
         }
         else
         {

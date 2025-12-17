@@ -209,7 +209,7 @@ public class AccountManagementViewModel : BaseViewModel
             }
 
             Debug.Info($"账户列表加载完成: Count={Accounts.Count}");
-        }, "加载账户中...");
+        }, ex => Debug.Error($"加载账户异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public class AccountManagementViewModel : BaseViewModel
             }
 
             Debug.Info($"角色列表加载完成: Count={Roles.Count}");
-        }, "加载角色中...");
+        }, ex => Debug.Error($"加载角色异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -248,16 +248,21 @@ public class AccountManagementViewModel : BaseViewModel
         {
             Debug.Info($"搜索账户: Keyword={SearchKeyword}");
 
-            var accounts = await _accountService.SearchAccountsAsync(SearchKeyword);
+            // 搜索逻辑：从所有账户中筛选包含关键字的账户
+            var allAccounts = await _accountService.GetAllAccountsAsync();
+            var filteredAccounts = allAccounts.Where(a =>
+                (a.SysAccountName?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.SysNickname?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false)
+            );
 
             Accounts.Clear();
-            foreach (var account in accounts)
+            foreach (var account in filteredAccounts)
             {
                 Accounts.Add(account);
             }
 
             Debug.Info($"搜索完成: Count={Accounts.Count}");
-        }, "搜索中...");
+        }, ex => Debug.Error($"搜索异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -303,7 +308,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Warn($"账户添加失败: Username={EditUsername}");
                 OperationFailed?.Invoke(this, "账户添加失败");
             }
-        }, "添加账户中...");
+        }, ex => Debug.Error($"添加账户异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -355,7 +360,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Warn($"账户更新失败: AccountId={EditAccountId}");
                 OperationFailed?.Invoke(this, "账户更新失败");
             }
-        }, "更新账户中...");
+        }, ex => Debug.Error($"更新账户异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -377,7 +382,7 @@ public class AccountManagementViewModel : BaseViewModel
         {
             Debug.Info($"删除账户: AccountId={SelectedAccount.SysId}");
 
-            var result = await _accountService.DeleteAccountAsync(SelectedAccount.SysId);
+            var result = await _accountService.DeleteAccountAsync((int)SelectedAccount.SysId);
 
             if (result)
             {
@@ -392,7 +397,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Warn($"账户删除失败: AccountId={SelectedAccount.SysId}");
                 OperationFailed?.Invoke(this, "账户删除失败");
             }
-        }, "删除账户中...");
+        }, ex => Debug.Error($"删除账户异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -430,7 +435,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Warn($"切换账户状态失败: AccountId={SelectedAccount.SysId}");
                 OperationFailed?.Invoke(this, "操作失败");
             }
-        }, "处理中...");
+        }, ex => Debug.Error($"操作异常: {ex.Message}", ex));
     }
 
     /// <summary>
@@ -464,7 +469,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Warn($"密码重置失败: AccountId={SelectedAccount.SysId}");
                 OperationFailed?.Invoke(this, "密码重置失败");
             }
-        }, "重置密码中...");
+        }, ex => Debug.Error($"重置密码异常: {ex.Message}", ex));
     }
 
     /// <summary>

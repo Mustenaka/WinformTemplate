@@ -119,7 +119,10 @@ public class MainViewModel : BaseViewModel
             }
 
             Debug.Info($"菜单加载完成: Count={MenuItems.Count}");
-        }, "加载菜单中...");
+        }, ex =>
+        {
+            Debug.Error($"加载菜单异常: {ex.Message}", ex);
+        });
     }
 
     /// <summary>
@@ -127,7 +130,7 @@ public class MainViewModel : BaseViewModel
     /// </summary>
     private void ExecuteLogout()
     {
-        Debug.Info($"用户退出登录: Username={CurrentAccount?.SaUsername}");
+        Debug.Info($"用户退出登录: Username={CurrentAccount?.SysAccountName}");
 
         CurrentAccount = null;
         MenuItems.Clear();
@@ -144,7 +147,7 @@ public class MainViewModel : BaseViewModel
         if (menu == null) return;
 
         SelectedMenu = menu;
-        Debug.Info($"选择菜单: MenuName={menu.SmName}, MenuId={menu.SysId}");
+        Debug.Info($"选择菜单: MenuName={menu.SmName}, MenuId={menu.SmId}");
 
         MenuSelected?.Invoke(this, menu);
     }

@@ -93,10 +93,12 @@ namespace WinformTemplate
             // 注册 ViewModel
             services.AddTransient<LoginViewModel>();
             services.AddTransient<MainViewModel>();
+            services.AddTransient<AccountManagementViewModel>();
 
             // 注册窗体
             services.AddTransient<LoginForm>();
             services.AddTransient<MainForm>();
+            services.AddTransient<AccountManagementControl>();
         }
 
         /// <summary>

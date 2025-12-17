@@ -124,7 +124,11 @@ public class LoginViewModel : BaseViewModel
 
             // 触发登录成功事件
             LoginSucceeded?.Invoke(this, account);
-        }, "登录中...");
+        }, ex =>
+        {
+            Debug.Error($"登录异常: {ex.Message}", ex);
+            ErrorMessage = $"登录失败: {ex.Message}";
+        });
     }
 
     /// <summary>
