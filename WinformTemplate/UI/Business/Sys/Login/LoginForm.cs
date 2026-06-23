@@ -1,5 +1,6 @@
 using AntdUI;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Common.MVVM.Extensions;
 
 namespace WinformTemplate.UI.Business.Sys.Login;
 
@@ -70,10 +71,6 @@ public partial class LoginForm : Window
             PlaceholderText = "请输入用户名",
             Font = new Font("Microsoft YaHei UI", 10F)
         };
-        txtUsername.TextChanged += (s, e) =>
-        {
-            _viewModel.Username = txtUsername.Text;
-        };
 
         // 密码标签
         lblPassword = new System.Windows.Forms.Label
@@ -93,10 +90,6 @@ public partial class LoginForm : Window
             PlaceholderText = "请输入密码",
             Font = new Font("Microsoft YaHei UI", 10F),
             UseSystemPasswordChar = true
-        };
-        txtPassword.TextChanged += (s, e) =>
-        {
-            _viewModel.Password = txtPassword.Text;
         };
         txtPassword.KeyPress += (s, e) =>
         {
@@ -128,7 +121,6 @@ public partial class LoginForm : Window
             BorderWidth = 0,
             Radius = 6
         };
-        btnLogin.Click += (s, e) => ExecuteLogin();
 
         // 添加控件到窗体
         Controls.Add(lblTitle);
@@ -145,6 +137,10 @@ public partial class LoginForm : Window
     /// </summary>
     private void InitializeDataBindings()
     {
+        txtUsername.BindText(_viewModel, nameof(LoginViewModel.Username));
+        txtPassword.BindText(_viewModel, nameof(LoginViewModel.Password));
+        btnLogin.BindCommand(_viewModel.LoginCommand);
+
         // 监听 ViewModel 属性变化
         _viewModel.PropertyChanged += (s, e) =>
         {

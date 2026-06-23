@@ -5,6 +5,7 @@ using NUnit.Framework;
 using WinformTemplate.Business.Template.Context;
 using WinformTemplate.Business.Template.Model;
 using WinformTemplate.Business.Template.Repositories;
+using WinformTemplate.Common.DataAccess;
 
 namespace WinformTemplate.Tests.Business.Template;
 
@@ -75,6 +76,14 @@ public sealed class TemplateRepositoryDataSourceTests
         Assert.That(page.Total, Is.EqualTo(1), sourceName);
         Assert.That(page.Items.Single().Code, Is.EqualTo("EL-KEY-001"), sourceName);
         Assert.That(page.Items.Single().Category?.Name, Is.EqualTo("Electronics"), sourceName);
+
+        var invalidSortPage = await productRepository.QueryAsync(new QueryRequest
+        {
+            Page = 1,
+            PageSize = 10,
+            SortBy = "NotAColumn"
+        });
+        Assert.That(invalidSortPage.Total, Is.EqualTo(2), sourceName);
 
         Assert.That(await productRepository.IsCodeExistsAsync("EL-KEY-001"), Is.True, sourceName);
         Assert.That(await productRepository.GetCountByCategoryAsync(1), Is.EqualTo(1), sourceName);

@@ -1,6 +1,7 @@
 using AntdUI;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Common.MVVM.Extensions;
 
 namespace WinformTemplate.UI.Business.Sys.Login;
 
@@ -173,7 +174,6 @@ public partial class AccountManagementControl : UserControl
             Location = new Point(100, yPos),
             Size = new Size(inputWidth, 35)
         };
-        txtUsername.TextChanged += (s, e) => _viewModel.EditUsername = txtUsername.Text;
         yPos += rowHeight;
 
         // 密码
@@ -190,7 +190,6 @@ public partial class AccountManagementControl : UserControl
             UseSystemPasswordChar = true,
             PlaceholderText = "编辑时留空则不修改"
         };
-        txtPassword.TextChanged += (s, e) => _viewModel.EditPassword = txtPassword.Text;
         yPos += rowHeight;
 
         // 昵称
@@ -205,7 +204,6 @@ public partial class AccountManagementControl : UserControl
             Location = new Point(100, yPos),
             Size = new Size(inputWidth, 35)
         };
-        txtNickname.TextChanged += (s, e) => _viewModel.EditNickname = txtNickname.Text;
         yPos += rowHeight;
 
         // 角色
@@ -246,7 +244,6 @@ public partial class AccountManagementControl : UserControl
             Location = new Point(100, yPos + 5),
             Checked = true
         };
-        swStatus.CheckedChanged += (s, e) => _viewModel.EditStatus = swStatus.Checked;
         yPos += rowHeight;
 
         // 备注
@@ -262,7 +259,6 @@ public partial class AccountManagementControl : UserControl
             Size = new Size(inputWidth, 70),
             Multiline = true
         };
-        txtRemark.TextChanged += (s, e) => _viewModel.EditRemark = txtRemark.Text;
         yPos += 90;
 
         // 操作按钮
@@ -357,6 +353,12 @@ public partial class AccountManagementControl : UserControl
     /// </summary>
     private void InitializeDataBindings()
     {
+        txtUsername.BindText(_viewModel, nameof(AccountManagementViewModel.EditUsername));
+        txtPassword.BindText(_viewModel, nameof(AccountManagementViewModel.EditPassword));
+        txtNickname.BindText(_viewModel, nameof(AccountManagementViewModel.EditNickname));
+        txtRemark.BindText(_viewModel, nameof(AccountManagementViewModel.EditRemark));
+        swStatus.BindChecked(_viewModel, nameof(AccountManagementViewModel.EditStatus));
+
         _viewModel.PropertyChanged += (s, e) =>
         {
             if (InvokeRequired)
