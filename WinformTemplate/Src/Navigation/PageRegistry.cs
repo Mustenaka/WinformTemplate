@@ -4,6 +4,8 @@ public sealed class PageRegistry : IPageRegistry
 {
     private readonly Dictionary<string, Func<IServiceProvider, UserControl>> _factories = new(StringComparer.OrdinalIgnoreCase);
 
+    public IReadOnlyCollection<string> MenuKeys => _factories.Keys.ToArray();
+
     public void Register(string menuKey, Func<IServiceProvider, UserControl> factory)
     {
         if (string.IsNullOrWhiteSpace(menuKey))

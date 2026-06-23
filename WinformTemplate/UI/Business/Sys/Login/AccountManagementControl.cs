@@ -10,7 +10,12 @@ namespace WinformTemplate.UI.Business.Sys.Login;
 /// </summary>
 public partial class AccountManagementControl : UserControl
 {
+    private const int DesiredPanel1MinWidth = 420;
+    private const int DesiredPanel2MinWidth = 320;
+    private const int DesiredRightWidth = 380;
+
     private readonly AccountManagementViewModel _viewModel;
+    private bool _initialized;
     private bool _updatingPageSize;
     private bool _updatingRole;
 
@@ -61,7 +66,6 @@ public partial class AccountManagementControl : UserControl
 
         _viewModel.OperationSucceeded += OnOperationSucceeded;
         _viewModel.OperationFailed += OnOperationFailed;
-        _viewModel.Initialize();
     }
 
     private void InitializeComponent()
@@ -129,8 +133,8 @@ public partial class AccountManagementControl : UserControl
             Orientation = Orientation.Vertical,
             FixedPanel = FixedPanel.Panel2,
             SplitterWidth = 8,
-            Panel1MinSize = 420,
-            Panel2MinSize = 320
+            Panel1MinSize = 1,
+            Panel2MinSize = 1
         };
         splitMain.SizeChanged += (_, _) => EnsureSplitDistance();
 
@@ -233,7 +237,8 @@ public partial class AccountManagementControl : UserControl
         Controls.AddRange(new Control[] { pnlMain, pnlTop });
 
         ResumeLayout(false);
-        BeginInvoke((MethodInvoker)EnsureSplitDistance);
+        HandleCreated += (_, _) => EnsureSplitDistance();
+        SizeChanged += (_, _) => EnsureSplitDistance();
     }
 
     private void BuildEditor()
@@ -542,17 +547,67 @@ public partial class AccountManagementControl : UserControl
         base.Dispose(disposing);
     }
 
-    private void EnsureSplitDistance()
+    protected override async void OnLoad(EventArgs e)
     {
-        if (splitMain.Width <= splitMain.Panel1MinSize + splitMain.Panel2MinSize)
+        base.OnLoad(e);
+        EnsureSplitDistance();
+
+        if (_initialized)
         {
             return;
         }
 
-        var desiredRightWidth = Math.Min(380, splitMain.Width - splitMain.Panel1MinSize - splitMain.SplitterWidth);
-        var distance = splitMain.Width - desiredRightWidth - splitMain.SplitterWidth;
-        distance = Math.Clamp(distance, splitMain.Panel1MinSize, splitMain.Width - splitMain.Panel2MinSize - splitMain.SplitterWidth);
-        if (distance > 0 && splitMain.SplitterDistance != distance)
+        _initialized = true;
+        await _viewModel.InitializeAsync();
+    }
+
+    private void EnsureSplitDistance()
+    {
+        if (splitMain.IsDisposed || splitMain.Width <= splitMain.SplitterWidth + 2)
+        {
+            return;
+        }
+
+        var canUseDesiredMinSizes = splitMain.Width >= DesiredPanel1MinWidth + DesiredPanel2MinWidth + splitMain.SplitterWidth;
+        var panel1Min = canUseDesiredMinSizes ? DesiredPanel1MinWidth : 1;
+        var panel2Min = canUseDesiredMinSizes ? DesiredPanel2MinWidth : 1;
+        var maxDistance = splitMain.Width - panel2Min - splitMain.SplitterWidth;
+        if (maxDistance < panel1Min)
+        {
+            return;
+        }
+
+        var rightWidth = Math.Min(DesiredRightWidth, splitMain.Width - panel1Min - splitMain.SplitterWidth);
+        rightWidth = Math.Max(panel2Min, rightWidth);
+
+        var distance = splitMain.Width - rightWidth - splitMain.SplitterWidth;
+        distance = Math.Clamp(distance, panel1Min, maxDistance);
+
+        SetSafeMinimumSizes(1, 1);
+        SetSplitterDistanceIfValid(distance);
+        SetSafeMinimumSizes(panel1Min, panel2Min);
+        SetSplitterDistanceIfValid(distance);
+    }
+
+    private void SetSafeMinimumSizes(int panel1Min, int panel2Min)
+    {
+        if (splitMain.Panel1MinSize != panel1Min)
+        {
+            splitMain.Panel1MinSize = panel1Min;
+        }
+
+        if (splitMain.Panel2MinSize != panel2Min)
+        {
+            splitMain.Panel2MinSize = panel2Min;
+        }
+    }
+
+    private void SetSplitterDistanceIfValid(int distance)
+    {
+        var maxDistance = splitMain.Width - splitMain.Panel2MinSize - splitMain.SplitterWidth;
+        if (distance >= splitMain.Panel1MinSize
+            && distance <= maxDistance
+            && splitMain.SplitterDistance != distance)
         {
             splitMain.SplitterDistance = distance;
         }
