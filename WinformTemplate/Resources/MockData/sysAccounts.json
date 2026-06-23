@@ -14,5 +14,21 @@
     "SysReserved1": "",
     "SysReserved2": "",
     "SysReserved3": ""
+  },
+  {
+    "SysId": 2,
+    "SysUuid": "local-operator",
+    "SysAccountName": "operator",
+    "SysPassword": "PBKDF2$100000$T7Kd0QC8zeX7VUmRe1EgKw==$gyG1FfFJ8Gh5WWzrFHC1zUoJn83rjt/Zp5oSrCi0C+4=",
+    "SysNickname": "Operator",
+    "SysLevel": 1,
+    "SysRoleId": 2,
+    "SysExtendId": null,
+    "SysStatus": false,
+    "SysCreateAt": "2026-06-23T00:00:00",
+    "SysUpdateAt": "2026-06-23T00:00:00",
+    "SysReserved1": "",
+    "SysReserved2": "",
+    "SysReserved3": ""
   }
 ]

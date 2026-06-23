@@ -104,6 +104,7 @@ Example boolean response:
 | --- | --- | --- |
 | `GET /api/Sys/menus/active` | none | `SysMenuModel[]` |
 | `GET /api/Sys/menus/by-parent/{parentId}` | none | `SysMenuModel[]` |
+| `GET /api/Sys/menus/by-url?url=/sys/user` | none | `SysMenuModel` or `null` |
 | `POST /api/Sys/menus/{id}/freeze` | `{}` | `true` or `false` |
 | `POST /api/Sys/menus/{id}/unfreeze` | `{}` | `true` or `false` |
 

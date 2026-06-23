@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using WinformTemplate.Business.Sys.Context;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Tools.Encryption;
@@ -28,40 +27,70 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             return;
         }
 
+        var now = DateTime.Now;
         var adminRole = new SysRoleModel
         {
-            SrName = "管理员",
+            SrName = "Administrator",
             SrEnName = "Admin",
-            SrRemark = "系统管理员角色",
+            SrRemark = "System administrator role",
             SrReserved1 = string.Empty,
             SrReserved2 = string.Empty,
             SysReserved3 = string.Empty,
             SrStatus = false,
-            SrCreateAt = DateTime.Now
+            SrCreateAt = now,
+            SrUpdateAt = now
         };
 
-        _context.SysRoles.Add(adminRole);
+        var operatorRole = new SysRoleModel
+        {
+            SrName = "Operator",
+            SrEnName = "Operator",
+            SrRemark = "Limited operator role",
+            SrReserved1 = string.Empty,
+            SrReserved2 = string.Empty,
+            SysReserved3 = string.Empty,
+            SrStatus = false,
+            SrCreateAt = now,
+            SrUpdateAt = now
+        };
+
+        _context.SysRoles.AddRange(adminRole, operatorRole);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var adminAccount = new SysAccountModel
+        var accounts = new[]
         {
-            SysAccountName = "admin",
-            SysPassword = PasswordHasher.HashPassword("123456"),
-            SysNickname = "系统管理员",
-            SysLevel = 0,
-            SysRoleId = adminRole.SrId,
-            SysStatus = false,
-            SysCreateAt = DateTime.Now
+            new SysAccountModel
+            {
+                SysAccountName = "admin",
+                SysPassword = PasswordHasher.HashPassword("123456"),
+                SysNickname = "Administrator",
+                SysLevel = 0,
+                SysRoleId = adminRole.SrId,
+                SysStatus = false,
+                SysCreateAt = now,
+                SysUpdateAt = now
+            },
+            new SysAccountModel
+            {
+                SysAccountName = "operator",
+                SysPassword = PasswordHasher.HashPassword("123456"),
+                SysNickname = "Operator",
+                SysLevel = 1,
+                SysRoleId = operatorRole.SrId,
+                SysStatus = false,
+                SysCreateAt = now,
+                SysUpdateAt = now
+            }
         };
 
-        _context.SysAccounts.Add(adminAccount);
+        _context.SysAccounts.AddRange(accounts);
         await _context.SaveChangesAsync(cancellationToken);
 
         var systemMenu = new SysMenuModel
         {
             SmId = 1,
             SmParentId = 0,
-            SmName = "系统管理",
+            SmName = "System Management",
             SmEnName = "SystemManagement",
             SmType = 0,
             SmUrl = "#",
@@ -69,16 +98,17 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SmLevel = 0,
             SmSort = 1,
             SmIcon = "setting",
-            SmRemark = "系统管理菜单",
+            SmRemark = "System module",
             SysStatus = false,
-            SysCreateAt = DateTime.Now
+            SysCreateAt = now,
+            SysUpdateAt = now
         };
 
         var userMenu = new SysMenuModel
         {
             SmId = 2,
             SmParentId = 1,
-            SmName = "用户管理",
+            SmName = "Account Management",
             SmEnName = "UserManagement",
             SmType = 0,
             SmUrl = "/sys/user",
@@ -86,16 +116,17 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SmLevel = 1,
             SmSort = 1,
             SmIcon = "user",
-            SmRemark = "用户账户管理",
+            SmRemark = "Account management",
             SysStatus = false,
-            SysCreateAt = DateTime.Now
+            SysCreateAt = now,
+            SysUpdateAt = now
         };
 
         var roleMenu = new SysMenuModel
         {
             SmId = 3,
             SmParentId = 1,
-            SmName = "角色管理",
+            SmName = "Role Management",
             SmEnName = "RoleManagement",
             SmType = 0,
             SmUrl = "/sys/role",
@@ -103,9 +134,10 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SmLevel = 1,
             SmSort = 2,
             SmIcon = "team",
-            SmRemark = "角色权限管理",
+            SmRemark = "Role and permission management",
             SysStatus = false,
-            SysCreateAt = DateTime.Now
+            SysCreateAt = now,
+            SysUpdateAt = now
         };
 
         _context.SysMenus.AddRange(systemMenu, userMenu, roleMenu);
@@ -115,7 +147,8 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
         {
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = systemMenu.SmId },
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = userMenu.SmId },
-            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = roleMenu.SmId }
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = roleMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = operatorRole.SrId, SraMenuId = userMenu.SmId }
         };
 
         _context.SysRoleAuths.AddRange(roleAuths);

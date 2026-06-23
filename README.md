@@ -413,6 +413,13 @@ var allUsers = await _userRepository.GetAllAsync();
 - [log4net](https://logging.apache.org/log4net/) - 可靠的日志框架
 - [NPOI](https://github.com/nissl-lab/npoi) - Excel 文件处理
 
+## Demo Accounts
+
+Default seeded accounts for the current refactor:
+
+- `admin / 123456`: administrator, can access `/sys/user` and `/sys/role`.
+- `operator / 123456`: limited operator, can access `/sys/user` only.
+
 ---
 
 <div align="center">
