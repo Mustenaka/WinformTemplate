@@ -140,7 +140,25 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SysUpdateAt = now
         };
 
-        _context.SysMenus.AddRange(systemMenu, userMenu, roleMenu);
+        var productMenu = new SysMenuModel
+        {
+            SmId = 4,
+            SmParentId = 1,
+            SmName = "Product Management",
+            SmEnName = "ProductManagement",
+            SmType = 0,
+            SmUrl = "/template/product",
+            SmTarget = "_self",
+            SmLevel = 1,
+            SmSort = 3,
+            SmIcon = "shopping",
+            SmRemark = "Template product management sample",
+            SysStatus = false,
+            SysCreateAt = now,
+            SysUpdateAt = now
+        };
+
+        _context.SysMenus.AddRange(systemMenu, userMenu, roleMenu, productMenu);
         await _context.SaveChangesAsync(cancellationToken);
 
         var roleAuths = new[]
@@ -148,6 +166,7 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = systemMenu.SmId },
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = userMenu.SmId },
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = roleMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = productMenu.SmId },
             new SysRoleAuthModel { SraRoleId = operatorRole.SrId, SraMenuId = userMenu.SmId }
         };
 

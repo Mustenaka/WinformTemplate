@@ -8,11 +8,13 @@ using WinformTemplate.Business.Template.Context;
 using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service;
 using WinformTemplate.Business.Template.Service.Interface;
+using WinformTemplate.Business.Template.ViewModel;
 using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Navigation;
 using WinformTemplate.Serialize;
 using WinformTemplate.UI.Business.Sys.Login;
 using WinformTemplate.UI.Business.Sys.Role;
+using WinformTemplate.UI.Business.Template.Product;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate
@@ -138,11 +140,13 @@ namespace WinformTemplate
             services.AddScoped<LoginViewModel>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<AccountManagementViewModel>();
+            services.AddTransient<ProductManagementViewModel>();
 
             // 注册系统窗体
             services.AddTransient<LoginForm>();
             services.AddTransient<MainForm>();
             services.AddTransient<AccountManagementControl>();
+            services.AddTransient<ProductManagementControl>();
         }
 
         /// <summary>

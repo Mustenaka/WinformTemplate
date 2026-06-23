@@ -55,5 +55,24 @@
     "SysReserved1": "",
     "SysReserved2": "",
     "SysReserved3": ""
+  },
+  {
+    "SmId": 4,
+    "SmParentId": 1,
+    "SmName": "Product Management",
+    "SmEnName": "ProductManagement",
+    "SmType": 0,
+    "SmUrl": "/template/product",
+    "SmTarget": "_self",
+    "SmLevel": 1,
+    "SmSort": 3,
+    "SmIcon": "shopping",
+    "SmRemark": "Template product management sample",
+    "SysStatus": false,
+    "SysCreateAt": "2026-06-23T00:00:00",
+    "SysUpdateAt": "2026-06-23T00:00:00",
+    "SysReserved1": "",
+    "SysReserved2": "",
+    "SysReserved3": ""
   }
 ]

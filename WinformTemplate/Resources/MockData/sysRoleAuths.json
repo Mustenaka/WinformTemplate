@@ -12,6 +12,10 @@
     "SraMenuId": 3
   },
   {
+    "SraRoleId": 1,
+    "SraMenuId": 4
+  },
+  {
     "SraRoleId": 2,
     "SraMenuId": 2
   }

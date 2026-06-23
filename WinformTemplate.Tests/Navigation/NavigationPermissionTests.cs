@@ -114,7 +114,7 @@ public sealed class NavigationPermissionTests
         var adminMenus = (await permissionService.GetAccessibleMenuTreeAsync(admin.SysId)).ToList();
         var operatorMenus = (await permissionService.GetAccessibleMenuTreeAsync(operatorAccount.SysId)).ToList();
 
-        Assert.That(RouteKeys(adminMenus), Is.EquivalentTo(new[] { "/sys/user", "/sys/role" }));
+        Assert.That(RouteKeys(adminMenus), Is.EquivalentTo(new[] { "/sys/user", "/sys/role", "/template/product" }));
         Assert.That(RouteKeys(operatorMenus), Is.EquivalentTo(new[] { "/sys/user" }));
 
         var accessor = new CurrentAccountAccessor { CurrentAccount = admin };
@@ -122,15 +122,19 @@ public sealed class NavigationPermissionTests
 
         var adminUserResult = await navigationService.NavigateAsync("/sys/user");
         var adminRoleResult = await navigationService.NavigateAsync("/sys/role");
+        var adminProductResult = await navigationService.NavigateAsync("/template/product");
         Assert.That(adminUserResult.Status, Is.EqualTo(NavigationStatus.Success));
         Assert.That(adminRoleResult.Status, Is.EqualTo(NavigationStatus.Success));
+        Assert.That(adminProductResult.Status, Is.EqualTo(NavigationStatus.Success));
 
         accessor.CurrentAccount = operatorAccount;
 
         var operatorUserResult = await navigationService.NavigateAsync("/sys/user");
         var operatorRoleResult = await navigationService.NavigateAsync("/sys/role");
+        var operatorProductResult = await navigationService.NavigateAsync("/template/product");
         Assert.That(operatorUserResult.Status, Is.EqualTo(NavigationStatus.Success));
         Assert.That(operatorRoleResult.Status, Is.EqualTo(NavigationStatus.Unauthorized));
+        Assert.That(operatorProductResult.Status, Is.EqualTo(NavigationStatus.Unauthorized));
         Assert.That(operatorRoleResult.Message, Is.EqualTo("无权限"));
     }
 
@@ -141,6 +145,7 @@ public sealed class NavigationPermissionTests
         var registry = new PageRegistry();
         registry.Register("/sys/user", _ => new UserControl { Name = "UserPage" });
         registry.Register("/sys/role", _ => new UserControl { Name = "RolePage" });
+        registry.Register("/template/product", _ => new UserControl { Name = "ProductPage" });
 
         var serviceProvider = new ServiceCollection().BuildServiceProvider();
         return new NavigationService(accessor, permissionService, registry, serviceProvider);
@@ -220,7 +225,8 @@ public sealed class NavigationPermissionTests
         {
             new SysMenuModel { SmId = 1, SmParentId = 0, SmName = "System", SmEnName = "System", SmType = 0, SmUrl = "#", SmSort = 1, SysStatus = false },
             new SysMenuModel { SmId = 2, SmParentId = 1, SmName = "Accounts", SmEnName = "Accounts", SmType = 0, SmUrl = "/sys/user", SmSort = 1, SysStatus = false },
-            new SysMenuModel { SmId = 3, SmParentId = 1, SmName = "Roles", SmEnName = "Roles", SmType = 0, SmUrl = "/sys/role", SmSort = 2, SysStatus = false }
+            new SysMenuModel { SmId = 3, SmParentId = 1, SmName = "Roles", SmEnName = "Roles", SmType = 0, SmUrl = "/sys/role", SmSort = 2, SysStatus = false },
+            new SysMenuModel { SmId = 4, SmParentId = 1, SmName = "Products", SmEnName = "Products", SmType = 0, SmUrl = "/template/product", SmSort = 3, SysStatus = false }
         });
 
         WriteJson(Path.Combine(seedRoot, "sysRoleAuths.json"), new[]
@@ -228,6 +234,7 @@ public sealed class NavigationPermissionTests
             new SysRoleAuthModel { SraRoleId = 1, SraMenuId = 1 },
             new SysRoleAuthModel { SraRoleId = 1, SraMenuId = 2 },
             new SysRoleAuthModel { SraRoleId = 1, SraMenuId = 3 },
+            new SysRoleAuthModel { SraRoleId = 1, SraMenuId = 4 },
             new SysRoleAuthModel { SraRoleId = 2, SraMenuId = 2 }
         });
 
