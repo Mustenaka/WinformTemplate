@@ -18,6 +18,11 @@ public interface ISysAccountService
     Task<IEnumerable<SysAccountModel>> GetAllAccountsAsync();
 
     /// <summary>
+    /// 搜索账户
+    /// </summary>
+    Task<IEnumerable<SysAccountModel>> SearchAccountsAsync(string keyword);
+
+    /// <summary>
     /// 根据ID获取账户
     /// </summary>
     Task<SysAccountModel?> GetAccountByIdAsync(long id);

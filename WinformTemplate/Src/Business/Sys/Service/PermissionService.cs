@@ -91,13 +91,9 @@ public class PermissionService : IPermissionService
             // 获取角色的所有菜单权限
             var menus = await _roleRepository.GetMenusByRoleIdAsync(account.SysRoleId.Value);
 
-            // 过滤有效菜单并排序
-            var validMenus = menus.Where(m => m.SysStatus == false)
-                                  .OrderBy(m => m.SmSort ?? int.MaxValue)
-                                  .ToList();
-
-            Debug.Info($"用户可访问菜单获取成功，账户ID：{accountId}，菜单数量：{validMenus.Count}");
-            return validMenus;
+            var menuList = menus.ToList();
+            Debug.Info($"用户可访问菜单获取成功，账户ID：{accountId}，菜单数量：{menuList.Count}");
+            return menuList;
         }
         catch (Exception ex)
         {
@@ -122,8 +118,8 @@ public class PermissionService : IPermissionService
                 return Enumerable.Empty<SysMenuModel>();
             }
 
-            // 获取所有菜单
-            var allMenus = await _menuRepository.GetAllAsync();
+            // 获取所有有效菜单
+            var allMenus = await _menuRepository.GetActiveMenusAsync();
 
             // 获取可访问的菜单ID列表
             var accessibleMenuIds = accessibleMenus.Select(m => m.SmId).ToList();
@@ -151,10 +147,18 @@ public class PermissionService : IPermissionService
             Debug.Info($"过滤菜单树，可访问菜单数量：{accessibleMenuIds.Count()}");
 
             var accessibleMenuIdSet = new HashSet<long>(accessibleMenuIds);
+            var menuById = allMenus.ToDictionary(menu => menu.SmId);
             var result = new List<SysMenuModel>();
 
             // 首先找出所有可访问的菜单
-            var accessibleMenuList = allMenus.Where(m => accessibleMenuIdSet.Contains(m.SmId) && m.SysStatus == false).ToList();
+            var accessibleMenuList = new List<SysMenuModel>();
+            foreach (var menu in allMenus)
+            {
+                if (accessibleMenuIdSet.Contains(menu.SmId))
+                {
+                    accessibleMenuList.Add(menu);
+                }
+            }
 
             // 为每个可访问的菜单，确保其父菜单路径也包含在内（即使父菜单不在权限列表中）
             var menuIdToInclude = new HashSet<long>(accessibleMenuIdSet);
@@ -167,8 +171,7 @@ public class PermissionService : IPermissionService
                         break;
 
                     menuIdToInclude.Add(parentId);
-                    var parentMenu = allMenus.FirstOrDefault(m => m.SmId == parentId);
-                    if (parentMenu == null)
+                    if (!menuById.TryGetValue(parentId, out var parentMenu))
                         break;
 
                     parentId = parentMenu.SmParentId;
@@ -176,9 +179,15 @@ public class PermissionService : IPermissionService
             }
 
             // 返回需要包含的所有菜单，按排序规则排序
-            result = allMenus.Where(m => menuIdToInclude.Contains(m.SmId) && m.SysStatus == false)
-                            .OrderBy(m => m.SmSort ?? int.MaxValue)
-                            .ToList();
+            foreach (var menu in allMenus)
+            {
+                if (menuIdToInclude.Contains(menu.SmId))
+                {
+                    result.Add(menu);
+                }
+            }
+
+            result = result.OrderBy(m => m.SmSort ?? int.MaxValue).ToList();
 
             Debug.Info($"菜单树过滤完成，结果数量：{result.Count}");
             return result;
@@ -228,9 +237,7 @@ public class PermissionService : IPermissionService
             Debug.Info($"获取角色权限菜单ID，角色ID：{roleId}");
 
             var menus = await _roleRepository.GetMenusByRoleIdAsync(roleId);
-            var menuIds = menus.Where(m => m.SysStatus == false)
-                              .Select(m => m.SmId)
-                              .ToList();
+            var menuIds = menus.Select(m => m.SmId).ToList();
 
             Debug.Info($"角色权限菜单ID获取成功，角色ID：{roleId}，数量：{menuIds.Count}");
             return menuIds;

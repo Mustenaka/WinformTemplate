@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WinformTemplate.Business.Template.Model;
+using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Serialize;
 
 namespace WinformTemplate.Business.Template.Context;
@@ -44,41 +45,7 @@ public class TemplateDbContext : DbContext
             return;
         }
 
-        var config = GlobalProjectConfig.Instance.Config;
-        var dbType = config?.DbType?.ToLower() ?? "sqlite"; // 默认使用 SQLite
-
-        if (dbType == "sqlite")
-        {
-            // 使用 SQLite
-            var sqlitePath = config?.SQLiteDB ?? ".\\Resources\\Database\\sys.db";
-            var fullPath = Path.GetFullPath(sqlitePath);
-
-            // 确保目录存在
-            var directory = Path.GetDirectoryName(fullPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            optionsBuilder.UseSqlite($"Data Source={fullPath}");
-        }
-        else if (dbType == "mysql")
-        {
-            // 使用 MySQL
-            var connectionString = config?.DB;
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("MySQL 连接字符串未配置");
-            }
-
-            optionsBuilder.UseMySql(connectionString,
-                new MySqlServerVersion(new Version(8, 0, 21))
-            );
-        }
-        else
-        {
-            throw new InvalidOperationException($"不支持的数据库类型: {dbType}");
-        }
+        EfDbContextOptions.UseConfiguredDatabase(optionsBuilder, GlobalProjectConfig.Instance.Config?.Ef);
 
         // 开启详细错误信息（开发环境）
         optionsBuilder.EnableSensitiveDataLogging();

@@ -1,5 +1,6 @@
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.Repositories;
+using WinformTemplate.Common.DataAccess;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate.Business.Sys.Service;
@@ -31,8 +32,12 @@ public class SysRoleService : ISysRoleService
         try
         {
             Debug.Info("获取所有角色");
-            var roles = await _roleRepository.GetAllAsync();
-            return roles;
+            var result = await _roleRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items;
         }
         catch (Exception ex)
         {
@@ -260,13 +265,8 @@ public class SysRoleService : ISysRoleService
 
             var menus = await _roleRepository.GetMenusByRoleIdAsync(roleId);
 
-            // 过滤有效菜单并排序
-            var validMenus = menus.Where(m => m.SysStatus == false)
-                                  .OrderBy(m => m.SmSort ?? int.MaxValue)
-                                  .ToList();
-
-            Debug.Info($"角色菜单获取成功，角色ID：{roleId}，菜单数量：{validMenus.Count}");
-            return validMenus;
+            Debug.Info($"角色菜单获取成功，角色ID：{roleId}，菜单数量：{menus.Count}");
+            return menus;
         }
         catch (Exception ex)
         {
@@ -284,8 +284,7 @@ public class SysRoleService : ISysRoleService
         {
             Debug.Info($"检查角色菜单权限，角色ID：{roleId}，菜单ID：{menuId}");
 
-            var menus = await _roleRepository.GetMenusByRoleIdAsync(roleId);
-            var hasPermission = menus.Any(m => m.SmId == menuId);
+            var hasPermission = await _roleRepository.HasMenuPermissionAsync(roleId, menuId);
 
             Debug.Info($"角色菜单权限检查结果：{hasPermission}，角色ID：{roleId}，菜单ID：{menuId}");
             return hasPermission;

@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using System.Text;
 using WinformTemplate.Logger;
 
-namespace WinformTemplate.Common.WebApi;
+namespace WinformTemplate.Common.DataAccess;
 
 /// <summary>
 /// WebAPI 客户端实现

@@ -1,11 +1,12 @@
 using WinformTemplate.Business.Sys.Model;
+using WinformTemplate.Common.DataAccess;
 
 namespace WinformTemplate.Business.Sys.Repositories;
 
 /// <summary>
 /// 角色权限仓储接口
 /// </summary>
-public interface ISysRoleAuthRepository
+public interface ISysRoleAuthRepository : IRepository<SysRoleAuthModel>
 {
     /// <summary>
     /// 根据角色ID获取所有权限

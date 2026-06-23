@@ -248,12 +248,7 @@ public class AccountManagementViewModel : BaseViewModel
         {
             Debug.Info($"搜索账户: Keyword={SearchKeyword}");
 
-            // 搜索逻辑：从所有账户中筛选包含关键字的账户
-            var allAccounts = await _accountService.GetAllAccountsAsync();
-            var filteredAccounts = allAccounts.Where(a =>
-                (a.SysAccountName?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.SysNickname?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false)
-            );
+            var filteredAccounts = await _accountService.SearchAccountsAsync(SearchKeyword);
 
             Accounts.Clear();
             foreach (var account in filteredAccounts)

@@ -1,5 +1,6 @@
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.Repositories;
+using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Tools.Encryption;
 using Debug = WinformTemplate.Logger.Debug;
 
@@ -39,9 +40,7 @@ public class SysAccountService : ISysAccountService
         {
             Debug.Info($"尝试登录，用户名：{username}");
 
-            // 获取所有账户并查找匹配的用户
-            var accounts = await _accountRepository.GetAllAsync();
-            var account = accounts.FirstOrDefault(a => a.SysAccountName == username);
+            var account = await _accountRepository.GetByUsernameAsync(username);
 
             if (account == null)
             {
@@ -88,12 +87,39 @@ public class SysAccountService : ISysAccountService
         try
         {
             Debug.Info("获取所有账户");
-            var accounts = await _accountRepository.GetAllAsync();
-            return accounts;
+            var result = await _accountRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items;
         }
         catch (Exception ex)
         {
             Debug.Error($"获取所有账户异常：{ex.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// 搜索账户
+    /// </summary>
+    public async Task<IEnumerable<SysAccountModel>> SearchAccountsAsync(string keyword)
+    {
+        try
+        {
+            Debug.Info($"搜索账户：{keyword}");
+            var result = await _accountRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue,
+                Keyword = keyword
+            });
+            return result.Items;
+        }
+        catch (Exception ex)
+        {
+            Debug.Error($"搜索账户异常：{ex.Message}");
             throw;
         }
     }
@@ -123,8 +149,7 @@ public class SysAccountService : ISysAccountService
         try
         {
             Debug.Info($"根据用户名获取账户：{username}");
-            var accounts = await _accountRepository.GetAllAsync();
-            return accounts.FirstOrDefault(a => a.SysAccountName == username);
+            return await _accountRepository.GetByUsernameAsync(username);
         }
         catch (Exception ex)
         {
@@ -406,11 +431,9 @@ public class SysAccountService : ISysAccountService
             // 获取角色的所有菜单权限
             var menus = await _roleRepository.GetMenusByRoleIdAsync(account.SysRoleId.Value);
 
-            // 过滤掉无效的菜单（SysStatus=true表示无效）
-            var validMenus = menus.Where(m => m.SysStatus == false).ToList();
-
-            Debug.Info($"获取账户菜单成功，账户ID：{accountId}，菜单数量：{validMenus.Count}");
-            return validMenus;
+            var menuList = menus.ToList();
+            Debug.Info($"获取账户菜单成功，账户ID：{accountId}，菜单数量：{menuList.Count}");
+            return menuList;
         }
         catch (Exception ex)
         {

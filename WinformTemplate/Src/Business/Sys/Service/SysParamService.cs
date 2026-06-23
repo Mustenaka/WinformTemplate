@@ -1,5 +1,6 @@
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.Repositories;
+using WinformTemplate.Common.DataAccess;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate.Business.Sys.Service;
@@ -27,8 +28,12 @@ public class SysParamService : ISysParamService
         try
         {
             Debug.Info("获取所有系统参数");
-            var params_list = await _paramRepository.GetAllAsync();
-            return params_list;
+            var result = await _paramRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items;
         }
         catch (Exception ex)
         {

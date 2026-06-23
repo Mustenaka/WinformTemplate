@@ -1,4 +1,4 @@
-namespace WinformTemplate.Common.WebApi;
+namespace WinformTemplate.Common.DataAccess;
 
 /// <summary>
 /// WebAPI 响应模型
