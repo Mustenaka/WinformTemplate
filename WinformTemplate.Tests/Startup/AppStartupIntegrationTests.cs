@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using WinformTemplate.Bootstrap;
+using WinformTemplate.Business.Demo.Repositories;
 using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Template.Service.Interface;
 using WinformTemplate.Common.Config;
@@ -36,7 +37,7 @@ public sealed class AppStartupIntegrationTests
     }
 
     [Test]
-    public async Task EfStartupSequence_InitializesSysAndTemplateThenSupportsLoginAndProductQuery()
+    public async Task EfStartupSequence_InitializesSysTemplateAndDemoThenSupportsQueries()
     {
         var config = CreateEfConfig(Path.Combine(_tempDirectory!, "Resources", "Database", "app.db"));
         var serviceProvider = AppServiceRegistration.BuildServiceProvider(config, isDevelopment: false);
@@ -47,10 +48,12 @@ public sealed class AppStartupIntegrationTests
 
             Assert.That(File.Exists(EfDbContextOptions.ResolveSqlitePath(config.Ef.SQLitePath, "Sys")), Is.True);
             Assert.That(File.Exists(EfDbContextOptions.ResolveSqlitePath(config.Ef.SQLitePath, "Template")), Is.True);
+            Assert.That(File.Exists(EfDbContextOptions.ResolveSqlitePath(config.Ef.SQLitePath, "Demo")), Is.True);
 
             using var scope = serviceProvider.CreateScope();
             var accountService = scope.ServiceProvider.GetRequiredService<ISysAccountService>();
             var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+            var demoRepository = scope.ServiceProvider.GetRequiredService<EfDemoNoteRepository>();
 
             var admin = await accountService.LoginAsync("admin", "123456");
             Assert.That(admin, Is.Not.Null);
@@ -63,6 +66,10 @@ public sealed class AppStartupIntegrationTests
             Assert.That(totalCount, Is.GreaterThan(0));
             Assert.That(items, Is.Not.Empty);
             Assert.That(items.Count, Is.LessThanOrEqualTo(5));
+
+            var demoPage = await demoRepository.SearchByTitleAsync(pageIndex: 1, pageSize: 5);
+            Assert.That(demoPage.Total, Is.GreaterThan(0));
+            Assert.That(demoPage.Items, Is.Not.Empty);
         }
         finally
         {
@@ -80,7 +87,8 @@ public sealed class AppStartupIntegrationTests
                 Modules = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["Sys"] = "Ef",
-                    ["Template"] = "Ef"
+                    ["Template"] = "Ef",
+                    ["Demo"] = "Ef"
                 }
             },
             Ef = new EfConfig

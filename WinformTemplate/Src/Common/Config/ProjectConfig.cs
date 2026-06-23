@@ -53,7 +53,8 @@ public class DataSourceConfig
     public Dictionary<string, string> Modules { get; set; } = new(StringComparer.OrdinalIgnoreCase)
     {
         ["Sys"] = "Ef",
-        ["Template"] = "Ef"
+        ["Template"] = "Ef",
+        ["Demo"] = "Ef"
     };
 }
 

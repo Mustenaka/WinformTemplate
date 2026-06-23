@@ -158,7 +158,79 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SysUpdateAt = now
         };
 
-        _context.SysMenus.AddRange(systemMenu, userMenu, roleMenu, productMenu);
+        var demoMenu = new SysMenuModel
+        {
+            SmId = 5,
+            SmParentId = 0,
+            SmName = "Demo",
+            SmEnName = "Demo",
+            SmType = 0,
+            SmUrl = "#",
+            SmTarget = "_self",
+            SmLevel = 0,
+            SmSort = 2,
+            SmIcon = "appstore",
+            SmRemark = "Data source demo module",
+            SysStatus = false,
+            SysCreateAt = now,
+            SysUpdateAt = now
+        };
+
+        var demoEfMenu = new SysMenuModel
+        {
+            SmId = 6,
+            SmParentId = 5,
+            SmName = "Demo Notes - EF",
+            SmEnName = "DemoNotesEf",
+            SmType = 0,
+            SmUrl = "/demo/note-ef",
+            SmTarget = "_self",
+            SmLevel = 1,
+            SmSort = 1,
+            SmIcon = "database",
+            SmRemark = "DemoNote CRUD backed by EF SQLite",
+            SysStatus = false,
+            SysCreateAt = now,
+            SysUpdateAt = now
+        };
+
+        var demoApiMenu = new SysMenuModel
+        {
+            SmId = 7,
+            SmParentId = 5,
+            SmName = "Demo Notes - WebAPI",
+            SmEnName = "DemoNotesWebApi",
+            SmType = 0,
+            SmUrl = "/demo/note-api",
+            SmTarget = "_self",
+            SmLevel = 1,
+            SmSort = 2,
+            SmIcon = "api",
+            SmRemark = "DemoNote CRUD backed by WebAPI",
+            SysStatus = false,
+            SysCreateAt = now,
+            SysUpdateAt = now
+        };
+
+        var demoLocalMenu = new SysMenuModel
+        {
+            SmId = 8,
+            SmParentId = 5,
+            SmName = "Demo Notes - Local",
+            SmEnName = "DemoNotesLocal",
+            SmType = 0,
+            SmUrl = "/demo/note-local",
+            SmTarget = "_self",
+            SmLevel = 1,
+            SmSort = 3,
+            SmIcon = "file",
+            SmRemark = "DemoNote CRUD backed by local JSON",
+            SysStatus = false,
+            SysCreateAt = now,
+            SysUpdateAt = now
+        };
+
+        _context.SysMenus.AddRange(systemMenu, userMenu, roleMenu, productMenu, demoMenu, demoEfMenu, demoApiMenu, demoLocalMenu);
         await _context.SaveChangesAsync(cancellationToken);
 
         var roleAuths = new[]
@@ -167,6 +239,10 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = userMenu.SmId },
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = roleMenu.SmId },
             new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = productMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = demoMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = demoEfMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = demoApiMenu.SmId },
+            new SysRoleAuthModel { SraRoleId = adminRole.SrId, SraMenuId = demoLocalMenu.SmId },
             new SysRoleAuthModel { SraRoleId = operatorRole.SrId, SraMenuId = userMenu.SmId }
         };
 

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using WinformTemplate.Business.Demo.Context;
+using WinformTemplate.Business.Demo.Repositories;
 using WinformTemplate.Business.Sys.Context;
 using WinformTemplate.Business.Sys.Repositories;
 using WinformTemplate.Business.Sys.Service;
@@ -14,6 +16,7 @@ using WinformTemplate.Navigation;
 using WinformTemplate.Serialize;
 using WinformTemplate.UI.Business.Sys.Login;
 using WinformTemplate.UI.Business.Sys.Role;
+using WinformTemplate.UI.Business.Demo;
 using WinformTemplate.UI.Business.Template.Product;
 using Debug = WinformTemplate.Logger.Debug;
 
@@ -45,6 +48,8 @@ public static class AppServiceRegistration
         {
             TemplateDbContextService.AddTemplateDatabase(services, isDevelopment, isDevelopment);
         }
+
+        DemoDbContextService.AddDemoDatabase(services, isDevelopment, isDevelopment);
 
         RegisterRepositories(services);
         RegisterNavigation(services);
@@ -89,6 +94,10 @@ public static class AppServiceRegistration
         services.AddModuleRepository<IProductRepository, EfProductRepository, ApiProductRepository, LocalProductRepository>("Template");
         services.AddModuleRepository<ICategoryRepository, EfCategoryRepository, ApiCategoryRepository, LocalCategoryRepository>("Template");
         services.AddModuleRepository<IImportRecordRepository, EfImportRecordRepository, ApiImportRecordRepository, LocalImportRecordRepository>("Template");
+
+        services.AddScoped<EfDemoNoteRepository>();
+        services.AddScoped<ApiDemoNoteRepository>();
+        services.AddScoped<LocalDemoNoteRepository>();
     }
 
     private static void RegisterNavigation(IServiceCollection services)
@@ -122,5 +131,8 @@ public static class AppServiceRegistration
         services.AddTransient<MainForm>();
         services.AddTransient<AccountManagementControl>();
         services.AddTransient<ProductManagementControl>();
+        services.AddTransient<EfDemoNoteControl>();
+        services.AddTransient<ApiDemoNoteControl>();
+        services.AddTransient<LocalDemoNoteControl>();
     }
 }

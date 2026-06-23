@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Text;
 using WinformTemplate.Logger;
 
@@ -9,6 +10,11 @@ namespace WinformTemplate.Common.DataAccess;
 /// </summary>
 public class WebApiClient : IWebApiClient
 {
+    private static readonly JsonSerializerSettings JsonSettings = new()
+    {
+        ContractResolver = new CamelCasePropertyNamesContractResolver()
+    };
+
     private readonly HttpClient _httpClient;
     private string _baseUrl = string.Empty;
     private readonly Dictionary<string, string> _defaultHeaders = new();
@@ -98,7 +104,7 @@ public class WebApiClient : IWebApiClient
             using var request = new HttpRequestMessage(HttpMethod.Post, fullUrl);
             AddHeaders(request, headers);
 
-            var json = JsonConvert.SerializeObject(data);
+            var json = JsonConvert.SerializeObject(data, JsonSettings);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request);
@@ -134,7 +140,7 @@ public class WebApiClient : IWebApiClient
             using var request = new HttpRequestMessage(HttpMethod.Put, fullUrl);
             AddHeaders(request, headers);
 
-            var json = JsonConvert.SerializeObject(data);
+            var json = JsonConvert.SerializeObject(data, JsonSettings);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.SendAsync(request);

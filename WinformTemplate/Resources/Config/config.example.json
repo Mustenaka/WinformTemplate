@@ -3,7 +3,8 @@
     "Default": "Ef",
     "Modules": {
       "Sys": "Ef",
-      "Template": "Ef"
+      "Template": "Ef",
+      "Demo": "Ef"
     }
   },
   "Ef": {
