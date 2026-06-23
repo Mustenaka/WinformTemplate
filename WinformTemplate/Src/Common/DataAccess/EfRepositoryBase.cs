@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 namespace WinformTemplate.Common.DataAccess;
@@ -94,8 +95,21 @@ public abstract class EfRepositoryBase<T> : IRepository<T> where T : class
             return query;
         }
 
+        var property = typeof(T).GetProperty(
+            req.SortBy.Trim(),
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
+        if (property == null || !IsSortableColumn(property.Name))
+        {
+            return query;
+        }
+
         return req.Desc
-            ? query.OrderByDescending(entity => EF.Property<object>(entity, req.SortBy))
-            : query.OrderBy(entity => EF.Property<object>(entity, req.SortBy));
+            ? query.OrderByDescending(entity => EF.Property<object>(entity, property.Name))
+            : query.OrderBy(entity => EF.Property<object>(entity, property.Name));
+    }
+
+    protected virtual bool IsSortableColumn(string propertyName)
+    {
+        return true;
     }
 }

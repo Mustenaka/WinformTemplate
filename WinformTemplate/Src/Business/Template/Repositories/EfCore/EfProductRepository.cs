@@ -7,6 +7,18 @@ namespace WinformTemplate.Business.Template.Repositories;
 
 public sealed class EfProductRepository : EfRepositoryBase<ProductModel>, IProductRepository
 {
+    private static readonly HashSet<string> SortableColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        nameof(ProductModel.Id),
+        nameof(ProductModel.Name),
+        nameof(ProductModel.Code),
+        nameof(ProductModel.Price),
+        nameof(ProductModel.Stock),
+        nameof(ProductModel.Status),
+        nameof(ProductModel.CreateAt),
+        nameof(ProductModel.UpdateAt)
+    };
+
     public EfProductRepository(TemplateDbContext dbContext) : base(dbContext)
     {
     }
@@ -252,5 +264,10 @@ public sealed class EfProductRepository : EfRepositoryBase<ProductModel>, IProdu
         return filters != null && filters.TryGetValue(key, out var value) && DateTime.TryParse(value, out var parsed)
             ? parsed
             : null;
+    }
+
+    protected override bool IsSortableColumn(string propertyName)
+    {
+        return SortableColumns.Contains(propertyName);
     }
 }

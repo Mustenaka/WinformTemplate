@@ -239,18 +239,9 @@ public sealed class LocalProductRepository : LocalRepositoryBase<ProductModel>, 
 
     private void AttachCategories(IEnumerable<ProductModel> products)
     {
-        var categories = _categoryRepository.QueryAsync(new QueryRequest
-        {
-            Page = 1,
-            PageSize = int.MaxValue
-        }).GetAwaiter().GetResult().Items.ToDictionary(category => category.Id);
-
         foreach (var product in products)
         {
-            if (product.CategoryId.HasValue && categories.TryGetValue(product.CategoryId.Value, out var category))
-            {
-                product.Category = category;
-            }
+            AttachCategory(product);
         }
     }
 }

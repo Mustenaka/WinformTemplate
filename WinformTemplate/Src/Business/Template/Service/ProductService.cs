@@ -3,6 +3,7 @@ using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service.Interface;
 using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Logger;
+using System.Globalization;
 
 namespace WinformTemplate.Business.Template.Service;
 
@@ -20,24 +21,6 @@ public class ProductService : IProductService
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
-    }
-
-    public async Task<List<ProductModel>> GetAllProductsAsync()
-    {
-        try
-        {
-            var result = await _productRepository.QueryAsync(new QueryRequest
-            {
-                Page = 1,
-                PageSize = int.MaxValue
-            });
-            return result.Items.ToList();
-        }
-        catch (Exception ex)
-        {
-            Debug.Error("获取所有产品失败", ex);
-            throw;
-        }
     }
 
     public async Task<ProductModel?> GetProductByIdAsync(long id)
@@ -68,9 +51,18 @@ public class ProductService : IProductService
     {
         try
         {
-            var result = await _productRepository.SearchProductsAsync(
-                keyword, categoryId, status, minPrice, maxPrice,
-                startDate, endDate, pageIndex, pageSize, orderBy, ascending);
+            var result = await _productRepository.QueryAsync(BuildQueryRequest(
+                keyword,
+                categoryId,
+                status,
+                minPrice,
+                maxPrice,
+                startDate,
+                endDate,
+                pageIndex,
+                pageSize,
+                orderBy,
+                ascending));
             return (result.Items.ToList(), result.Total);
         }
         catch (Exception ex)
@@ -320,5 +312,47 @@ public class ProductService : IProductService
         }
 
         return (errors.Count == 0, errors);
+    }
+
+    private static QueryRequest BuildQueryRequest(
+        string? keyword,
+        long? categoryId,
+        int? status,
+        decimal? minPrice,
+        decimal? maxPrice,
+        DateTime? startDate,
+        DateTime? endDate,
+        int pageIndex,
+        int pageSize,
+        string? orderBy,
+        bool ascending)
+    {
+        var filters = new Dictionary<string, string>();
+        AddFilter(filters, "categoryId", categoryId);
+        AddFilter(filters, "status", status);
+        AddFilter(filters, "minPrice", minPrice);
+        AddFilter(filters, "maxPrice", maxPrice);
+        AddFilter(filters, "startDate", startDate?.ToString("O"));
+        AddFilter(filters, "endDate", endDate?.ToString("O"));
+
+        return new QueryRequest
+        {
+            Page = Math.Max(pageIndex, 1),
+            PageSize = Math.Max(pageSize, 1),
+            Keyword = keyword,
+            SortBy = orderBy,
+            Desc = !ascending,
+            Filters = filters.Count == 0 ? null : filters
+        };
+    }
+
+    private static void AddFilter<T>(IDictionary<string, string> filters, string key, T? value)
+    {
+        if (value != null)
+        {
+            filters[key] = value is IFormattable formattable
+                ? formattable.ToString(null, CultureInfo.InvariantCulture)
+                : value.ToString() ?? string.Empty;
+        }
     }
 }

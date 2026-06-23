@@ -1,7 +1,6 @@
 using WinformTemplate.Business.Template.Model;
 using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service.Interface;
-using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Logger;
 
 namespace WinformTemplate.Business.Template.Service;
@@ -26,12 +25,7 @@ public class CategoryService : ICategoryService
     {
         try
         {
-            var result = await _categoryRepository.QueryAsync(new QueryRequest
-            {
-                Page = 1,
-                PageSize = int.MaxValue
-            });
-            return result.Items.ToList();
+            return await _categoryRepository.GetCategoryTreeAsync();
         }
         catch (Exception ex)
         {

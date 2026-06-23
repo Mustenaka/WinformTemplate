@@ -9,11 +9,6 @@ namespace WinformTemplate.Business.Template.Service.Interface;
 public interface IProductService
 {
     /// <summary>
-    /// 获取所有产品
-    /// </summary>
-    Task<List<ProductModel>> GetAllProductsAsync();
-
-    /// <summary>
     /// 根据ID获取产品
     /// </summary>
     Task<ProductModel?> GetProductByIdAsync(long id);
