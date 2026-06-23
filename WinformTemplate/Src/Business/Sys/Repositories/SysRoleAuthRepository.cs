@@ -18,7 +18,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 根据角色ID获取所有权限
     /// </summary>
-    public async Task<IEnumerable<SysRoleAuthModel>> GetByRoleIdAsync(int roleId)
+    public async Task<IEnumerable<SysRoleAuthModel>> GetByRoleIdAsync(long roleId)
     {
         try
         {
@@ -38,7 +38,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 根据菜单ID获取所有角色权限
     /// </summary>
-    public async Task<IEnumerable<SysRoleAuthModel>> GetByMenuIdAsync(int menuId)
+    public async Task<IEnumerable<SysRoleAuthModel>> GetByMenuIdAsync(long menuId)
     {
         try
         {
@@ -58,7 +58,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 检查角色是否有指定菜单权限
     /// </summary>
-    public async Task<bool> HasPermissionAsync(int roleId, int menuId)
+    public async Task<bool> HasPermissionAsync(long roleId, long menuId)
     {
         try
         {
@@ -74,7 +74,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 为角色分配菜单权限
     /// </summary>
-    public async Task<bool> AssignPermissionAsync(int roleId, int menuId)
+    public async Task<bool> AssignPermissionAsync(long roleId, long menuId)
     {
         try
         {
@@ -108,7 +108,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 移除角色的菜单权限
     /// </summary>
-    public async Task<bool> RemovePermissionAsync(int roleId, int menuId)
+    public async Task<bool> RemovePermissionAsync(long roleId, long menuId)
     {
         try
         {
@@ -137,7 +137,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 批量为角色分配权限
     /// </summary>
-    public async Task<bool> AssignPermissionsBatchAsync(int roleId, IEnumerable<int> menuIds)
+    public async Task<bool> AssignPermissionsBatchAsync(long roleId, IEnumerable<long> menuIds)
     {
         try
         {
@@ -165,7 +165,7 @@ public class SysRoleAuthRepository : BaseRepository<SysRoleAuthModel>, ISysRoleA
     /// <summary>
     /// 清除角色的所有权限
     /// </summary>
-    public async Task<bool> ClearRolePermissionsAsync(int roleId)
+    public async Task<bool> ClearRolePermissionsAsync(long roleId)
     {
         try
         {

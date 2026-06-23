@@ -408,3 +408,6 @@ FodyWeavers.xsd
 /WinformTemplate/obj/project.nuget.cache
 /WinformTemplate/obj/WinformTemplate.csproj.nuget.dgspec.json
 /.claude
+
+# Local runtime configuration. Keep config.example.json committed.
+/WinformTemplate/Resources/Config/config.json

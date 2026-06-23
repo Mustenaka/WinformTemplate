@@ -46,7 +46,7 @@ namespace WinformTemplate
         }
 
         /// <summary>
-        /// ��������ע�����
+        /// 配置依赖注入
         /// </summary>
         private static void ConfigureServices()
         {
@@ -62,9 +62,6 @@ namespace WinformTemplate
 
             // 注册业务服务
             RegisterServices(services);
-
-            // 注册窗体
-            services.AddTransient<MainForm>();
 
             // 构建服务提供者
             _serviceProvider = services.BuildServiceProvider();
@@ -105,7 +102,7 @@ namespace WinformTemplate
             services.AddScoped<ICategoryService, CategoryService>();
 
             // 注册系统 ViewModel
-            services.AddTransient<LoginViewModel>();
+            services.AddScoped<LoginViewModel>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<AccountManagementViewModel>();
 
@@ -150,8 +147,8 @@ namespace WinformTemplate
 
             using (var scope = _serviceProvider.CreateScope())
             {
+                var loginForm = scope.ServiceProvider.GetRequiredService<LoginForm>();
                 var loginViewModel = scope.ServiceProvider.GetRequiredService<LoginViewModel>();
-                var loginForm = new LoginForm(loginViewModel);
 
                 if (loginForm.ShowDialog() == DialogResult.OK && loginViewModel.CurrentAccount != null)
                 {
@@ -159,7 +156,6 @@ namespace WinformTemplate
 
                     // 创建新的 scope 用于主窗体
                     var mainScope = _serviceProvider.CreateScope();
-                    var mainViewModel = mainScope.ServiceProvider.GetRequiredService<MainViewModel>();
                     var mainForm = mainScope.ServiceProvider.GetRequiredService<MainForm>();
 
                     // 设置当前账户

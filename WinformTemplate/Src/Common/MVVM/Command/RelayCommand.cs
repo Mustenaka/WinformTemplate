@@ -9,14 +9,14 @@ namespace WinformTemplate.Common.MVVM.Command;
 public class RelayCommand : IRelayCommand, ICommand
 {
     private readonly Action _execute;
-    private readonly Func<bool> _canExecute;
+    private readonly Func<bool>? _canExecute;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="execute">执行方法</param>
     /// <param name="canExecute">判断是否可执行的方法</param>
-    public RelayCommand(Action execute, Func<bool> canExecute = null)
+    public RelayCommand(Action execute, Func<bool>? canExecute = null)
     {
         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _canExecute = canExecute;
@@ -77,14 +77,14 @@ public class RelayCommand : IRelayCommand, ICommand
 public class RelayCommand<T>
 {
     private readonly Action<T> _execute;
-    private readonly Predicate<T> _canExecute;
+    private readonly Predicate<T>? _canExecute;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="execute">执行方法</param>
     /// <param name="canExecute">判断是否可执行的方法</param>
-    public RelayCommand(Action<T> execute, Predicate<T> canExecute = null)
+    public RelayCommand(Action<T> execute, Predicate<T>? canExecute = null)
     {
         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _canExecute = canExecute;

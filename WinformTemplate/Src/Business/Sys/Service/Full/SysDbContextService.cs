@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WinformTemplate.Business.Sys.Context;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Serialize;
+using WinformTemplate.Tools.Encryption;
 
 namespace WinformTemplate.Business.Sys.Service.Full;
 
@@ -115,7 +116,7 @@ public class SysDbContextService
                 var adminAccount = new SysAccountModel
                 {
                     SysAccountName = "admin",
-                    SysPassword = "e10adc3949ba59abbe56e057f20f883e", // 123456的MD5
+                    SysPassword = PasswordHasher.HashPassword("123456"),
                     SysNickname = "系统管理员",
                     SysLevel = 0,
                     SysRoleId = adminRole.SrId,

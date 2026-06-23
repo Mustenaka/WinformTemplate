@@ -225,18 +225,19 @@ public class TemplateDbContextService
         // 为每个分类生成产品
         foreach (var category in categories)
         {
+            var categoryName = string.IsNullOrWhiteSpace(category.Name) ? "分类" : category.Name;
             for (int i = 1; i <= 20; i++)
             {
                 var product = new ProductModel
                 {
-                    Name = $"{category.Name} - 产品 {i}",
-                    Code = $"{category.Name[0]}{category.Id:D2}{i:D3}",
+                    Name = $"{categoryName} - 产品 {i}",
+                    Code = $"{categoryName[0]}{category.Id:D2}{i:D3}",
                     CategoryId = category.Id,
                     Price = Math.Round((decimal)(random.NextDouble() * 1000 + 10), 2),
                     Stock = random.Next(0, 500),
                     Status = random.Next(0, 3), // 0-正常, 1-停用, 2-缺货
-                    Description = $"这是{category.Name}的第{i}个示例产品，用于展示产品管理功能。",
-                    Tags = $"示例,{category.Name},测试数据",
+                    Description = $"这是{categoryName}的第{i}个示例产品，用于展示产品管理功能。",
+                    Tags = $"示例,{categoryName},测试数据",
                     CreateAt = DateTime.Now.AddDays(-random.Next(0, 365)),
                     UpdateAt = DateTime.Now
                 };

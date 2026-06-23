@@ -56,12 +56,18 @@ public class SysAccountService : ISysAccountService
                 return null;
             }
 
-            // 验证密码（使用MD5加密后比较）
-            var passwordHash = MD5Helper.Encrypt(password);
-            if (account.SysPassword != passwordHash)
+            var isValidPassword = PasswordHasher.VerifyPassword(password, account.SysPassword, out var needsRehash);
+            if (!isValidPassword)
             {
                 Debug.Warn($"登录失败：密码错误 - {username}");
                 return null;
+            }
+
+            if (needsRehash && WinformTemplate.Serialize.GlobalProjectConfig.Instance.Config?.Security.UpgradeLegacyPasswordHashOnLogin == true)
+            {
+                account.SysPassword = PasswordHasher.HashPassword(password);
+                await _accountRepository.UpdateAsync(account);
+                Debug.Info($"已迁移旧密码哈希 - 用户：{username}");
             }
 
             Debug.Info($"登录成功 - 用户：{username}，角色ID：{account.SysRoleId}");
@@ -95,7 +101,7 @@ public class SysAccountService : ISysAccountService
     /// <summary>
     /// 根据ID获取账户
     /// </summary>
-    public async Task<SysAccountModel?> GetAccountByIdAsync(int id)
+    public async Task<SysAccountModel?> GetAccountByIdAsync(long id)
     {
         try
         {
@@ -144,10 +150,9 @@ public class SysAccountService : ISysAccountService
                 return false;
             }
 
-            // 密码使用MD5加密
             if (!string.IsNullOrEmpty(account.SysPassword))
             {
-                account.SysPassword = MD5Helper.Encrypt(account.SysPassword);
+                account.SysPassword = PasswordHasher.HashPassword(account.SysPassword);
             }
 
             // 设置创建时间
@@ -187,6 +192,15 @@ public class SysAccountService : ISysAccountService
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(account.SysPassword))
+            {
+                account.SysPassword = PasswordHasher.HashPassword(account.SysPassword);
+            }
+            else
+            {
+                account.SysPassword = existingAccount.SysPassword;
+            }
+
             // 更新时间
             account.SysUpdateAt = DateTime.Now;
 
@@ -204,7 +218,7 @@ public class SysAccountService : ISysAccountService
     /// <summary>
     /// 删除账户
     /// </summary>
-    public async Task<bool> DeleteAccountAsync(int id)
+    public async Task<bool> DeleteAccountAsync(long id)
     {
         try
         {
@@ -234,7 +248,7 @@ public class SysAccountService : ISysAccountService
     /// <param name="accountId">账户ID</param>
     /// <param name="oldPassword">旧密码（明文）</param>
     /// <param name="newPassword">新密码（明文）</param>
-    public async Task<bool> ChangePasswordAsync(int accountId, string oldPassword, string newPassword)
+    public async Task<bool> ChangePasswordAsync(long accountId, string oldPassword, string newPassword)
     {
         try
         {
@@ -247,16 +261,14 @@ public class SysAccountService : ISysAccountService
                 return false;
             }
 
-            // 验证旧密码
-            var oldPasswordHash = MD5Helper.Encrypt(oldPassword);
-            if (account.SysPassword != oldPasswordHash)
+            if (!PasswordHasher.VerifyPassword(oldPassword, account.SysPassword, out _))
             {
                 Debug.Warn($"修改密码失败：旧密码错误，ID：{accountId}");
                 return false;
             }
 
             // 设置新密码
-            account.SysPassword = MD5Helper.Encrypt(newPassword);
+            account.SysPassword = PasswordHasher.HashPassword(newPassword);
             account.SysUpdateAt = DateTime.Now;
 
             await _accountRepository.UpdateAsync(account);
@@ -273,7 +285,7 @@ public class SysAccountService : ISysAccountService
     /// <summary>
     /// 冻结账户
     /// </summary>
-    public async Task<bool> FreezeAccountAsync(int accountId)
+    public async Task<bool> FreezeAccountAsync(long accountId)
     {
         try
         {
@@ -300,7 +312,7 @@ public class SysAccountService : ISysAccountService
     /// <summary>
     /// 解冻账户
     /// </summary>
-    public async Task<bool> UnfreezeAccountAsync(int accountId)
+    public async Task<bool> UnfreezeAccountAsync(long accountId)
     {
         try
         {
@@ -330,7 +342,7 @@ public class SysAccountService : ISysAccountService
     /// <param name="accountId">账户ID</param>
     /// <param name="menuId">菜单ID</param>
     /// <returns>是否有权限</returns>
-    public async Task<bool> HasPermissionAsync(int accountId, int menuId)
+    public async Task<bool> HasPermissionAsync(long accountId, long menuId)
     {
         try
         {
@@ -370,7 +382,7 @@ public class SysAccountService : ISysAccountService
     /// </summary>
     /// <param name="accountId">账户ID</param>
     /// <returns>菜单列表</returns>
-    public async Task<IEnumerable<SysMenuModel>> GetAccountMenusAsync(int accountId)
+    public async Task<IEnumerable<SysMenuModel>> GetAccountMenusAsync(long accountId)
     {
         try
         {

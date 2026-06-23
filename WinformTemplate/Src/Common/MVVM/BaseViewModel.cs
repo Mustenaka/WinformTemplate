@@ -7,7 +7,7 @@
 public class BaseViewModel : ObservableObject, IDisposable
 {
     private bool _isBusy;
-    private string _statusMessage;
+    private string _statusMessage = string.Empty;
     private bool _isDisposed;
 
     /// <summary>
@@ -49,7 +49,7 @@ public class BaseViewModel : ObservableObject, IDisposable
     /// </summary>
     /// <param name="action">要执行的操作</param>
     /// <param name="errorHandler">错误处理器</param>
-    protected async Task ExecuteAsync(Func<Task> action, Action<Exception> errorHandler = null)
+    protected async Task ExecuteAsync(Func<Task> action, Action<Exception>? errorHandler = null)
     {
         if (IsBusy)
             return;
@@ -77,7 +77,7 @@ public class BaseViewModel : ObservableObject, IDisposable
     /// <param name="action">要执行的操作</param>
     /// <param name="errorHandler">错误处理器</param>
     /// <returns>操作结果</returns>
-    protected async Task<T> ExecuteAsync<T>(Func<Task<T>> action, Action<Exception> errorHandler = null)
+    protected async Task<T?> ExecuteAsync<T>(Func<Task<T>> action, Action<Exception>? errorHandler = null)
     {
         if (IsBusy)
             return default;

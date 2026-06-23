@@ -97,8 +97,8 @@ namespace WinformTemplate
             // 根据权限菜单创建标签页
             foreach (var menu in _viewModel.MenuItems)
             {
-                // 只显示顶级菜单（父菜单ID为0或null）
-                if (menu.SmParentId == 0 || menu.SmParentId == null)
+                // 只显示顶级菜单（父菜单ID为0）
+                if (menu.SmParentId == 0)
                 {
                     var tabPage = new AntdUI.TabPage
                     {

@@ -382,7 +382,7 @@ public class AccountManagementViewModel : BaseViewModel
         {
             Debug.Info($"删除账户: AccountId={SelectedAccount.SysId}");
 
-            var result = await _accountService.DeleteAccountAsync((int)SelectedAccount.SysId);
+            var result = await _accountService.DeleteAccountAsync(SelectedAccount.SysId);
 
             if (result)
             {
@@ -415,11 +415,11 @@ public class AccountManagementViewModel : BaseViewModel
             bool result;
             if (isFrozen)
             {
-                result = await _accountService.FreezeAccountAsync((int)SelectedAccount.SysId);
+                result = await _accountService.FreezeAccountAsync(SelectedAccount.SysId);
             }
             else
             {
-                result = await _accountService.UnfreezeAccountAsync((int)SelectedAccount.SysId);
+                result = await _accountService.UnfreezeAccountAsync(SelectedAccount.SysId);
             }
 
             if (result)
@@ -454,7 +454,15 @@ public class AccountManagementViewModel : BaseViewModel
             {
                 SysId = SelectedAccount.SysId,
                 SysAccountName = SelectedAccount.SysAccountName,
-                SysPassword = "123456"
+                SysPassword = "123456",
+                SysNickname = SelectedAccount.SysNickname,
+                SysLevel = SelectedAccount.SysLevel,
+                SysRoleId = SelectedAccount.SysRoleId,
+                SysExtendId = SelectedAccount.SysExtendId,
+                SysStatus = SelectedAccount.SysStatus,
+                SysReserved1 = SelectedAccount.SysReserved1,
+                SysReserved2 = SelectedAccount.SysReserved2,
+                SysReserved3 = SelectedAccount.SysReserved3
             };
 
             var result = await _accountService.UpdateAccountAsync(account);

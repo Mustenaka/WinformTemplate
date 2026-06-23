@@ -10,35 +10,35 @@ public interface ISysRoleAuthRepository
     /// <summary>
     /// 根据角色ID获取所有权限
     /// </summary>
-    Task<IEnumerable<SysRoleAuthModel>> GetByRoleIdAsync(int roleId);
+    Task<IEnumerable<SysRoleAuthModel>> GetByRoleIdAsync(long roleId);
 
     /// <summary>
     /// 根据菜单ID获取所有角色权限
     /// </summary>
-    Task<IEnumerable<SysRoleAuthModel>> GetByMenuIdAsync(int menuId);
+    Task<IEnumerable<SysRoleAuthModel>> GetByMenuIdAsync(long menuId);
 
     /// <summary>
     /// 检查角色是否有指定菜单权限
     /// </summary>
-    Task<bool> HasPermissionAsync(int roleId, int menuId);
+    Task<bool> HasPermissionAsync(long roleId, long menuId);
 
     /// <summary>
     /// 为角色分配菜单权限
     /// </summary>
-    Task<bool> AssignPermissionAsync(int roleId, int menuId);
+    Task<bool> AssignPermissionAsync(long roleId, long menuId);
 
     /// <summary>
     /// 移除角色的菜单权限
     /// </summary>
-    Task<bool> RemovePermissionAsync(int roleId, int menuId);
+    Task<bool> RemovePermissionAsync(long roleId, long menuId);
 
     /// <summary>
     /// 批量为角色分配权限
     /// </summary>
-    Task<bool> AssignPermissionsBatchAsync(int roleId, IEnumerable<int> menuIds);
+    Task<bool> AssignPermissionsBatchAsync(long roleId, IEnumerable<long> menuIds);
 
     /// <summary>
     /// 清除角色的所有权限
     /// </summary>
-    Task<bool> ClearRolePermissionsAsync(int roleId);
+    Task<bool> ClearRolePermissionsAsync(long roleId);
 }

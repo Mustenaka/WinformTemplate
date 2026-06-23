@@ -12,19 +12,20 @@ namespace WinformTemplate.FIO.Excel
     [TestFixture]
     public class ExcelInteractiveTests
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private string? _testFilePathXls;
         private string? _testFilePathXlsx;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private string? _tempDirectory;
 
         [SetUp]
         public void Setup()
         {
             Debug.InitLog4Net();
 
-            // 创建临时的Excel文件用于测试
-            _testFilePathXls = Path.Combine(Path.GetTempPath(), "test.xls");
-            _testFilePathXlsx = Path.Combine(Path.GetTempPath(), "test.xlsx");
+            _tempDirectory = Path.Combine(Path.GetTempPath(), "WinformTemplate.Tests", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(_tempDirectory);
+
+            _testFilePathXls = Path.Combine(_tempDirectory, "test.xls");
+            _testFilePathXlsx = Path.Combine(_tempDirectory, "test.xlsx");
             CreateTestExcelFile(_testFilePathXls, new HSSFWorkbook());
             CreateTestExcelFile(_testFilePathXlsx, new XSSFWorkbook());
 
@@ -35,9 +36,10 @@ namespace WinformTemplate.FIO.Excel
         [TearDown]
         public void Teardown()
         {
-            // 清理临时文件
-            if (File.Exists(_testFilePathXls)) File.Delete(_testFilePathXls);
-            if (File.Exists(_testFilePathXlsx)) File.Delete(_testFilePathXlsx);
+            if (!string.IsNullOrWhiteSpace(_tempDirectory) && Directory.Exists(_tempDirectory))
+            {
+                Directory.Delete(_tempDirectory, recursive: true);
+            }
         }
 
         private void CreateTestExcelFile(string filePath, IWorkbook workbook)
@@ -86,13 +88,11 @@ namespace WinformTemplate.FIO.Excel
         [Test]
         public void Write_ShouldCreateFile()
         {
-            var saveFilePath = Path.Combine(Path.GetTempPath(), "saveTest.xlsx");
+            var saveFilePath = Path.Combine(_tempDirectory!, "saveTest.xlsx");
             var excelInteractive = new ExcelInteractive(_testFilePathXlsx);
             excelInteractive.Write(saveFilePath);
 
             Assert.IsTrue(File.Exists(saveFilePath));
-
-            if (File.Exists(saveFilePath)) File.Delete(saveFilePath);
         }
     }
 }

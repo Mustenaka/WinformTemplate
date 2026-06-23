@@ -44,13 +44,13 @@ public class SysRoleAuthModel : BaseModel
     /// 角色导航属性
     /// </summary>
     [ForeignKey("SraRoleId")]
-    public virtual SysRoleModel Role { get; set; }
+    public virtual SysRoleModel Role { get; set; } = null!;
 
     /// <summary>
     /// 菜单导航属性
     /// </summary>
     [ForeignKey("SraMenuId")]
-    public virtual SysMenuModel Menu { get; set; }
+    public virtual SysMenuModel Menu { get; set; } = null!;
 
     #endregion
 }

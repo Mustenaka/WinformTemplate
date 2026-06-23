@@ -1,7 +1,6 @@
-﻿using System.Reflection;
+using System.Text.Json;
 using WinformTemplate.Common.Config;
 using WinformTemplate.Common.Patterns;
-using WinformTemplate.Config;
 using WinformTemplate.Logger;
 
 namespace WinformTemplate.Serialize;
@@ -11,22 +10,38 @@ namespace WinformTemplate.Serialize;
 /// </summary>
 public class GlobalProjectConfig : SingletonBase<GlobalProjectConfig>
 {
+    private const string ConfigRelativePath = "Resources\\Config\\config.json";
+    private const string ExampleConfigRelativePath = "Resources\\Config\\config.example.json";
+
     public ProjectConfig? Config;
     public string? configPath;
 
     public GlobalProjectConfig()
     {
         Config = new ProjectConfig();
-        configPath = ".\\Resources\\Config\\config.json";
+        configPath = ResolveConfigPath(ConfigRelativePath);
 
         LoadJson();
     }
 
     public void LoadJson()
     {
-        ILoadConfig json = new LoadJsonConfig();
-        var dic = json.Read(configPath!);
-        LoadConfigToModel(dic, Config!);
+        EnsureConfigFile();
+
+        try
+        {
+            var json = File.ReadAllText(configPath!);
+            Config = JsonSerializer.Deserialize<ProjectConfig>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? new ProjectConfig();
+        }
+        catch (Exception ex)
+        {
+            Debug.Warn($"加载配置失败，使用默认配置: {ex.Message}");
+            Config = new ProjectConfig();
+        }
+
         LoadConfigFromApp();
     }
 
@@ -41,54 +56,55 @@ public class GlobalProjectConfig : SingletonBase<GlobalProjectConfig>
         return true;
     }
 
-    private void LoadConfigToModel(Dictionary<string, object> config, object model)
+    private void EnsureConfigFile()
     {
-        Type modelType = model.GetType();
-        foreach (var kvp in config)
+        if (File.Exists(configPath))
         {
-            PropertyInfo? property = modelType.GetProperty(kvp.Key);
-            if (property != null && property.CanWrite)
-            {
-                try
-                {
-                    object? value = kvp.Value;
-
-                    // 检查属性类型并进行适当转换
-                    if (property.PropertyType == typeof(string))
-                    {
-                        value = Convert.ToString(value);
-                    }
-                    else if (property.PropertyType == typeof(int))
-                    {
-                        value = Convert.ToInt32(value);
-                    }
-                    else if (property.PropertyType == typeof(double))
-                    {
-                        value = Convert.ToDouble(value);
-                    }
-                    else if (property.PropertyType == typeof(bool))
-                    {
-                        value = Convert.ToBoolean(value);
-                    }
-                    // 这里可以扩展其他类型
-
-                    property.SetValue(model, value);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($@"Error setting property {kvp.Key}: {e.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($@"Property {kvp.Key} not found or not writable on {modelType.Name}");
-            }
+            return;
         }
+
+        var examplePath = ResolveExistingPath(ExampleConfigRelativePath);
+        if (examplePath == null)
+        {
+            Debug.Warn("未找到 config.example.json，使用默认配置启动");
+            return;
+        }
+
+        var directory = Path.GetDirectoryName(configPath!);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.Copy(examplePath, configPath!, overwrite: false);
+        Debug.Info($"已从示例配置创建本地配置: {configPath}");
+    }
+
+    private static string ResolveConfigPath(string relativePath)
+    {
+        var basePath = Path.Combine(AppContext.BaseDirectory, relativePath);
+        if (File.Exists(basePath) || File.Exists(Path.Combine(AppContext.BaseDirectory, ExampleConfigRelativePath)))
+        {
+            return basePath;
+        }
+
+        return Path.Combine(Directory.GetCurrentDirectory(), relativePath);
+    }
+
+    private static string? ResolveExistingPath(string relativePath)
+    {
+        var candidates = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, relativePath),
+            Path.Combine(Directory.GetCurrentDirectory(), relativePath)
+        };
+
+        return candidates.FirstOrDefault(File.Exists);
     }
 
     private void LoadConfigFromApp()
     {
         Config!.AppVersion = Application.ProductVersion;
-        Config!.AppName = Application.ProductName;
+        Config.AppName = Application.ProductName;
     }
 }

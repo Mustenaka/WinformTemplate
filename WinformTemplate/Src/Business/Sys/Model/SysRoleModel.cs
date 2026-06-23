@@ -12,15 +12,15 @@ namespace WinformTemplate.Business.Sys.Model;
 public class SysRoleModel : BaseModel
 {
     private long _srId;
-    private string _srName;
-    private string _srEnName;
-    private string _srRemark;
+    private string _srName = string.Empty;
+    private string _srEnName = string.Empty;
+    private string _srRemark = string.Empty;
     private bool? _srStatus;
     private DateTime? _srCreateAt;
     private DateTime? _srUpdateAt;
-    private string _srReserved1;
-    private string _srReserved2;
-    private string _sysReserved3;
+    private string _srReserved1 = string.Empty;
+    private string _srReserved2 = string.Empty;
+    private string _sysReserved3 = string.Empty;
 
     /// <summary>
     /// 主键

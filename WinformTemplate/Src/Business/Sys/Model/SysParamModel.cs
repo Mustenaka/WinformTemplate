@@ -12,16 +12,16 @@ namespace WinformTemplate.Business.Sys.Model;
 public class SysParamModel : BaseModel
 {
     private long _spId;
-    private string _spParamKey;
-    private string _spParamValue;
+    private string _spParamKey = string.Empty;
+    private string _spParamValue = string.Empty;
     private bool? _spType;
     private int? _spSort;
     private bool? _spStatus;
     private DateTime? _srCreateAt;
     private DateTime? _srUpdateAt;
-    private string _srReserved1;
-    private string _srReserved2;
-    private string _sysReserved3;
+    private string _srReserved1 = string.Empty;
+    private string _srReserved2 = string.Empty;
+    private string _sysReserved3 = string.Empty;
 
     /// <summary>
     /// 系统参数id

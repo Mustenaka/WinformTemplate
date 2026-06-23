@@ -68,7 +68,7 @@ public class SysAccountModel : BaseModel
     /// </summary>
     [Column("sys_password")]
     [Comment("密码")]
-    [StringLength(64)]
+    [StringLength(256)]
     public string? SysPassword
     {
         get => _sysPassword;
