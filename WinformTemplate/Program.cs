@@ -4,6 +4,10 @@ using WinformTemplate.Business.Sys.Repositories;
 using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Sys.Service.Full;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Business.Template.Repositories;
+using WinformTemplate.Business.Template.Repositories.Interface;
+using WinformTemplate.Business.Template.Service;
+using WinformTemplate.Business.Template.Service.Interface;
 using WinformTemplate.Serialize;
 using WinformTemplate.UI.Business.Sys.Login;
 using Debug = WinformTemplate.Logger.Debug;
@@ -48,20 +52,21 @@ namespace WinformTemplate
         {
             var services = new ServiceCollection();
 
-            // ע�����ݿ���� (��������������ϸ����)
-            bool isDevelopment = true; // ��ʵ��Ӧ���п��Դ������ļ���ȡ
+            // 注册数据库上下文
+            bool isDevelopment = true;
             SysDbContextService.AddSysDatabase(services, isDevelopment, isDevelopment);
+            TemplateDbContextService.AddTemplateDatabase(services, isDevelopment, isDevelopment);
 
-            // ע��ִ�
+            // 注册仓储
             RegisterRepositories(services);
 
-            // ע��ҵ�����
+            // 注册业务服务
             RegisterServices(services);
 
-            // ע�ᴰ��
+            // 注册窗体
             services.AddTransient<MainForm>();
 
-            // ���������ṩ��
+            // 构建服务提供者
             _serviceProvider = services.BuildServiceProvider();
         }
 
@@ -70,12 +75,17 @@ namespace WinformTemplate
         /// </summary>
         private static void RegisterRepositories(IServiceCollection services)
         {
-            // 注册各个仓储实现
+            // 注册系统仓储
             services.AddScoped<ISysAccountRepository, SysAccountRepository>();
             services.AddScoped<ISysMenuRepository, SysMenuRepository>();
             services.AddScoped<ISysRoleRepository, SysRoleRepository>();
             services.AddScoped<ISysParamRepository, SysParamRepository>();
             services.AddScoped<ISysRoleAuthRepository, SysRoleAuthRepository>();
+
+            // 注册模板仓储
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IImportRecordRepository, ImportRecordRepository>();
         }
 
         /// <summary>
@@ -83,19 +93,23 @@ namespace WinformTemplate
         /// </summary>
         private static void RegisterServices(IServiceCollection services)
         {
-            // 注册业务服务
+            // 注册系统业务服务
             services.AddScoped<ISysAccountService, SysAccountService>();
             services.AddScoped<ISysRoleService, SysRoleService>();
             services.AddScoped<ISysMenuService, SysMenuService>();
             services.AddScoped<ISysParamService, SysParamService>();
             services.AddScoped<IPermissionService, PermissionService>();
 
-            // 注册 ViewModel
+            // 注册模板业务服务
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
+            // 注册系统 ViewModel
             services.AddTransient<LoginViewModel>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<AccountManagementViewModel>();
 
-            // 注册窗体
+            // 注册系统窗体
             services.AddTransient<LoginForm>();
             services.AddTransient<MainForm>();
             services.AddTransient<AccountManagementControl>();
@@ -108,15 +122,19 @@ namespace WinformTemplate
         {
             if (_serviceProvider == null) return;
 
-            var dbService = _serviceProvider.GetRequiredService<SysDbContextService>();
+            // 初始化系统数据库
+            var sysDbService = _serviceProvider.GetRequiredService<SysDbContextService>();
+            await sysDbService.EnsureDatabaseCreatedAsync();
+            await sysDbService.InitializeDatabaseAsync();
+            Debug.Info("系统数据库初始化完成");
 
-            // 确保数据库创建
-            await dbService.EnsureDatabaseCreatedAsync();
+            // 初始化模板数据库
+            var templateDbService = _serviceProvider.GetRequiredService<TemplateDbContextService>();
+            await templateDbService.EnsureDatabaseCreatedAsync();
+            await templateDbService.InitializeDatabaseAsync();
+            Debug.Info("模板数据库初始化完成");
 
-            // 初始化种子数据
-            await dbService.InitializeDatabaseAsync();
-
-            Debug.Info("数据库初始化完成");
+            Debug.Info("所有数据库初始化完成");
         }
 
         /// <summary>
