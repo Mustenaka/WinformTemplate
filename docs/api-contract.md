@@ -85,8 +85,44 @@ Example boolean response:
 | Template | `products` | `ProductModel` | `ApiProductRepository` |
 | Template | `categories` | `CategoryModel` | `ApiCategoryRepository` |
 | Template | `import-records` | `ImportRecordModel` | `ApiImportRecordRepository` |
+| Demo | `notes` | `DemoNote` | `ApiDemoNoteRepository` |
 
 `role-auths` standard CRUD uses composite IDs formatted as `{roleId}:{menuId}` for `GetById`, `Update`, and `Delete`.
+
+## Demo Resources
+
+### DemoNote
+
+`DemoNote` is the shared entity for Phase II demo CRUD pages. .NET property names are PascalCase; JSON fields use camelCase.
+
+| Field | JSON field | Type | Notes |
+| --- | --- | --- | --- |
+| `Id` | `id` | number | Server-generated integer key. |
+| `Title` | `title` | string | Required, max 120 characters. |
+| `Content` | `content` | string | Optional note body, max 4000 characters. |
+| `Pinned` | `pinned` | boolean | `true` puts the note ahead of unpinned notes in default sorting. |
+| `CreateAt` | `createAt` | ISO 8601 date/time | Set by the server on create. |
+| `UpdateAt` | `updateAt` | ISO 8601 date/time | Set by the server on create and update. |
+
+DemoNote supports the standard CRUD shape with these concrete endpoints:
+
+| Operation | Method and URL | Request Body | Response `data` |
+| --- | --- | --- | --- |
+| Query | `GET /api/Demo/notes?page=1&pageSize=20&keyword=&sortBy=&desc=false` | none | `PagedResult<DemoNote>` |
+| GetById | `GET /api/Demo/notes/{id}` | none | `DemoNote` or `null` |
+| Add | `POST /api/Demo/notes` | `{ "title": "...", "content": "...", "pinned": false }` | created `DemoNote` |
+| Update | `PUT /api/Demo/notes/{id}` | `{ "id": 1, "title": "...", "content": "...", "pinned": true }` | `true` or `false` |
+| Delete | `DELETE /api/Demo/notes/{id}` | none | `true` or `false` |
+
+Query behavior:
+
+- `page` is 1-based; values less than 1 are treated as 1.
+- `pageSize` defaults to 20 and is capped by the backend.
+- `keyword` matches `title` and `content`.
+- `sortBy` accepts `Id`, `Title`, `Pinned`, `CreateAt`, and `UpdateAt` case-insensitively. Empty values use the default DemoNote ordering; unknown values use `CreateAt`.
+- `desc=true` sorts descending; `desc=false` sorts ascending. The default DemoNote ordering is pinned first, then `CreateAt` descending.
+
+Every DemoNote response uses the same `ApiResponse<T>` envelope as the rest of this document. Business failures such as validation errors, missing IDs, or update/delete misses return `success: false` and `isTransportError: false`; they are not connection failures. `isTransportError: true` is reserved for client-created transport failures such as connection refused, DNS failure, and timeout.
 
 ## Sys Named Endpoints
 
