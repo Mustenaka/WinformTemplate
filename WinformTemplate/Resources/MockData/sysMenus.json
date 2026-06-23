@@ -24,7 +24,7 @@
     "SmName": "Account Management",
     "SmEnName": "AccountManagement",
     "SmType": 0,
-    "SmUrl": "/sys/account",
+    "SmUrl": "/sys/user",
     "SmTarget": "_self",
     "SmLevel": 1,
     "SmSort": 1,

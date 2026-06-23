@@ -110,8 +110,7 @@ namespace WinformTemplate
         private static void RegisterNavigation(IServiceCollection services)
         {
             var pageRegistry = new PageRegistry();
-            pageRegistry.Register("/sys/user", sp => sp.GetRequiredService<AccountManagementControl>());
-            pageRegistry.Register("/sys/role", sp => sp.GetRequiredService<RolePlaceholderControl>());
+            pageRegistry.RegisterDefaultPages();
 
             services.AddSingleton<IPageRegistry>(pageRegistry);
             services.AddScoped<ICurrentAccountAccessor, CurrentAccountAccessor>();

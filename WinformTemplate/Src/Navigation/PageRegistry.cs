@@ -25,4 +25,9 @@ public sealed class PageRegistry : IPageRegistry
         page = null!;
         return false;
     }
+
+    public bool Contains(string menuKey)
+    {
+        return _factories.ContainsKey(menuKey);
+    }
 }

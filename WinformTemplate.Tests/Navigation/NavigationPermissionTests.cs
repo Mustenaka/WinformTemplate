@@ -78,6 +78,34 @@ public sealed class NavigationPermissionTests
         await AssertNavigationContractAsync(permissionService, admin!, operatorAccount!);
     }
 
+    [Test]
+    public async Task SysMenuSeedUrls_AreConsistentAcrossEfLocalAndRegisteredPages()
+    {
+        var mockMenusPath = FindWorkspaceFile("WinformTemplate", "Resources", "MockData", "sysMenus.json");
+        var mockMenus = JsonSerializer.Deserialize<List<SysMenuModel>>(
+            File.ReadAllText(mockMenusPath),
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<SysMenuModel>();
+
+        var dbPath = Path.Combine(_tempDirectory!, "seed-guard.db");
+        var options = new DbContextOptionsBuilder<SysDbContext>()
+            .UseSqlite($"Data Source={dbPath}")
+            .Options;
+
+        await using var context = new SysDbContext(options);
+        await new SysDatabaseInitializer(context).InitializeAsync();
+        var efMenus = await context.SysMenus.AsNoTracking().ToListAsync();
+
+        Assert.That(NormalizedUrls(mockMenus), Is.EqualTo(NormalizedUrls(efMenus)));
+
+        var registry = new PageRegistry();
+        registry.RegisterDefaultPages();
+
+        foreach (var menuKey in NormalizedUrls(mockMenus).Where(key => key != "#"))
+        {
+            Assert.That(registry.Contains(menuKey), Is.True, $"Menu key '{menuKey}' must be registered in the default page registry.");
+        }
+    }
+
     private static async Task AssertNavigationContractAsync(
         IPermissionService permissionService,
         SysAccountModel admin,
@@ -125,6 +153,33 @@ public sealed class NavigationPermissionTests
             .Select(menu => menu.SmUrl)
             .OrderBy(key => key)
             .ToArray();
+    }
+
+    private static string[] NormalizedUrls(IEnumerable<SysMenuModel> menus)
+    {
+        return menus
+            .Select(menu => menu.SmUrl)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(url => url, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    private static string FindWorkspaceFile(params string[] relativePathParts)
+    {
+        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        while (directory != null)
+        {
+            var candidate = Path.Combine(new[] { directory.FullName }.Concat(relativePathParts).ToArray());
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new FileNotFoundException($"Could not locate workspace file: {Path.Combine(relativePathParts)}");
     }
 
     private static void WriteLocalSeeds(string seedRoot)
