@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using WinformTemplate.Business.Template.Model;
-using WinformTemplate.Business.Template.Repositories.Interface;
+using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service.Interface;
+using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Logger;
 
 namespace WinformTemplate.Business.Template.Service;
@@ -26,7 +26,12 @@ public class CategoryService : ICategoryService
     {
         try
         {
-            return await _categoryRepository.GetAll().ToListAsync();
+            var result = await _categoryRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items.ToList();
         }
         catch (Exception ex)
         {
@@ -97,7 +102,6 @@ public class CategoryService : ICategoryService
             category.SortOrder ??= 0;
 
             await _categoryRepository.AddAsync(category);
-            await _categoryRepository.SaveChangesAsync();
 
             Debug.Info($"添加分类成功: {category.Name}");
             return (true, "添加成功");
@@ -133,8 +137,10 @@ public class CategoryService : ICategoryService
                 return (false, $"分类名称 '{category.Name}' 已存在");
             }
 
-            _categoryRepository.Update(category);
-            await _categoryRepository.SaveChangesAsync();
+            if (!await _categoryRepository.UpdateAsync(category))
+            {
+                return (false, "分类不存在");
+            }
 
             Debug.Info($"更新分类成功: {category.Name}");
             return (true, "更新成功");
@@ -163,8 +169,10 @@ public class CategoryService : ICategoryService
                 return (false, $"该分类下还有 {productCount} 个产品，无法删除");
             }
 
-            _categoryRepository.Delete(category);
-            await _categoryRepository.SaveChangesAsync();
+            if (!await _categoryRepository.DeleteAsync(id))
+            {
+                return (false, "分类不存在");
+            }
 
             Debug.Info($"删除分类成功: {category.Name}");
             return (true, "删除成功");

@@ -27,6 +27,11 @@ public class ApiResponse<T>
     public int? ErrorCode { get; set; }
 
     /// <summary>
+    /// 是否为传输层错误（连接拒绝、超时、DNS/网络错误等）。
+    /// </summary>
+    public bool IsTransportError { get; set; }
+
+    /// <summary>
     /// 时间戳
     /// </summary>
     public DateTime Timestamp { get; set; } = DateTime.Now;
@@ -54,6 +59,17 @@ public class ApiResponse<T>
             Success = false,
             Message = message,
             ErrorCode = errorCode
+        };
+    }
+
+    public static ApiResponse<T> CreateTransportError(string message, int errorCode = 0)
+    {
+        return new ApiResponse<T>
+        {
+            Success = false,
+            Message = message,
+            ErrorCode = errorCode,
+            IsTransportError = true
         };
     }
 }

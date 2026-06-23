@@ -4,8 +4,8 @@ using WinformTemplate.Business.Sys.Context;
 using WinformTemplate.Business.Sys.Repositories;
 using WinformTemplate.Business.Sys.Service;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Business.Template.Context;
 using WinformTemplate.Business.Template.Repositories;
-using WinformTemplate.Business.Template.Repositories.Interface;
 using WinformTemplate.Business.Template.Service;
 using WinformTemplate.Business.Template.Service.Interface;
 using WinformTemplate.Common.DataAccess;
@@ -99,9 +99,9 @@ namespace WinformTemplate
             services.AddModuleRepository<ISysRoleAuthRepository, EfSysRoleAuthRepository>("Sys");
 
             // 注册模板仓储
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IImportRecordRepository, ImportRecordRepository>();
+            services.AddModuleRepository<IProductRepository, EfProductRepository>("Template");
+            services.AddModuleRepository<ICategoryRepository, EfCategoryRepository>("Template");
+            services.AddModuleRepository<IImportRecordRepository, EfImportRecordRepository>("Template");
         }
 
         /// <summary>

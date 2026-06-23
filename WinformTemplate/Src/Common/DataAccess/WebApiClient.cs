@@ -68,6 +68,16 @@ public class WebApiClient : IWebApiClient
             var response = await _httpClient.SendAsync(request);
             return await ProcessResponse<T>(response);
         }
+        catch (HttpRequestException ex)
+        {
+            Debug.Error($"WebAPI GET 数据源不可达: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: {ex.Message}");
+        }
+        catch (TaskCanceledException ex)
+        {
+            Debug.Error($"WebAPI GET 请求超时: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: 请求超时");
+        }
         catch (Exception ex)
         {
             Debug.Error($"WebAPI GET 请求失败: {url}", ex);
@@ -93,6 +103,16 @@ public class WebApiClient : IWebApiClient
 
             var response = await _httpClient.SendAsync(request);
             return await ProcessResponse<T>(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            Debug.Error($"WebAPI POST 数据源不可达: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: {ex.Message}");
+        }
+        catch (TaskCanceledException ex)
+        {
+            Debug.Error($"WebAPI POST 请求超时: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: 请求超时");
         }
         catch (Exception ex)
         {
@@ -120,6 +140,16 @@ public class WebApiClient : IWebApiClient
             var response = await _httpClient.SendAsync(request);
             return await ProcessResponse<T>(response);
         }
+        catch (HttpRequestException ex)
+        {
+            Debug.Error($"WebAPI PUT 数据源不可达: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: {ex.Message}");
+        }
+        catch (TaskCanceledException ex)
+        {
+            Debug.Error($"WebAPI PUT 请求超时: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: 请求超时");
+        }
         catch (Exception ex)
         {
             Debug.Error($"WebAPI PUT 请求失败: {url}", ex);
@@ -142,6 +172,16 @@ public class WebApiClient : IWebApiClient
 
             var response = await _httpClient.SendAsync(request);
             return await ProcessResponse<T>(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            Debug.Error($"WebAPI DELETE 数据源不可达: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: {ex.Message}");
+        }
+        catch (TaskCanceledException ex)
+        {
+            Debug.Error($"WebAPI DELETE 请求超时: {url}", ex);
+            return ApiResponse<T>.CreateTransportError($"未连接后端: 请求超时");
         }
         catch (Exception ex)
         {

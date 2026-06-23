@@ -1,7 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using WinformTemplate.Business.Template.Model;
-using WinformTemplate.Business.Template.Repositories.Interface;
+using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service.Interface;
+using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Logger;
 
 namespace WinformTemplate.Business.Template.Service;
@@ -26,7 +26,12 @@ public class ProductService : IProductService
     {
         try
         {
-            return await _productRepository.GetAll().ToListAsync();
+            var result = await _productRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items.ToList();
         }
         catch (Exception ex)
         {
@@ -63,9 +68,10 @@ public class ProductService : IProductService
     {
         try
         {
-            return await _productRepository.SearchProductsAsync(
+            var result = await _productRepository.SearchProductsAsync(
                 keyword, categoryId, status, minPrice, maxPrice,
                 startDate, endDate, pageIndex, pageSize, orderBy, ascending);
+            return (result.Items.ToList(), result.Total);
         }
         catch (Exception ex)
         {
@@ -107,7 +113,6 @@ public class ProductService : IProductService
             }
 
             await _productRepository.AddAsync(product);
-            await _productRepository.SaveChangesAsync();
 
             Debug.Info($"添加产品成功: {product.Name} ({product.Code})");
             return (true, "添加成功");
@@ -137,8 +142,10 @@ public class ProductService : IProductService
                 return (false, "产品不存在");
             }
 
-            _productRepository.Update(product);
-            await _productRepository.SaveChangesAsync();
+            if (!await _productRepository.UpdateAsync(product))
+            {
+                return (false, "产品不存在");
+            }
 
             Debug.Info($"更新产品成功: {product.Name} ({product.Code})");
             return (true, "更新成功");
@@ -160,8 +167,10 @@ public class ProductService : IProductService
                 return (false, "产品不存在");
             }
 
-            _productRepository.Delete(product);
-            await _productRepository.SaveChangesAsync();
+            if (!await _productRepository.DeleteAsync(id))
+            {
+                return (false, "产品不存在");
+            }
 
             Debug.Info($"删除产品成功: {product.Name} ({product.Code})");
             return (true, "删除成功");
@@ -184,7 +193,6 @@ public class ProductService : IProductService
             }
 
             var deletedCount = await _productRepository.DeleteByIdsAsync(idList);
-            await _productRepository.SaveChangesAsync();
 
             Debug.Info($"批量删除产品成功，删除数量: {deletedCount}");
             return (true, $"成功删除 {deletedCount} 个产品", deletedCount);
@@ -207,7 +215,6 @@ public class ProductService : IProductService
             }
 
             var updatedCount = await _productRepository.BatchUpdateStatusAsync(idList, status);
-            await _productRepository.SaveChangesAsync();
 
             Debug.Info($"批量更新产品状态成功，更新数量: {updatedCount}，状态: {status}");
             return (true, $"成功更新 {updatedCount} 个产品的状态", updatedCount);
@@ -237,7 +244,6 @@ public class ProductService : IProductService
             }
 
             var updatedCount = await _productRepository.BatchUpdateCategoryAsync(idList, categoryId);
-            await _productRepository.SaveChangesAsync();
 
             Debug.Info($"批量更新产品分类成功，更新数量: {updatedCount}，分类: {category.Name}");
             return (true, $"成功更新 {updatedCount} 个产品的分类", updatedCount);
@@ -300,8 +306,8 @@ public class ProductService : IProductService
         // 验证分类（如果指定了分类）
         if (product.CategoryId.HasValue)
         {
-            var categoryExists = await _categoryRepository.ExistsAsync(c => c.Id == product.CategoryId.Value);
-            if (!categoryExists)
+            var category = await _categoryRepository.GetByIdAsync(product.CategoryId.Value);
+            if (category == null)
             {
                 errors.Add("指定的分类不存在");
             }
