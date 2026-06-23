@@ -1,0 +1,14 @@
+[
+  {
+    "SrId": 1,
+    "SrName": "Administrator",
+    "SrEnName": "Admin",
+    "SrRemark": "Local administrator role",
+    "SrStatus": false,
+    "SrCreateAt": "2026-06-23T00:00:00",
+    "SrUpdateAt": "2026-06-23T00:00:00",
+    "SrReserved1": "",
+    "SrReserved2": "",
+    "SysReserved3": ""
+  }
+]

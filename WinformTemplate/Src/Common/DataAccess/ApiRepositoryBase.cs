@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using WinformTemplate.Logger;
 
 namespace WinformTemplate.Common.DataAccess;
@@ -21,7 +20,7 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
 
     public virtual async Task<T?> GetByIdAsync(object id)
     {
-        var endpoint = $"{CollectionEndpoint}/{Uri.EscapeDataString(Convert.ToString(id, CultureInfo.InvariantCulture) ?? string.Empty)}";
+        var endpoint = $"{CollectionEndpoint}/{Escape(id)}";
         var response = await _client.GetAsync<T>(endpoint);
         return HandleOptionalResponse(response, endpoint);
     }
@@ -40,7 +39,7 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
         var created = HandleOptionalResponse(response, endpoint);
         if (created == null)
         {
-            throw new InvalidOperationException(response.Message ?? "新增失败");
+            throw new InvalidOperationException(response.Message ?? "Add operation failed.");
         }
 
         return created;
@@ -48,14 +47,14 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
 
     public virtual async Task<bool> UpdateAsync(T entity)
     {
-        var endpoint = $"{CollectionEndpoint}/{Uri.EscapeDataString(Convert.ToString(GetEntityId(entity), CultureInfo.InvariantCulture) ?? string.Empty)}";
+        var endpoint = $"{CollectionEndpoint}/{Escape(GetEntityId(entity))}";
         var response = await _client.PutAsync<bool>(endpoint, entity);
         return HandleBooleanResponse(response, endpoint);
     }
 
     public virtual async Task<bool> DeleteAsync(object id)
     {
-        var endpoint = $"{CollectionEndpoint}/{Uri.EscapeDataString(Convert.ToString(id, CultureInfo.InvariantCulture) ?? string.Empty)}";
+        var endpoint = $"{CollectionEndpoint}/{Escape(id)}";
         var response = await _client.DeleteAsync<bool>(endpoint);
         return HandleBooleanResponse(response, endpoint);
     }
@@ -68,9 +67,40 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
         return HandleOptionalResponse(response, endpoint);
     }
 
+    protected async Task<bool> GetBooleanAsync(string endpoint)
+    {
+        var response = await _client.GetAsync<bool>(endpoint);
+        return HandleBooleanResponse(response, endpoint);
+    }
+
+    protected async Task<IReadOnlyList<TResponse>> GetListAsync<TResponse>(string endpoint)
+    {
+        var response = await _client.GetAsync<List<TResponse>>(endpoint);
+        var items = HandleOptionalResponse(response, endpoint);
+        return items is not null ? items : Array.Empty<TResponse>();
+    }
+
+    protected async Task<TResponse?> PostOptionalAsync<TResponse>(string endpoint, object body)
+    {
+        var response = await _client.PostAsync<TResponse>(endpoint, body);
+        return HandleOptionalResponse(response, endpoint);
+    }
+
     protected async Task<bool> PostBooleanAsync(string endpoint, object body)
     {
         var response = await _client.PostAsync<bool>(endpoint, body);
+        return HandleBooleanResponse(response, endpoint);
+    }
+
+    protected async Task<bool> PutBooleanAsync(string endpoint, object body)
+    {
+        var response = await _client.PutAsync<bool>(endpoint, body);
+        return HandleBooleanResponse(response, endpoint);
+    }
+
+    protected async Task<bool> DeleteBooleanAsync(string endpoint)
+    {
+        var response = await _client.DeleteAsync<bool>(endpoint);
         return HandleBooleanResponse(response, endpoint);
     }
 
@@ -82,7 +112,7 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
             return response.Data;
         }
 
-        Debug.Warn($"{_moduleKey} WebAPI 业务失败: {endpoint}, {response.Message}");
+        Debug.Warn($"{_moduleKey} WebAPI business failed: {endpoint}, {response.Message}");
         return default;
     }
 
@@ -94,7 +124,7 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
             return response.Data;
         }
 
-        Debug.Warn($"{_moduleKey} WebAPI 业务失败: {endpoint}, {response.Message}");
+        Debug.Warn($"{_moduleKey} WebAPI business failed: {endpoint}, {response.Message}");
         return false;
     }
 
@@ -109,7 +139,7 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
         throw new DataSourceUnavailableException(_moduleKey, endpoint, inner);
     }
 
-    private static string BuildQueryString(QueryRequest req)
+    protected static string BuildQueryString(QueryRequest req)
     {
         var parts = new List<string>
         {
@@ -130,6 +160,22 @@ public abstract class ApiRepositoryBase<T> : IRepository<T> where T : class
         }
 
         return parts.Count == 0 ? string.Empty : "?" + string.Join("&", parts);
+    }
+
+    protected static string BuildQueryString(IEnumerable<KeyValuePair<string, string?>> parameters)
+    {
+        var parts = new List<string>();
+        foreach (var (key, value) in parameters)
+        {
+            Add(parts, key, value);
+        }
+
+        return parts.Count == 0 ? string.Empty : "?" + string.Join("&", parts);
+    }
+
+    protected static string Escape(object? value)
+    {
+        return Uri.EscapeDataString(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty);
     }
 
     private static void Add(List<string> parts, string key, string? value)

@@ -1,4 +1,6 @@
-﻿namespace WinformTemplate.Common.MVVM;
+using WinformTemplate.Common.DataAccess;
+
+namespace WinformTemplate.Common.MVVM;
 
 /// <summary>
 /// ViewModel
@@ -62,7 +64,7 @@ public class BaseViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             errorHandler?.Invoke(ex);
-            StatusMessage = $"错误: {ex.Message}";
+            StatusMessage = FormatExceptionMessage(ex);
         }
         finally
         {
@@ -90,7 +92,7 @@ public class BaseViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             errorHandler?.Invoke(ex);
-            StatusMessage = $"错误: {ex.Message}";
+            StatusMessage = FormatExceptionMessage(ex);
             return default;
         }
         finally
@@ -123,5 +125,12 @@ public class BaseViewModel : ObservableObject, IDisposable
         }
 
         _isDisposed = true;
+    }
+
+    private static string FormatExceptionMessage(Exception ex)
+    {
+        return ex is DataSourceUnavailableException unavailable
+            ? $"错误: 未连接后端, 模块 {unavailable.ModuleKey} 的数据源不可达"
+            : $"错误: {ex.Message}";
     }
 }

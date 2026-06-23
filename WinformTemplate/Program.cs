@@ -92,16 +92,16 @@ namespace WinformTemplate
             });
 
             // 注册系统仓储
-            services.AddModuleRepository<ISysAccountRepository, EfSysAccountRepository>("Sys");
-            services.AddModuleRepository<ISysMenuRepository, EfSysMenuRepository>("Sys");
-            services.AddModuleRepository<ISysRoleRepository, EfSysRoleRepository>("Sys");
-            services.AddModuleRepository<ISysParamRepository, EfSysParamRepository>("Sys");
-            services.AddModuleRepository<ISysRoleAuthRepository, EfSysRoleAuthRepository>("Sys");
+            services.AddModuleRepository<ISysAccountRepository, EfSysAccountRepository, ApiSysAccountRepository, LocalSysAccountRepository>("Sys");
+            services.AddModuleRepository<ISysMenuRepository, EfSysMenuRepository, ApiSysMenuRepository, LocalSysMenuRepository>("Sys");
+            services.AddModuleRepository<ISysRoleRepository, EfSysRoleRepository, ApiSysRoleRepository, LocalSysRoleRepository>("Sys");
+            services.AddModuleRepository<ISysParamRepository, EfSysParamRepository, ApiSysParamRepository, LocalSysParamRepository>("Sys");
+            services.AddModuleRepository<ISysRoleAuthRepository, EfSysRoleAuthRepository, ApiSysRoleAuthRepository, LocalSysRoleAuthRepository>("Sys");
 
             // 注册模板仓储
-            services.AddModuleRepository<IProductRepository, EfProductRepository>("Template");
-            services.AddModuleRepository<ICategoryRepository, EfCategoryRepository>("Template");
-            services.AddModuleRepository<IImportRecordRepository, EfImportRecordRepository>("Template");
+            services.AddModuleRepository<IProductRepository, EfProductRepository, ApiProductRepository, LocalProductRepository>("Template");
+            services.AddModuleRepository<ICategoryRepository, EfCategoryRepository, ApiCategoryRepository, LocalCategoryRepository>("Template");
+            services.AddModuleRepository<IImportRecordRepository, EfImportRecordRepository, ApiImportRecordRepository, LocalImportRecordRepository>("Template");
         }
 
         /// <summary>
