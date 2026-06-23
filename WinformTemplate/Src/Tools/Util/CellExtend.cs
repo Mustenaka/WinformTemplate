@@ -337,8 +337,6 @@ public static class CellExtend
             case CellType.Blank:
                 destCell.SetCellValue(string.Empty);
                 break;
-            case CellType.Unknown:
-                break;
             case CellType.Error:
                 break;
             default:
