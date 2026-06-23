@@ -15,6 +15,8 @@ public interface IPermissionService
     /// <returns>是否有权限</returns>
     Task<bool> HasPermissionAsync(long accountId, long menuId);
 
+    Task<bool> HasPermissionAsync(long accountId, string menuKey);
+
     /// <summary>
     /// 获取用户所有可访问的菜单
     /// </summary>

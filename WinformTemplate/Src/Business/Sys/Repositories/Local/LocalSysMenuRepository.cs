@@ -33,6 +33,13 @@ public sealed class LocalSysMenuRepository : LocalRepositoryBase<SysMenuModel>, 
             .ToList());
     }
 
+    public Task<SysMenuModel?> GetByUrlAsync(string url)
+    {
+        return Task.FromResult(Snapshot().FirstOrDefault(menu =>
+            string.Equals(menu.SmUrl, url, StringComparison.OrdinalIgnoreCase) &&
+            menu.SysStatus == false));
+    }
+
     public Task FreezeMenuAsync(long id)
     {
         SetMenuStatus(id, true);

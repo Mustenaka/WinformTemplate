@@ -64,6 +64,23 @@ public class PermissionService : IPermissionService
         }
     }
 
+    public async Task<bool> HasPermissionAsync(long accountId, string menuKey)
+    {
+        if (string.IsNullOrWhiteSpace(menuKey))
+        {
+            return false;
+        }
+
+        var menu = await _menuRepository.GetByUrlAsync(menuKey);
+        if (menu == null)
+        {
+            Debug.Warn($"Permission check failed: menu key not found, AccountId={accountId}, MenuKey={menuKey}");
+            return false;
+        }
+
+        return await HasPermissionAsync(accountId, menu.SmId);
+    }
+
     /// <summary>
     /// 获取用户所有可访问的菜单
     /// </summary>

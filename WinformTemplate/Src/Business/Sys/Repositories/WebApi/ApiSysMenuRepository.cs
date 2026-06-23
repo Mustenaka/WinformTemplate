@@ -19,6 +19,14 @@ public sealed class ApiSysMenuRepository : ApiRepositoryBase<SysMenuModel>, ISys
         return await GetListAsync<SysMenuModel>($"{CollectionEndpoint}/by-parent/{Escape(parentId)}");
     }
 
+    public Task<SysMenuModel?> GetByUrlAsync(string url)
+    {
+        return GetOptionalAsync<SysMenuModel>($"{CollectionEndpoint}/by-url{BuildQueryString(new[]
+        {
+            new KeyValuePair<string, string?>("url", url)
+        })}");
+    }
+
     public async Task FreezeMenuAsync(long id)
     {
         await PostBooleanAsync($"{CollectionEndpoint}/{Escape(id)}/freeze", new { });

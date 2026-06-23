@@ -9,8 +9,10 @@ using WinformTemplate.Business.Template.Repositories;
 using WinformTemplate.Business.Template.Service;
 using WinformTemplate.Business.Template.Service.Interface;
 using WinformTemplate.Common.DataAccess;
+using WinformTemplate.Navigation;
 using WinformTemplate.Serialize;
 using WinformTemplate.UI.Business.Sys.Login;
+using WinformTemplate.UI.Business.Sys.Role;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate
@@ -69,6 +71,7 @@ namespace WinformTemplate
 
             // 注册仓储
             RegisterRepositories(services);
+            RegisterNavigation(services);
 
             // 注册业务服务
             RegisterServices(services);
@@ -102,6 +105,18 @@ namespace WinformTemplate
             services.AddModuleRepository<IProductRepository, EfProductRepository, ApiProductRepository, LocalProductRepository>("Template");
             services.AddModuleRepository<ICategoryRepository, EfCategoryRepository, ApiCategoryRepository, LocalCategoryRepository>("Template");
             services.AddModuleRepository<IImportRecordRepository, EfImportRecordRepository, ApiImportRecordRepository, LocalImportRecordRepository>("Template");
+        }
+
+        private static void RegisterNavigation(IServiceCollection services)
+        {
+            var pageRegistry = new PageRegistry();
+            pageRegistry.Register("/sys/user", sp => sp.GetRequiredService<AccountManagementControl>());
+            pageRegistry.Register("/sys/role", sp => sp.GetRequiredService<RolePlaceholderControl>());
+
+            services.AddSingleton<IPageRegistry>(pageRegistry);
+            services.AddScoped<ICurrentAccountAccessor, CurrentAccountAccessor>();
+            services.AddScoped<INavigationService, NavigationService>();
+            services.AddTransient<RolePlaceholderControl>();
         }
 
         /// <summary>

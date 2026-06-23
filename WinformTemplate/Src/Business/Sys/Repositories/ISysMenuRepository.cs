@@ -9,6 +9,8 @@ public interface ISysMenuRepository : IRepository<SysMenuModel>
 
     Task<IReadOnlyList<SysMenuModel>> GetByParentIdAsync(long parentId);
 
+    Task<SysMenuModel?> GetByUrlAsync(string url);
+
     Task FreezeMenuAsync(long id);
 
     Task UnfreezeMenuAsync(long id);

@@ -30,6 +30,11 @@ public class EfSysMenuRepository : EfRepositoryBase<SysMenuModel>, ISysMenuRepos
             .ToListAsync();
     }
 
+    public Task<SysMenuModel?> GetByUrlAsync(string url)
+    {
+        return DbSet.FirstOrDefaultAsync(menu => menu.SmUrl == url && menu.SysStatus == false);
+    }
+
     public override async Task<bool> UpdateAsync(SysMenuModel menu)
     {
         var existingMenu = await DbSet.FindAsync(menu.SmId);
