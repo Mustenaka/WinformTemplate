@@ -86,6 +86,11 @@ public interface IRepository<T> where T : class
 }
 ```
 
+> **错误模型（P2 决策，§2 契约不变）**：仓储区分两类失败 ——
+> ① **正常业务未命中**（找不到、影响 0 行）用返回值表达：`GetByIdAsync→null`、`QueryAsync→空集合`、`Update/DeleteAsync→false`；
+> ② **数据源不可达**（无后端 / 连接失败 / 传输错误）一律 **抛 `DataSourceUnavailableException`**（定义在 `Common/DataAccess/`），不得用返回值伪装。
+> 理由：读操作的「空集合」无法区分「确实没数据」与「后端没开」，只有异常能让 UI 明确显示「未连接后端」；且 `BaseViewModel.ExecuteAsync` 已有统一 try/catch→`StatusMessage` 通道，异常天然汇入。因此 `AddAsync` 保持 `Task<T>` 不变，不需要布尔返回值。
+
 **性能红线（直接修掉登录的全表扫描）**：仓储层**之外**不允许出现 `GetAllAsync().Where/FirstOrDefault` 式的内存过滤。每个模块定义**具名下推查询**，三种实现各自原生完成。例如：
 
 ```csharp
@@ -207,7 +212,8 @@ docs/                     # 本规格 + REST 契约 + 二开指南
 
 ### P2 WebApi + Local 双实现 + 按模块切换
 - 为 Sys / Template 各补 `Api*` 与 `Local*` 实现；Local 从 `Resources/MockData` 读 JSON；产出 `docs/api-contract.md`（REST 约定 + `ApiResponse<T>` 包络 + 各端点 URL/方法/请求/响应样例）。
-- ✅ 验收：改配置把某模块切到 `Local`，业务零改动跑通；切到 `WebApi` 且无后端时给出明确「未连接后端」降级提示而非崩溃。
+- 不可达降级：`WebApi` 实现在数据源不可达时抛 `DataSourceUnavailableException`（见 §2 错误模型），由 `BaseViewModel.ExecuteAsync` 统一呈现「未连接后端」；正常业务未命中仍用 `false/null/空集合`。`AddAsync` 签名保持 `Task<T>` 不变。
+- ✅ 验收：改配置把某模块切到 `Local`，业务零改动跑通；切到 `WebApi` 且无后端时给出明确「未连接后端」提示而非崩溃。
 
 ### P3 权限页面路由
 - `IPageRegistry` / `INavigationService`，替换 `MainForm` 空 switch；菜单按角色过滤。
