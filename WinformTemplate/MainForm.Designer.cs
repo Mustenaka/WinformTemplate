@@ -55,10 +55,13 @@
             // SContainer_Main
             // 
             SContainer_Main.Dock = DockStyle.Fill;
-            SContainer_Main.IsSplitterFixed = true;
+            SContainer_Main.FixedPanel = FixedPanel.Panel2;
+            SContainer_Main.IsSplitterFixed = false;
             SContainer_Main.Location = new Point(0, 0);
             SContainer_Main.Name = "SContainer_Main";
             SContainer_Main.Orientation = Orientation.Horizontal;
+            SContainer_Main.Panel1MinSize = 480;
+            SContainer_Main.Panel2MinSize = 28;
             // 
             // SContainer_Main.Panel1
             // 
@@ -118,7 +121,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1658, 968);
             Controls.Add(SContainer_Main);
-            MinimumSize = new Size(320, 160);
+            MinimumSize = new Size(960, 640);
             Name = "MainForm";
             Text = "MainForm";
             SizeChanged += MainForm_SizeChanged;

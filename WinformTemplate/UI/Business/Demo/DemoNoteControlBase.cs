@@ -8,9 +8,9 @@ public abstract class DemoNoteControlBase : UserControl
 {
     private readonly DemoNoteManagementViewModel _viewModel;
 
-    private readonly System.Windows.Forms.Panel _toolbar = new();
+    private readonly FlowLayoutPanel _toolbar = new();
     private readonly System.Windows.Forms.Panel _main = new();
-    private readonly System.Windows.Forms.Panel _pager = new();
+    private readonly FlowLayoutPanel _pager = new();
     private readonly System.Windows.Forms.Label _sourceLabel = new();
     private readonly Input _keyword = new();
     private readonly Select _sort = new();
@@ -34,6 +34,7 @@ public abstract class DemoNoteControlBase : UserControl
 
         Dock = DockStyle.Fill;
         BackColor = Color.FromArgb(245, 247, 250);
+        MinimumSize = new Size(820, 500);
         InitializeComponent();
         BindViewModel();
 
@@ -46,6 +47,9 @@ public abstract class DemoNoteControlBase : UserControl
         _toolbar.Height = 96;
         _toolbar.BackColor = Color.White;
         _toolbar.Padding = new Padding(12);
+        _toolbar.FlowDirection = FlowDirection.LeftToRight;
+        _toolbar.WrapContents = true;
+        _toolbar.AutoScroll = true;
 
         _main.Dock = DockStyle.Fill;
         _main.BackColor = Color.White;
@@ -55,6 +59,9 @@ public abstract class DemoNoteControlBase : UserControl
         _pager.Height = 48;
         _pager.BackColor = Color.White;
         _pager.Padding = new Padding(12, 6, 12, 6);
+        _pager.FlowDirection = FlowDirection.LeftToRight;
+        _pager.WrapContents = false;
+        _pager.AutoScroll = true;
 
         ConfigureToolbar();
         ConfigureTable();
@@ -68,12 +75,15 @@ public abstract class DemoNoteControlBase : UserControl
 
     private void ConfigureToolbar()
     {
-        _sourceLabel.SetBounds(12, 12, 180, 32);
+        _sourceLabel.AutoSize = false;
+        _sourceLabel.Size = new Size(180, 32);
+        _sourceLabel.Margin = new Padding(0, 0, 12, 8);
         _sourceLabel.Text = _viewModel.DataSourceLabel;
         _sourceLabel.TextAlign = ContentAlignment.MiddleLeft;
         _sourceLabel.Font = new Font(Font, FontStyle.Bold);
 
-        _keyword.SetBounds(204, 12, 220, 32);
+        _keyword.Size = new Size(220, 32);
+        _keyword.Margin = new Padding(0, 0, 12, 8);
         _keyword.PlaceholderText = "搜索标题";
         _keyword.PrefixSvg = "SearchOutlined";
         _keyword.KeyPress += async (_, e) =>
@@ -84,20 +94,24 @@ public abstract class DemoNoteControlBase : UserControl
             }
         };
 
-        _search.SetBounds(436, 12, 72, 32);
+        _search.Size = new Size(72, 32);
+        _search.Margin = new Padding(0, 0, 8, 8);
         _search.Text = "搜索";
         _search.Type = TTypeMini.Primary;
         _search.Click += async (_, _) => await ApplyFiltersAndSearchAsync();
 
-        _reset.SetBounds(516, 12, 72, 32);
+        _reset.Size = new Size(72, 32);
+        _reset.Margin = new Padding(0, 0, 8, 8);
         _reset.Text = "重置";
         _reset.Click += async (_, _) => await ResetFiltersAsync();
 
-        _refresh.SetBounds(596, 12, 72, 32);
+        _refresh.Size = new Size(72, 32);
+        _refresh.Margin = new Padding(0, 0, 20, 8);
         _refresh.Text = "刷新";
         _refresh.Click += async (_, _) => await RunActionAsync(_viewModel.LoadDataAsync);
 
-        _sort.SetBounds(12, 52, 140, 32);
+        _sort.Size = new Size(140, 32);
+        _sort.Margin = new Padding(0, 0, 12, 8);
         _sort.Items.Add(new SelectItem("创建时间", "CreateAt"));
         _sort.Items.Add(new SelectItem("更新时间", "UpdateAt"));
         _sort.Items.Add(new SelectItem("标题", "Title"));
@@ -105,22 +119,26 @@ public abstract class DemoNoteControlBase : UserControl
         _sort.SelectedValue = "CreateAt";
         _sort.SelectedValueChanged += async (_, _) => await ApplySortAsync();
 
-        _direction.SetBounds(164, 52, 112, 32);
+        _direction.Size = new Size(112, 32);
+        _direction.Margin = new Padding(0, 0, 20, 8);
         _direction.Items.Add(new SelectItem("降序", "desc"));
         _direction.Items.Add(new SelectItem("升序", "asc"));
         _direction.SelectedValue = "desc";
         _direction.SelectedValueChanged += async (_, _) => await ApplySortAsync();
 
-        _add.SetBounds(300, 52, 72, 32);
+        _add.Size = new Size(72, 32);
+        _add.Margin = new Padding(0, 0, 8, 8);
         _add.Text = "新增";
         _add.Type = TTypeMini.Primary;
         _add.Click += async (_, _) => await OpenEditorAsync(null);
 
-        _edit.SetBounds(380, 52, 72, 32);
+        _edit.Size = new Size(72, 32);
+        _edit.Margin = new Padding(0, 0, 8, 8);
         _edit.Text = "修改";
         _edit.Click += async (_, _) => await OpenEditorAsync(_viewModel.SelectedNote);
 
-        _delete.SetBounds(460, 52, 72, 32);
+        _delete.Size = new Size(72, 32);
+        _delete.Margin = new Padding(0, 0, 0, 8);
         _delete.Text = "删除";
         _delete.Type = TTypeMini.Error;
         _delete.Click += async (_, _) => await DeleteSelectedAsync();
@@ -164,15 +182,18 @@ public abstract class DemoNoteControlBase : UserControl
 
     private void ConfigurePager()
     {
-        _previous.SetBounds(12, 8, 72, 32);
+        _previous.Size = new Size(72, 32);
+        _previous.Margin = new Padding(0, 0, 8, 0);
         _previous.Text = "上一页";
         _previous.Click += async (_, _) => await RunActionAsync(() => _viewModel.GoToPageAsync(_viewModel.CurrentPage - 1));
 
-        _next.SetBounds(92, 8, 72, 32);
+        _next.Size = new Size(72, 32);
+        _next.Margin = new Padding(0, 0, 12, 0);
         _next.Text = "下一页";
         _next.Click += async (_, _) => await RunActionAsync(() => _viewModel.GoToPageAsync(_viewModel.CurrentPage + 1));
 
-        _pageSize.SetBounds(176, 8, 96, 32);
+        _pageSize.Size = new Size(96, 32);
+        _pageSize.Margin = new Padding(0, 0, 12, 0);
         _pageSize.Items.Add(new SelectItem("10 / 页", 10));
         _pageSize.Items.Add(new SelectItem("20 / 页", 20));
         _pageSize.Items.Add(new SelectItem("50 / 页", 50));
@@ -186,11 +207,14 @@ public abstract class DemoNoteControlBase : UserControl
             }
         };
 
-        _pageInfo.SetBounds(288, 12, 260, 24);
+        _pageInfo.AutoSize = false;
+        _pageInfo.Size = new Size(260, 32);
+        _pageInfo.Margin = new Padding(0, 0, 12, 0);
         _pageInfo.TextAlign = ContentAlignment.MiddleLeft;
 
-        _statusText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        _statusText.SetBounds(560, 12, 500, 24);
+        _statusText.AutoSize = false;
+        _statusText.Size = new Size(500, 32);
+        _statusText.Margin = new Padding(0);
         _statusText.TextAlign = ContentAlignment.MiddleLeft;
         _statusText.ForeColor = Color.FromArgb(140, 140, 140);
 

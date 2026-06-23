@@ -8,9 +8,9 @@ public sealed class ProductManagementControl : UserControl
 {
     private readonly ProductManagementViewModel _viewModel;
 
-    private readonly System.Windows.Forms.Panel _toolbar = new();
+    private readonly FlowLayoutPanel _toolbar = new();
     private readonly System.Windows.Forms.Panel _main = new();
-    private readonly System.Windows.Forms.Panel _pager = new();
+    private readonly FlowLayoutPanel _pager = new();
     private readonly Input _keyword = new();
     private readonly Select _category = new();
     private readonly Select _status = new();
@@ -36,6 +36,7 @@ public sealed class ProductManagementControl : UserControl
 
         Dock = DockStyle.Fill;
         BackColor = Color.FromArgb(245, 247, 250);
+        MinimumSize = new Size(880, 520);
         InitializeComponent();
         BindViewModel();
 
@@ -48,6 +49,9 @@ public sealed class ProductManagementControl : UserControl
         _toolbar.Height = 96;
         _toolbar.BackColor = Color.White;
         _toolbar.Padding = new Padding(12);
+        _toolbar.FlowDirection = FlowDirection.LeftToRight;
+        _toolbar.WrapContents = true;
+        _toolbar.AutoScroll = true;
 
         _main.Dock = DockStyle.Fill;
         _main.BackColor = Color.White;
@@ -57,6 +61,9 @@ public sealed class ProductManagementControl : UserControl
         _pager.Height = 48;
         _pager.BackColor = Color.White;
         _pager.Padding = new Padding(12, 6, 12, 6);
+        _pager.FlowDirection = FlowDirection.LeftToRight;
+        _pager.WrapContents = false;
+        _pager.AutoScroll = true;
 
         ConfigureToolbar();
         ConfigureTable();
@@ -70,7 +77,8 @@ public sealed class ProductManagementControl : UserControl
 
     private void ConfigureToolbar()
     {
-        _keyword.SetBounds(12, 12, 220, 32);
+        _keyword.Size = new Size(220, 32);
+        _keyword.Margin = new Padding(0, 0, 12, 8);
         _keyword.PlaceholderText = "Search name or code";
         _keyword.PrefixSvg = "SearchOutlined";
         _keyword.KeyPress += async (_, e) =>
@@ -81,26 +89,31 @@ public sealed class ProductManagementControl : UserControl
             }
         };
 
-        _category.SetBounds(244, 12, 160, 32);
+        _category.Size = new Size(160, 32);
+        _category.Margin = new Padding(0, 0, 12, 8);
         _category.PlaceholderText = "Category";
 
-        _status.SetBounds(416, 12, 136, 32);
+        _status.Size = new Size(136, 32);
+        _status.Margin = new Padding(0, 0, 12, 8);
         _status.PlaceholderText = "Status";
         _status.Items.Add(new SelectItem("All status", string.Empty));
         _status.Items.Add(new SelectItem("Normal", 0));
         _status.Items.Add(new SelectItem("Disabled", 1));
         _status.Items.Add(new SelectItem("Out of stock", 2));
 
-        _search.SetBounds(564, 12, 80, 32);
+        _search.Size = new Size(80, 32);
+        _search.Margin = new Padding(0, 0, 8, 8);
         _search.Text = "Search";
         _search.Type = TTypeMini.Primary;
         _search.Click += async (_, _) => await ApplyFiltersAndSearchAsync();
 
-        _reset.SetBounds(652, 12, 72, 32);
+        _reset.Size = new Size(72, 32);
+        _reset.Margin = new Padding(0, 0, 20, 8);
         _reset.Text = "Reset";
         _reset.Click += async (_, _) => await ResetFiltersAsync();
 
-        _sort.SetBounds(12, 52, 160, 32);
+        _sort.Size = new Size(160, 32);
+        _sort.Margin = new Padding(0, 0, 12, 8);
         _sort.Items.Add(new SelectItem("Created time", "CreateAt"));
         _sort.Items.Add(new SelectItem("Name", "Name"));
         _sort.Items.Add(new SelectItem("Code", "Code"));
@@ -108,31 +121,38 @@ public sealed class ProductManagementControl : UserControl
         _sort.Items.Add(new SelectItem("Stock", "Stock"));
         _sort.SelectedValue = "CreateAt";
 
-        _direction.SetBounds(184, 52, 120, 32);
+        _direction.Size = new Size(120, 32);
+        _direction.Margin = new Padding(0, 0, 20, 8);
         _direction.Items.Add(new SelectItem("Descending", "desc"));
         _direction.Items.Add(new SelectItem("Ascending", "asc"));
         _direction.SelectedValue = "desc";
         _direction.SelectedValueChanged += async (_, _) => await ApplySortAsync();
         _sort.SelectedValueChanged += async (_, _) => await ApplySortAsync();
 
-        _add.SetBounds(328, 52, 72, 32);
+        _add.Size = new Size(72, 32);
+        _add.Margin = new Padding(0, 0, 8, 8);
         _add.Text = "Add";
         _add.Type = TTypeMini.Primary;
         _add.Click += async (_, _) => await OpenEditorAsync(null);
 
-        _edit.SetBounds(408, 52, 72, 32);
+        _edit.Size = new Size(72, 32);
+        _edit.Margin = new Padding(0, 0, 8, 8);
         _edit.Text = "Edit";
         _edit.Click += async (_, _) => await OpenEditorAsync(_viewModel.SelectedProduct);
 
-        _delete.SetBounds(488, 52, 80, 32);
+        _delete.Size = new Size(80, 32);
+        _delete.Margin = new Padding(0, 0, 12, 8);
         _delete.Text = "Delete";
         _delete.Type = TTypeMini.Error;
         _delete.Click += async (_, _) => await DeleteSelectedAsync();
 
-        _exportCurrentPage.SetBounds(584, 58, 110, 24);
+        _exportCurrentPage.AutoSize = true;
+        _exportCurrentPage.Height = 32;
+        _exportCurrentPage.Margin = new Padding(0, 6, 12, 8);
         _exportCurrentPage.Text = "Current page";
 
-        _export.SetBounds(704, 52, 80, 32);
+        _export.Size = new Size(80, 32);
+        _export.Margin = new Padding(0, 0, 0, 8);
         _export.Text = "Export";
         _export.Click += async (_, _) => await ExportAsync();
 
@@ -179,15 +199,18 @@ public sealed class ProductManagementControl : UserControl
 
     private void ConfigurePager()
     {
-        _previous.SetBounds(12, 8, 72, 32);
+        _previous.Size = new Size(72, 32);
+        _previous.Margin = new Padding(0, 0, 8, 0);
         _previous.Text = "Prev";
         _previous.Click += async (_, _) => await RunActionAsync(() => _viewModel.GoToPageAsync(_viewModel.CurrentPage - 1));
 
-        _next.SetBounds(92, 8, 72, 32);
+        _next.Size = new Size(72, 32);
+        _next.Margin = new Padding(0, 0, 12, 0);
         _next.Text = "Next";
         _next.Click += async (_, _) => await RunActionAsync(() => _viewModel.GoToPageAsync(_viewModel.CurrentPage + 1));
 
-        _pageSize.SetBounds(176, 8, 96, 32);
+        _pageSize.Size = new Size(104, 32);
+        _pageSize.Margin = new Padding(0, 0, 12, 0);
         _pageSize.Items.Add(new SelectItem("10 / page", 10));
         _pageSize.Items.Add(new SelectItem("20 / page", 20));
         _pageSize.Items.Add(new SelectItem("50 / page", 50));
@@ -201,11 +224,14 @@ public sealed class ProductManagementControl : UserControl
             }
         };
 
-        _pageInfo.SetBounds(288, 12, 260, 24);
+        _pageInfo.AutoSize = false;
+        _pageInfo.Size = new Size(260, 32);
+        _pageInfo.Margin = new Padding(0, 0, 12, 0);
         _pageInfo.TextAlign = ContentAlignment.MiddleLeft;
 
-        _statusText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        _statusText.SetBounds(560, 12, 420, 24);
+        _statusText.AutoSize = false;
+        _statusText.Size = new Size(420, 32);
+        _statusText.Margin = new Padding(0);
         _statusText.TextAlign = ContentAlignment.MiddleLeft;
         _statusText.ForeColor = Color.FromArgb(140, 140, 140);
 

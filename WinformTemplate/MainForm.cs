@@ -196,10 +196,14 @@ namespace WinformTemplate
                 return;
             }
 
-            var dis = Math.Abs(Size.Height - Lab_Console.Size.Height);
-            var newSplitterDistance = Math.Max(
+            var consoleHeight = Math.Max(32, SContainer_Main.Panel2MinSize);
+            var maxDistance = Math.Max(
                 SContainer_Main.Panel1MinSize,
-                Math.Min(SContainer_Main.Width - SContainer_Main.Panel2MinSize, dis));
+                SContainer_Main.Height - SContainer_Main.Panel2MinSize - SContainer_Main.SplitterWidth);
+            var newSplitterDistance = Math.Clamp(
+                SContainer_Main.Height - consoleHeight - SContainer_Main.SplitterWidth,
+                SContainer_Main.Panel1MinSize,
+                maxDistance);
 
             SContainer_Main.SplitterDistance = newSplitterDistance;
         }
