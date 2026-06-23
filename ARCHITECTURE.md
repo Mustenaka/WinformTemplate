@@ -1,198 +1,173 @@
 # Architecture
 
-本文描述当前实现状态，优先级低于 `docs/REFACTOR_PLAN.md`，但应与代码保持一致。
+本文描述 Phase II 结束时的实际实现。若旧文档与本文冲突，以 [docs/PHASE2_PLAN.md](docs/PHASE2_PLAN.md) 和 [docs/api-contract.md](docs/api-contract.md) 为准。
 
-## 总体结构
+## Overall Shape
+
+客户端是 .NET 8 WinForms + AntdUI 应用。业务调用链保持单向：
 
 ```text
-WinForms UI
+UI(UserControl/Form)
   -> ViewModel
   -> Service
   -> IXxxRepository
-  -> Ef / WebApi / Local repository implementation
+  -> Ef / WebApi / Local repository
 ```
 
-约束：
+硬性边界：
 
-- UI 只负责控件、布局和交互，不直接访问 DbContext 或 HttpClient。
-- ViewModel 只依赖 Service，不依赖 EF、HttpClient、Expression。
-- Service 只依赖仓储契约，不依赖具体数据源。
-- Repository 实现负责各自数据源细节。
+- UI 只处理控件、布局和交互，不直接访问 `DbContext`、`HttpClient` 或仓储实现。
+- ViewModel 只编排页面状态、命令、分页、CRUD 调用和降级提示，不引用 EF、HTTP 或 `Expression<Func<...>>`。
+- Service 只依赖仓储接口，查询条件必须下推给 Repository。
+- Repository 实现负责具体数据源细节。EF 写 LINQ/SQLite，WebApi 写 REST 映射，Local 写 JSON-backed 内存集合。
 
-## 启动流程
+## Architecture Diagram
 
-入口在 `Program.cs`：
+```mermaid
+flowchart LR
+    subgraph Client["WinformTemplate client (.NET 8 WinForms)"]
+        UI["Forms / UserControls\nLogin, Main, Product,\nAccount, DemoNote pages"]
+        VM["ViewModels\npaging, CRUD state,\nstatus messages"]
+        Svc["Services\nbusiness orchestration"]
+        RepoIf["Repository interfaces\nIRepository<T>, IProductRepository,\nIDemoNoteRepository, Sys repositories"]
+        Switch["DI data-source selection\nDataSourceOptions + AddModuleRepository"]
+        Ef["EF repositories\nDbContext per module\nsys.db, template.db, demo.db"]
+        Api["WebApi repositories\nApiRepositoryBase + IWebApiClient"]
+        Local["Local repositories\nLocalRepositoryBase + MockData JSON"]
+        Nav["Permission routing\nSysMenu seeds + PageRegistry + NavigationService"]
+    end
 
-1. 初始化 WinForms 和 log4net。
-2. `GlobalProjectConfig` 读取 `Resources/Config/config.json`；缺失时从 `config.example.json` 复制。
-3. `AppServiceRegistration.BuildServiceProvider` 注册配置、DbContext、仓储、服务、ViewModel、页面控件和导航。
-4. `AppServiceRegistration.InitializeDatabaseAsync` 依次执行已注册的 `IDatabaseInitializer`。
+    subgraph Backend["WinformTemplateServer (separate repo)"]
+        MinApi["ASP.NET Core Minimal API"]
+        Contract["ApiResponse<T>\nDemoNote REST contract"]
+        ServerDb["Server SQLite\nown database file"]
+    end
+
+    UI --> VM --> Svc --> RepoIf --> Switch
+    Switch --> Ef
+    Switch --> Api
+    Switch --> Local
+    Api -->|"docs/api-contract.md\n/api/Demo/notes"| MinApi --> Contract --> ServerDb
+    Ef -->|"EF Core"| ClientDb["Client SQLite files\nResources/Database/*.db"]
+    Local -->|"seed/read in memory"| Seeds["Resources/MockData/*.json"]
+    Nav --> UI
+```
+
+## Startup And DI
+
+入口在 [WinformTemplate/Program.cs](WinformTemplate/Program.cs)。启动顺序：
+
+1. 初始化 WinForms、AntdUI 和 log4net。
+2. 读取 `WinformTemplate/Resources/Config/config.json`；缺失时由 `config.example.json` 复制。
+3. [AppServiceRegistration](WinformTemplate/Src/Bootstrap/AppServiceRegistration.cs) 注册配置、DbContext、仓储、服务、ViewModel、页面和导航。
+4. `InitializeDatabaseAsync` 执行所有 `IDatabaseInitializer`，创建 EF 库并写入种子。
 5. 解析 `LoginForm`，登录成功后进入 `MainForm`。
 
-初始化失败会 `Debug.Fatal` 并弹出 MessageBox 后退出，避免未处理异常直接崩溃。
+`DataSourceOptions` 来自 `ProjectConfig.DataSource`。`AddModuleRepository<TInterface, TEf, TApi, TLocal>(moduleKey)` 根据模块配置解析仓储实现。当前可配置模块：
 
-## 数据访问
-
-核心抽象在 `Src/Common/DataAccess/`：
-
-- `DataSourceKind`
-- `QueryRequest`
-- `PagedResult<T>`
-- `IRepository<T>`
-- `EfRepositoryBase<T>`
-- `LocalRepositoryBase<T>`
-- `ApiRepositoryBase<T>`
-- `DataSourceOptions`
-- `DataSourceUnavailableException`
-- `ModuleRepositoryServiceCollectionExtensions.AddModuleRepository<...>()`
-
-仓储注册在 `Src/Bootstrap/AppServiceRegistration.cs`：
-
-```csharp
-services.AddModuleRepository<IProductRepository, EfProductRepository, ApiProductRepository, LocalProductRepository>("Template");
-```
-
-运行时根据 `config.json -> DataSource.Modules` 选择实现。
-
-## 数据源类型
-
-### Ef
-
-EF Core 直连数据库。当前支持：
-
-- SQLite
-- MySQL（Pomelo + MySqlConnector）
-
-默认配置为 SQLite。每个 EF 模块使用独立 SQLite 文件：
-
-| 模块 | DbContext | 文件 |
+| Module | Runtime switch | Main repositories |
 | --- | --- | --- |
-| Sys | `SysDbContext` | `Resources/Database/sys.db` |
-| Template | `TemplateDbContext` | `Resources/Database/template.db` |
+| `Sys` | `DataSource.Modules.Sys` | account/menu/role/param/role-auth repositories |
+| `Template` | `DataSource.Modules.Template` | product/category/import-record repositories |
+| `Demo` | DemoNote 三页固定注入具体实现，不走模块切换 | `EfDemoNoteRepository` / `ApiDemoNoteRepository` / `LocalDemoNoteRepository` |
 
-分库原因：EF Core `EnsureCreated` 不支持多个 DbContext 共用同一数据库。若共用一个 SQLite 文件，先执行的 Context 会创建数据库，后执行的 Context 会认为数据库已存在而跳过建表，导致后续访问缺表。模板保留 `EnsureCreated + 自动种子` 的开箱体验，因此选择每模块独立 SQLite 文件。
+## Data Sources
 
-### Local
+### EF
 
-Local 仓储从 `Resources/MockData/*.json` 读取种子并保存在内存集合中。CRUD 不回写磁盘，便于演示数据重置。
+EF Core 直接访问客户端本地数据库。SQLite 路径由 [EfDbContextOptions](WinformTemplate/Src/Common/DataAccess/EfDbContextOptions.cs) 解析：
+
+| Module | DbContext | Registration | Default file |
+| --- | --- | --- | --- |
+| `Sys` | `SysDbContext` | `SysDbContextService.AddSysDatabase` | `Resources/Database/sys.db` |
+| `Template` | `TemplateDbContext` | `TemplateDbContextService.AddTemplateDatabase` | `Resources/Database/template.db` |
+| `Demo` | `DemoDbContext` | `DemoDbContextService.AddDemoDatabase` | `Resources/Database/demo.db` |
+
+每个 EF 模块使用独立 SQLite 文件。原因是项目保留 `EnsureCreated + 自动种子` 的开箱体验，而 EF Core `EnsureCreated` 不支持多个 `DbContext` 可靠共用同一个库：第一个 Context 创建库后，后续 Context 会认为库已存在而跳过建表，最终导致缺表。启动集成测试 [AppStartupIntegrationTests](WinformTemplate.Tests/Startup/AppStartupIntegrationTests.cs) 会验证 `sys.db`、`template.db`、`demo.db` 都在真实启动序列中创建并可查询。
 
 ### WebApi
 
-WebApi 仓储通过 `IWebApiClient` 调用 REST 端点。后端不在本仓库实现；接口契约见 `docs/api-contract.md`。
+WebApi 仓储继承 [ApiRepositoryBase](WinformTemplate/Src/Common/DataAccess/ApiRepositoryBase.cs)，通过 `IWebApiClient` 调用 REST。唯一契约来源是 [docs/api-contract.md](docs/api-contract.md)。传输不可达时，`ApiRepositoryBase` 把 `ApiResponse<T>.isTransportError=true` 转成 `DataSourceUnavailableException`，由 ViewModel 显示降级状态。
 
-无后端或传输失败时，WebApi 仓储抛 `DataSourceUnavailableException`。
+独立后端位于：
 
-## 错误模型
+```text
+D:\Work\Code\CSharp\WinformTemplateServer
+```
 
-仓储失败分两类：
+后端是独立 git 仓库、独立 solution、.NET 8 ASP.NET Core Minimal API + EF Core + SQLite。默认监听：
 
-- 业务未命中：返回值表达。例如 `GetByIdAsync -> null`，`QueryAsync -> 空集合`，`Update/DeleteAsync -> false`。
-- 数据源不可达：抛 `DataSourceUnavailableException`，包含 moduleKey、endpoint 和 inner exception。
+- `https://localhost:5001`
+- `http://localhost:5000`
 
-`BaseViewModel.ExecuteAsync` 统一捕获异常并更新 `StatusMessage`。对数据源不可达，UI 呈现“未连接后端”。
+客户端默认 `WebApi.BaseUrl` 对齐 `https://localhost:5001`。开发期 Swagger 位于 `/swagger`。
 
-## Sys 模块
+### Local
 
-Sys 模块负责账户、角色、菜单、参数和权限。
+Local 仓储继承 [LocalRepositoryBase](WinformTemplate/Src/Common/DataAccess/LocalRepositoryBase.cs)，读取 `WinformTemplate/Resources/MockData/*.json`。CRUD 只修改进程内集合，不回写磁盘，便于演示数据重置。测试如需修改 Local 数据，应使用临时 seed root，避免静态缓存污染。
 
-关键模型：
+## DemoNote Phase II Example
 
-- `SysAccountModel`
-- `SysRoleModel`
-- `SysMenuModel`
-- `SysRoleAuthModel`
-- `SysParamModel`
+Demo 模块使用同一个实体 [DemoNote](WinformTemplate/Src/Business/Demo/Model/DemoNote.cs)，字段与 `docs/api-contract.md` 一致：`Id`、`Title`、`Content`、`Pinned`、`CreateAt`、`UpdateAt`。
 
-字段约定：
+仓储契约：
 
-- `SysStatus` / `SrStatus` 等状态字段为 `bool?`，`false` 表示有效，`true` 表示冻结或无效。
-- 菜单路由 key 使用 `SysMenu.SmUrl`。
-- `SysRoleModel` 保留字段为 `SrReserved1`、`SrReserved2`、`SrReserved3`。
+- [IDemoNoteRepository](WinformTemplate/Src/Business/Demo/Repositories/IDemoNoteRepository.cs)
+- [EfDemoNoteRepository](WinformTemplate/Src/Business/Demo/Repositories/EfCore/EfDemoNoteRepository.cs)
+- [ApiDemoNoteRepository](WinformTemplate/Src/Business/Demo/Repositories/WebApi/ApiDemoNoteRepository.cs)
+- [LocalDemoNoteRepository](WinformTemplate/Src/Business/Demo/Repositories/Local/LocalDemoNoteRepository.cs)
 
-默认种子：
+三页 UI 都继承 [DemoNoteControlBase](WinformTemplate/UI/Business/Demo/DemoNoteControlBase.cs)，每页固定绑定一种数据源，页面展示“当前数据源：EF / WebAPI / Local”：
 
-- `admin / 123456`：Administrator，授权 `/sys/user`、`/sys/role`、`/template/product`。
-- `operator / 123456`：Operator，只授权 `/sys/user`。
+| Menu key | Page | Repository |
+| --- | --- | --- |
+| `/demo/note-ef` | `EfDemoNoteControl` | `EfDemoNoteRepository` |
+| `/demo/note-api` | `ApiDemoNoteControl` | `ApiDemoNoteRepository` |
+| `/demo/note-local` | `LocalDemoNoteControl` | `LocalDemoNoteRepository` |
 
-## Template / Product 模块
+WebAPI 页在后端关闭时不崩溃，ViewModel 捕获 `DataSourceUnavailableException` 并显示未连接后端语义；EF 和 Local 页不依赖后端。
 
-Template 模块当前包含 Product、Category、ImportRecord 等示例业务对象。Product 是“如何新增业务模块”的完整样板。
+## Navigation And Permissions
 
-Product 链路：
+导航实现位于 [WinformTemplate/Src/Navigation](WinformTemplate/Src/Navigation)：
 
-- Model：`ProductModel`
-- Repository：`IProductRepository` + `EfProductRepository` / `ApiProductRepository` / `LocalProductRepository`
-- Service：`ProductService`
-- ViewModel：`ProductManagementViewModel`
-- UI：`ProductManagementControl`
-- 导出：`ProductExcelExporter`
+- `PageRegistryDefaultPages` 注册 menuKey 到页面工厂。
+- `NavigationService` 在解析页面前再次检查当前账号权限。
+- `CurrentAccountAccessor` 保存当前登录账号。
 
-Product 查询通过 `QueryRequest` 下推分页、关键字、排序和过滤。UI 不做 `PageSize=int.MaxValue` 的全量加载后截断。
+菜单 key 必须三处一致：
 
-## 导航与权限
+1. EF 种子：[SysDatabaseInitializer](WinformTemplate/Src/Business/Sys/Context/Full/SysDatabaseInitializer.cs)
+2. Local 种子：[sysMenus.json](WinformTemplate/Resources/MockData/sysMenus.json) 和 [sysRoleAuths.json](WinformTemplate/Resources/MockData/sysRoleAuths.json)
+3. 页面注册：[PageRegistryDefaultPages](WinformTemplate/Src/Navigation/PageRegistryDefaultPages.cs)
 
-导航抽象在 `Src/Navigation/`：
+守卫测试 `SysMenuSeedUrls_AreConsistentAcrossEfLocalAndRegisteredPages` 会核对这三处。默认 `admin / 123456` 授权账户、角色、Product 和三个 Demo 页；`operator / 123456` 只授权账户页。
 
-- `IPageRegistry`
-- `PageRegistry`
-- `PageRegistryDefaultPages`
-- `INavigationService`
-- `NavigationService`
-- `ICurrentAccountAccessor`
+## Security
 
-页面注册：
+密码通过 [PasswordHasher](WinformTemplate/Src/Tools/Encryption/PasswordHasher.cs) 使用 PBKDF2 加盐哈希。`SysAccountService` 登录时会校验 PBKDF2，并按配置升级旧哈希。真实环境必须修改演示账号密码，真实 `config.json` 不入库。
 
-| menuKey | 页面 |
-| --- | --- |
-| `/sys/user` | `AccountManagementControl` |
-| `/sys/role` | `RolePlaceholderControl` |
-| `/template/product` | `ProductManagementControl` |
+## UI Construction Rule
 
-菜单由 `PermissionService.GetAccessibleMenuTreeAsync(accountId)` 按角色过滤。即使直接调用 `INavigationService.NavigateAsync(menuKey)`，也会再次校验当前账户权限。
+PageRegistry 注册页由点击菜单时才构造，此时控件通常还没有真实尺寸。页面构造期不得设置依赖实际宽高的 `SplitterDistance` 或大 `Panel1MinSize/Panel2MinSize`。账户页的 `SplitContainer` 在构造期只设置安全小值，真实分栏约束在 `HandleCreated/Load/SizeChanged` 后由 `EnsureSplitDistance` 设置。
 
-## MVVM
+构造冒烟测试 [PageConstructionSmokeTests](WinformTemplate.Tests/Navigation/PageConstructionSmokeTests.cs) 使用真实 DI 容器，在 STA 线程逐个构造所有默认注册页，防止菜单点击时构造期崩溃。
 
-MVVM 基础设施在 `Src/Common/MVVM/`：
+## Required Tests
 
-- `ObservableObject`
-- `BaseViewModel`
-- `RelayCommand`
-- `DefaultBindingExtensions`
-- `AntdUIBindingExtensions`
+Phase II 后必须保持这些测试绿色：
 
-LoginForm 已使用 `AntdUIBindingExtensions` 对 Username/Password 做双向绑定。新增 UI 应优先使用这些扩展，避免重复手写 `TextChanged`。
+- `SysMenuSeedUrls_AreConsistentAcrossEfLocalAndRegisteredPages`：菜单 seed 和页面注册一致。
+- `AppStartupIntegrationTests`：真实 DI + 数据库初始化序列，覆盖 Sys、Template、Demo 独立 EF 库。
+- `PageConstructionSmokeTests`：所有默认注册页能在 STA 线程构造。
+- `ApiRepositoryTests`：REST 端点映射、`DataSourceUnavailableException`。
+- `DemoNoteManagementViewModelTests` / `DemoNoteRepositoryTests`：DemoNote CRUD、分页、搜索、EF/Local 一致性。
+- `ProductManagementViewModelTests` / `TemplateRepositoryDataSourceTests`：Product 示例链路和导出。
 
-## 配置与凭据
+常用验证命令：
 
-`config.example.json` 入库，使用占位密码。真实 `config.json` 不入库。
-
-默认配置：
-
-- `DataSource.Default = Ef`
-- `DataSource.Modules.Sys = Ef`
-- `DataSource.Modules.Template = Ef`
-- `Ef.DbType = SQLite`
-- `Ef.SQLitePath = ./Resources/Database`
-
-`Ef.SQLitePath` 可以是目录，也可以是兼容旧配置的文件路径。传入模块 key 后会解析为 `{module}.db`。
-
-## 安全
-
-- 密码使用 PBKDF2 加盐哈希。
-- 默认演示账号只用于模板体验，生产必须修改。
-- 数据库真实密码不得提交，`config.example.json` 只放占位符。
-
-## 测试守卫
-
-关键测试：
-
-- `SysMenuSeedUrls_AreConsistentAcrossEfLocalAndRegisteredPages`：EF 菜单种子、Local `sysMenus.json`、页面注册表三方一致。
-- `AppStartupIntegrationTests`：使用与 Program 相同的服务注册和初始化顺序，验证默认 Ef 初始化、admin 登录、Product 分页查询。
-- `TemplateRepositoryDataSourceTests`：验证 Product Ef/Local 仓储契约一致。
-- `ApiRepositoryTests`：验证 WebApi 端点映射和不可达异常。
-
-## 已知限制 / TODO
-
-- 窗口布局尚未做完整自适应/响应式优化；功能可用，视觉待优化。
-- SysRole、SysMenu、SysParam 管理列表仍是简单管理入口，后续可参考 Product 页补分页控件。
-- WebApi 后端未实现；当前只提供客户端仓储和 REST 契约。
+```powershell
+dotnet build WinformTemplate.sln -warnaserror
+dotnet test WinformTemplate.sln
+dotnet list WinformTemplate.sln package --vulnerable --include-transitive
+```
