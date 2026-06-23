@@ -13,7 +13,7 @@ public static class TemplateDbContextService
 
         services.AddDbContext<TemplateDbContext>(options =>
         {
-            EfDbContextOptions.UseConfiguredDatabase(options, config?.Ef);
+            EfDbContextOptions.UseConfiguredDatabase(options, config?.Ef, "Template");
 
             if (isDevelopment)
             {

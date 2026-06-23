@@ -45,7 +45,7 @@ public class TemplateDbContext : DbContext
             return;
         }
 
-        EfDbContextOptions.UseConfiguredDatabase(optionsBuilder, GlobalProjectConfig.Instance.Config?.Ef);
+        EfDbContextOptions.UseConfiguredDatabase(optionsBuilder, GlobalProjectConfig.Instance.Config?.Ef, "Template");
 
         // 开启详细错误信息（开发环境）
         optionsBuilder.EnableSensitiveDataLogging();

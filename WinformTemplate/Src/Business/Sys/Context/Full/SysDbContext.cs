@@ -60,7 +60,7 @@ public class SysDbContext : DbContext
             return;
         }
 
-        EfDbContextOptions.UseConfiguredDatabase(optionsBuilder, GlobalProjectConfig.Instance.Config?.Ef);
+        EfDbContextOptions.UseConfiguredDatabase(optionsBuilder, GlobalProjectConfig.Instance.Config?.Ef, "Sys");
     }
 
     /// <summary>

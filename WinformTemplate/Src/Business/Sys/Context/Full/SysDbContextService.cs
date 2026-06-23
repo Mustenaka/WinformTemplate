@@ -20,7 +20,7 @@ public static class SysDbContextService
 
         services.AddDbContext<SysDbContext>(options =>
         {
-            EfDbContextOptions.UseConfiguredDatabase(options, config?.Ef);
+            EfDbContextOptions.UseConfiguredDatabase(options, config?.Ef, "Sys");
 
             if (enableDetailedErrors)
             {

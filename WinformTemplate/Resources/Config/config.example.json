@@ -8,7 +8,7 @@
   },
   "Ef": {
     "DbType": "SQLite",
-    "SQLitePath": "./Resources/Database/app.db",
+    "SQLitePath": "./Resources/Database",
     "MySqlConnection": "server=127.0.0.1;port=3306;user=root;database=base;password=__SET_ME__;"
   },
   "WebApi": {

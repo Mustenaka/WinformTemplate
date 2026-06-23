@@ -61,7 +61,7 @@ public class EfConfig
 {
     public string DbType { get; set; } = "SQLite";
 
-    public string SQLitePath { get; set; } = "./Resources/Database/app.db";
+    public string SQLitePath { get; set; } = "./Resources/Database";
 
     public string MySqlConnection { get; set; } =
         "server=127.0.0.1;port=3306;user=root;database=base;password=__SET_ME__;";
