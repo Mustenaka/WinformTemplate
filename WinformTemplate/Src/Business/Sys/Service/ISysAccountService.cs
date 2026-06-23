@@ -1,4 +1,5 @@
 using WinformTemplate.Business.Sys.Model;
+using WinformTemplate.Common.DataAccess;
 
 namespace WinformTemplate.Business.Sys.Service;
 
@@ -21,6 +22,8 @@ public interface ISysAccountService
     /// 搜索账户
     /// </summary>
     Task<IEnumerable<SysAccountModel>> SearchAccountsAsync(string keyword);
+
+    Task<PagedResult<SysAccountModel>> QueryAccountsAsync(string? keyword = null, int page = 1, int pageSize = 20);
 
     /// <summary>
     /// 根据ID获取账户

@@ -11,6 +11,8 @@ namespace WinformTemplate.Business.Sys.Service;
 /// </summary>
 public class SysAccountService : ISysAccountService
 {
+    private const int DefaultPageSize = 20;
+
     private readonly ISysAccountRepository _accountRepository;
     private readonly ISysRoleRepository _roleRepository;
     private readonly ISysMenuRepository _menuRepository;
@@ -87,11 +89,7 @@ public class SysAccountService : ISysAccountService
         try
         {
             Debug.Info("获取所有账户");
-            var result = await _accountRepository.QueryAsync(new QueryRequest
-            {
-                Page = 1,
-                PageSize = int.MaxValue
-            });
+            var result = await QueryAccountsAsync(pageSize: DefaultPageSize);
             return result.Items;
         }
         catch (Exception ex)
@@ -109,12 +107,7 @@ public class SysAccountService : ISysAccountService
         try
         {
             Debug.Info($"搜索账户：{keyword}");
-            var result = await _accountRepository.QueryAsync(new QueryRequest
-            {
-                Page = 1,
-                PageSize = int.MaxValue,
-                Keyword = keyword
-            });
+            var result = await QueryAccountsAsync(keyword, pageSize: DefaultPageSize);
             return result.Items;
         }
         catch (Exception ex)
@@ -127,6 +120,17 @@ public class SysAccountService : ISysAccountService
     /// <summary>
     /// 根据ID获取账户
     /// </summary>
+    public async Task<PagedResult<SysAccountModel>> QueryAccountsAsync(string? keyword = null, int page = 1, int pageSize = DefaultPageSize)
+    {
+        return await _accountRepository.QueryAsync(new QueryRequest
+        {
+            Page = Math.Max(page, 1),
+            PageSize = Math.Max(pageSize, 1),
+            Keyword = keyword,
+            SortBy = nameof(SysAccountModel.SysId)
+        });
+    }
+
     public async Task<SysAccountModel?> GetAccountByIdAsync(long id)
     {
         try

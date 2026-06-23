@@ -35,7 +35,7 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SrRemark = "System administrator role",
             SrReserved1 = string.Empty,
             SrReserved2 = string.Empty,
-            SysReserved3 = string.Empty,
+            SrReserved3 = string.Empty,
             SrStatus = false,
             SrCreateAt = now,
             SrUpdateAt = now
@@ -48,7 +48,7 @@ public sealed class SysDatabaseInitializer : IDatabaseInitializer
             SrRemark = "Limited operator role",
             SrReserved1 = string.Empty,
             SrReserved2 = string.Empty,
-            SysReserved3 = string.Empty,
+            SrReserved3 = string.Empty,
             SrStatus = false,
             SrCreateAt = now,
             SrUpdateAt = now

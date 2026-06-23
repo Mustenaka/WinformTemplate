@@ -20,7 +20,7 @@ public class SysRoleModel : BaseModel
     private DateTime? _srUpdateAt;
     private string _srReserved1 = string.Empty;
     private string _srReserved2 = string.Empty;
-    private string _sysReserved3 = string.Empty;
+    private string _srReserved3 = string.Empty;
 
     /// <summary>
     /// 主键
@@ -131,12 +131,12 @@ public class SysRoleModel : BaseModel
     /// <summary>
     /// 保留字段3
     /// </summary>
-    [Column("sys_reserved3")]
+    [Column("sr_reserved3")]
     [Comment("保留字段3")]
     [StringLength(255)]
-    public string SysReserved3
+    public string SrReserved3
     {
-        get => _sysReserved3;
-        set => SetProperty(ref _sysReserved3, value);
+        get => _srReserved3;
+        set => SetProperty(ref _srReserved3, value);
     }
 }

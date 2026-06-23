@@ -9,7 +9,7 @@
     "SrUpdateAt": "2026-06-23T00:00:00",
     "SrReserved1": "",
     "SrReserved2": "",
-    "SysReserved3": ""
+    "SrReserved3": ""
   },
   {
     "SrId": 2,
@@ -21,6 +21,6 @@
     "SrUpdateAt": "2026-06-23T00:00:00",
     "SrReserved1": "",
     "SrReserved2": "",
-    "SysReserved3": ""
+    "SrReserved3": ""
   }
 ]
