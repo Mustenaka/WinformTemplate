@@ -13,7 +13,7 @@ public static class PageRegistryDefaultPages
         ArgumentNullException.ThrowIfNull(pageRegistry);
 
         pageRegistry.Register("/sys/user", sp => sp.GetRequiredService<AccountManagementControl>());
-        pageRegistry.Register("/sys/role", sp => sp.GetRequiredService<RolePlaceholderControl>());
+        pageRegistry.Register("/sys/role", sp => sp.GetRequiredService<RoleManagementControl>());
         pageRegistry.Register("/template/product", sp => sp.GetRequiredService<ProductManagementControl>());
         pageRegistry.Register("/demo/note-ef", sp => sp.GetRequiredService<EfDemoNoteControl>());
         pageRegistry.Register("/demo/note-api", sp => sp.GetRequiredService<ApiDemoNoteControl>());

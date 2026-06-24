@@ -108,7 +108,6 @@ public static class AppServiceRegistration
         services.AddSingleton<IPageRegistry>(pageRegistry);
         services.AddScoped<ICurrentAccountAccessor, CurrentAccountAccessor>();
         services.AddScoped<INavigationService, NavigationService>();
-        services.AddTransient<RolePlaceholderControl>();
     }
 
     private static void RegisterServices(IServiceCollection services)
@@ -125,11 +124,13 @@ public static class AppServiceRegistration
         services.AddScoped<LoginViewModel>();
         services.AddTransient<MainViewModel>();
         services.AddTransient<AccountManagementViewModel>();
+        services.AddTransient<RoleManagementViewModel>();
         services.AddTransient<ProductManagementViewModel>();
 
         services.AddTransient<LoginForm>();
         services.AddTransient<MainForm>();
         services.AddTransient<AccountManagementControl>();
+        services.AddTransient<RoleManagementControl>();
         services.AddTransient<ProductManagementControl>();
         services.AddTransient<EfDemoNoteControl>();
         services.AddTransient<ApiDemoNoteControl>();
