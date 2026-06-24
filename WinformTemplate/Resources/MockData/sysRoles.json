@@ -1,0 +1,26 @@
+[
+  {
+    "SrId": 1,
+    "SrName": "Administrator",
+    "SrEnName": "Admin",
+    "SrRemark": "Local administrator role",
+    "SrStatus": false,
+    "SrCreateAt": "2026-06-23T00:00:00",
+    "SrUpdateAt": "2026-06-23T00:00:00",
+    "SrReserved1": "",
+    "SrReserved2": "",
+    "SrReserved3": ""
+  },
+  {
+    "SrId": 2,
+    "SrName": "Operator",
+    "SrEnName": "Operator",
+    "SrRemark": "Limited operator role",
+    "SrStatus": false,
+    "SrCreateAt": "2026-06-23T00:00:00",
+    "SrUpdateAt": "2026-06-23T00:00:00",
+    "SrReserved1": "",
+    "SrReserved2": "",
+    "SrReserved3": ""
+  }
+]

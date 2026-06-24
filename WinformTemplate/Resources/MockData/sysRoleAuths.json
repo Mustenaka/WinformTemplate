@@ -1,0 +1,38 @@
+[
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 1
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 2
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 3
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 4
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 5
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 6
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 7
+  },
+  {
+    "SraRoleId": 1,
+    "SraMenuId": 8
+  },
+  {
+    "SraRoleId": 2,
+    "SraMenuId": 2
+  }
+]

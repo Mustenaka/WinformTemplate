@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "Title": "Local pinned note",
+    "Content": "This note is loaded from Resources/MockData/demoNotes.json.",
+    "Pinned": true,
+    "CreateAt": "2026-06-23T08:00:00",
+    "UpdateAt": "2026-06-23T08:00:00"
+  },
+  {
+    "Id": 2,
+    "Title": "Local paging note",
+    "Content": "Use this local seed data to test paging and search.",
+    "Pinned": false,
+    "CreateAt": "2026-06-23T08:10:00",
+    "UpdateAt": "2026-06-23T08:10:00"
+  },
+  {
+    "Id": 3,
+    "Title": "Local CRUD note",
+    "Content": "Local repository changes stay in memory for this process.",
+    "Pinned": false,
+    "CreateAt": "2026-06-23T08:20:00",
+    "UpdateAt": "2026-06-23T08:20:00"
+  }
+]

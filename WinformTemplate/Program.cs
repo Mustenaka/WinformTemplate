@@ -1,161 +1,78 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using WinformTemplate.Business.Sys.Repositories;
-using WinformTemplate.Business.Sys.Service;
-using WinformTemplate.Business.Sys.Service.Full;
+using WinformTemplate.Bootstrap;
 using WinformTemplate.Business.Sys.ViewModel;
 using WinformTemplate.Serialize;
 using WinformTemplate.UI.Business.Sys.Login;
 using Debug = WinformTemplate.Logger.Debug;
 
-namespace WinformTemplate
+namespace WinformTemplate;
+
+internal static class Program
 {
-    internal static class Program
+    private static IServiceProvider? _serviceProvider;
+
+    [STAThread]
+    private static void Main()
     {
-        private static IServiceProvider? _serviceProvider;
+        ApplicationConfiguration.Initialize();
 
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        private static void Main()
+        Debug.InitLog4Net();
+        Debug.Info("Project start: " + Application.ProductVersion);
+
+        try
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-
-            // Load log4net system
-            Debug.InitLog4Net();
-            Debug.Info("Project start: " + Application.ProductVersion);
-
-            // Load Config system
             GlobalProjectConfig.Instance.CheckConfigLoaded();
-
-            // Configure dependency injection
             ConfigureServices();
-
-            // Initialize database
             InitializeDatabaseAsync().GetAwaiter().GetResult();
-
-            // Show login form
-            ShowLoginForm();
         }
-
-        /// <summary>
-        /// ��������ע�����
-        /// </summary>
-        private static void ConfigureServices()
+        catch (Exception ex)
         {
-            var services = new ServiceCollection();
-
-            // ע�����ݿ���� (��������������ϸ����)
-            bool isDevelopment = true; // ��ʵ��Ӧ���п��Դ������ļ���ȡ
-            SysDbContextService.AddSysDatabase(services, isDevelopment, isDevelopment);
-
-            // ע��ִ�
-            RegisterRepositories(services);
-
-            // ע��ҵ�����
-            RegisterServices(services);
-
-            // ע�ᴰ��
-            services.AddTransient<MainForm>();
-
-            // ���������ṩ��
-            _serviceProvider = services.BuildServiceProvider();
+            Debug.Fatal("Application initialization failed", ex);
+            MessageBox.Show(
+                $"应用初始化失败，程序将退出。\n\n{ex.Message}",
+                "初始化失败",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return;
         }
 
-        /// <summary>
-        /// 注册仓储
-        /// </summary>
-        private static void RegisterRepositories(IServiceCollection services)
+        ShowLoginForm();
+    }
+
+    private static void ConfigureServices()
+    {
+        _serviceProvider = AppServiceRegistration.BuildServiceProvider(GlobalProjectConfig.Instance.Config, isDevelopment: true);
+    }
+
+    private static async Task InitializeDatabaseAsync()
+    {
+        await AppServiceRegistration.InitializeDatabaseAsync(_serviceProvider);
+    }
+
+    private static void ShowLoginForm()
+    {
+        if (_serviceProvider == null)
         {
-            // 注册各个仓储实现
-            services.AddScoped<ISysAccountRepository, SysAccountRepository>();
-            services.AddScoped<ISysMenuRepository, SysMenuRepository>();
-            services.AddScoped<ISysRoleRepository, SysRoleRepository>();
-            services.AddScoped<ISysParamRepository, SysParamRepository>();
-            services.AddScoped<ISysRoleAuthRepository, SysRoleAuthRepository>();
+            Debug.Error("ServiceProvider is not initialized.");
+            return;
         }
 
-        /// <summary>
-        /// 注册业务服务
-        /// </summary>
-        private static void RegisterServices(IServiceCollection services)
+        using var scope = _serviceProvider.CreateScope();
+        var loginForm = scope.ServiceProvider.GetRequiredService<LoginForm>();
+        var loginViewModel = scope.ServiceProvider.GetRequiredService<LoginViewModel>();
+
+        if (loginForm.ShowDialog() != DialogResult.OK || loginViewModel.CurrentAccount == null)
         {
-            // 注册业务服务
-            services.AddScoped<ISysAccountService, SysAccountService>();
-            services.AddScoped<ISysRoleService, SysRoleService>();
-            services.AddScoped<ISysMenuService, SysMenuService>();
-            services.AddScoped<ISysParamService, SysParamService>();
-            services.AddScoped<IPermissionService, PermissionService>();
-
-            // 注册 ViewModel
-            services.AddTransient<LoginViewModel>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<AccountManagementViewModel>();
-
-            // 注册窗体
-            services.AddTransient<LoginForm>();
-            services.AddTransient<MainForm>();
-            services.AddTransient<AccountManagementControl>();
+            Debug.Info("User cancelled login or login failed.");
+            return;
         }
 
-        /// <summary>
-        /// 初始化数据库
-        /// </summary>
-        private static async Task InitializeDatabaseAsync()
-        {
-            if (_serviceProvider == null) return;
+        Debug.Info($"Login succeeded, opening main form: {loginViewModel.CurrentAccount.SysAccountName}");
 
-            var dbService = _serviceProvider.GetRequiredService<SysDbContextService>();
+        using var mainScope = _serviceProvider.CreateScope();
+        var mainForm = mainScope.ServiceProvider.GetRequiredService<MainForm>();
+        mainForm.SetCurrentAccount(loginViewModel.CurrentAccount);
 
-            // 确保数据库创建
-            await dbService.EnsureDatabaseCreatedAsync();
-
-            // 初始化种子数据
-            await dbService.InitializeDatabaseAsync();
-
-            Debug.Info("数据库初始化完成");
-        }
-
-        /// <summary>
-        /// 显示登录窗体
-        /// </summary>
-        private static void ShowLoginForm()
-        {
-            if (_serviceProvider == null)
-            {
-                Debug.Error("ServiceProvider 未初始化");
-                return;
-            }
-
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var loginViewModel = scope.ServiceProvider.GetRequiredService<LoginViewModel>();
-                var loginForm = new LoginForm(loginViewModel);
-
-                if (loginForm.ShowDialog() == DialogResult.OK && loginViewModel.CurrentAccount != null)
-                {
-                    Debug.Info($"登录成功，打开主界面: {loginViewModel.CurrentAccount.SysAccountName}");
-
-                    // 创建新的 scope 用于主窗体
-                    var mainScope = _serviceProvider.CreateScope();
-                    var mainViewModel = mainScope.ServiceProvider.GetRequiredService<MainViewModel>();
-                    var mainForm = mainScope.ServiceProvider.GetRequiredService<MainForm>();
-
-                    // 设置当前账户
-                    mainForm.SetCurrentAccount(loginViewModel.CurrentAccount);
-
-                    Application.Run(mainForm);
-
-                    mainScope.Dispose();
-                }
-                else
-                {
-                    Debug.Info("用户取消登录或登录失败");
-                }
-            }
-        }
+        Application.Run(mainForm);
     }
 }

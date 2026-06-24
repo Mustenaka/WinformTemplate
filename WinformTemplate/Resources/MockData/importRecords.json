@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "FileName": "products-local.xlsx",
+    "TotalCount": 3,
+    "SuccessCount": 3,
+    "FailCount": 0,
+    "ErrorMessage": "",
+    "ImportType": "Excel",
+    "Status": 1,
+    "CreateAt": "2026-06-23T08:00:00",
+    "CreateBy": 1
+  }
+]

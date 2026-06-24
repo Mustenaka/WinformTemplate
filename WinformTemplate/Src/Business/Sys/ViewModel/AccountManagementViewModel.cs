@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.Service;
+using WinformTemplate.Common.DataAccess;
 using WinformTemplate.Common.MVVM;
 using WinformTemplate.Common.MVVM.Command;
 using WinformTemplate.Logger;
@@ -9,7 +10,7 @@ using WinformTemplate.Logger;
 namespace WinformTemplate.Business.Sys.ViewModel;
 
 /// <summary>
-/// 账户管理视图模型
+/// 账户管理视图模型。
 /// </summary>
 public class AccountManagementViewModel : BaseViewModel
 {
@@ -19,8 +20,10 @@ public class AccountManagementViewModel : BaseViewModel
     private ObservableCollection<SysRoleModel> _roles = new();
     private SysAccountModel? _selectedAccount;
     private string _searchKeyword = string.Empty;
+    private int _currentPage = 1;
+    private int _pageSize = 20;
+    private int _totalCount;
 
-    // 账户编辑字段
     private long _editAccountId;
     private string _editUsername = string.Empty;
     private string _editPassword = string.Empty;
@@ -29,27 +32,36 @@ public class AccountManagementViewModel : BaseViewModel
     private bool _editStatus = true;
     private string _editRemark = string.Empty;
 
-    /// <summary>
-    /// 账户列表
-    /// </summary>
+    public AccountManagementViewModel(ISysAccountService accountService, ISysRoleService roleService)
+    {
+        _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+        _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
+
+        LoadAccountsCommand = new RelayCommand(ExecuteLoadAccounts);
+        LoadRolesCommand = new RelayCommand(ExecuteLoadRoles);
+        SearchCommand = new RelayCommand(ExecuteSearch);
+        PreviousPageCommand = new RelayCommand(ExecutePreviousPage);
+        NextPageCommand = new RelayCommand(ExecuteNextPage);
+        AddAccountCommand = new RelayCommand(ExecuteAddAccount, CanExecuteAddAccount);
+        UpdateAccountCommand = new RelayCommand(ExecuteUpdateAccount, CanExecuteUpdateAccount);
+        DeleteAccountCommand = new RelayCommand(ExecuteDeleteAccount, CanExecuteDelete);
+        ToggleFreezeCommand = new RelayCommand(ExecuteToggleFreeze, CanExecuteDelete);
+        ResetPasswordCommand = new RelayCommand(ExecuteResetPassword, CanExecuteDelete);
+        ClearFormCommand = new RelayCommand(ExecuteClearForm);
+    }
+
     public ObservableCollection<SysAccountModel> Accounts
     {
         get => _accounts;
         private set => SetProperty(ref _accounts, value);
     }
 
-    /// <summary>
-    /// 角色列表
-    /// </summary>
     public ObservableCollection<SysRoleModel> Roles
     {
         get => _roles;
         private set => SetProperty(ref _roles, value);
     }
 
-    /// <summary>
-    /// 选中的账户
-    /// </summary>
     public SysAccountModel? SelectedAccount
     {
         get => _selectedAccount;
@@ -62,16 +74,54 @@ public class AccountManagementViewModel : BaseViewModel
         }
     }
 
-    /// <summary>
-    /// 搜索关键字
-    /// </summary>
     public string SearchKeyword
     {
         get => _searchKeyword;
         set => SetProperty(ref _searchKeyword, value);
     }
 
-    #region Edit Properties
+    public int CurrentPage
+    {
+        get => _currentPage;
+        private set
+        {
+            if (SetProperty(ref _currentPage, Math.Max(1, value)))
+            {
+                RaisePagingPropertiesChanged();
+            }
+        }
+    }
+
+    public int PageSize
+    {
+        get => _pageSize;
+        set
+        {
+            var normalized = Math.Clamp(value, 1, 200);
+            if (SetProperty(ref _pageSize, normalized))
+            {
+                RaisePagingPropertiesChanged();
+            }
+        }
+    }
+
+    public int TotalCount
+    {
+        get => _totalCount;
+        private set
+        {
+            if (SetProperty(ref _totalCount, Math.Max(0, value)))
+            {
+                RaisePagingPropertiesChanged();
+            }
+        }
+    }
+
+    public int TotalPages => CalculateTotalPages(TotalCount, PageSize);
+
+    public bool HasPreviousPage => CurrentPage > 1;
+
+    public bool HasNextPage => CurrentPage < TotalPages;
 
     public long EditAccountId
     {
@@ -115,109 +165,40 @@ public class AccountManagementViewModel : BaseViewModel
         set => SetProperty(ref _editRemark, value);
     }
 
-    #endregion
-
-    /// <summary>
-    /// 加载账户列表命令
-    /// </summary>
     public ICommand LoadAccountsCommand { get; }
 
-    /// <summary>
-    /// 加载角色列表命令
-    /// </summary>
     public ICommand LoadRolesCommand { get; }
 
-    /// <summary>
-    /// 搜索账户命令
-    /// </summary>
     public ICommand SearchCommand { get; }
 
-    /// <summary>
-    /// 添加账户命令
-    /// </summary>
+    public ICommand PreviousPageCommand { get; }
+
+    public ICommand NextPageCommand { get; }
+
     public ICommand AddAccountCommand { get; }
 
-    /// <summary>
-    /// 更新账户命令
-    /// </summary>
     public ICommand UpdateAccountCommand { get; }
 
-    /// <summary>
-    /// 删除账户命令
-    /// </summary>
     public ICommand DeleteAccountCommand { get; }
 
-    /// <summary>
-    /// 冻结/解冻账户命令
-    /// </summary>
     public ICommand ToggleFreezeCommand { get; }
 
-    /// <summary>
-    /// 重置密码命令
-    /// </summary>
     public ICommand ResetPasswordCommand { get; }
 
-    /// <summary>
-    /// 清空表单命令
-    /// </summary>
     public ICommand ClearFormCommand { get; }
 
-    /// <summary>
-    /// 账户操作成功事件
-    /// </summary>
     public event EventHandler<string>? OperationSucceeded;
 
-    /// <summary>
-    /// 账户操作失败事件
-    /// </summary>
     public event EventHandler<string>? OperationFailed;
 
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public AccountManagementViewModel(ISysAccountService accountService, ISysRoleService roleService)
+    public Task LoadAccountsAsync()
     {
-        _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-        _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
-
-        LoadAccountsCommand = new RelayCommand(ExecuteLoadAccounts);
-        LoadRolesCommand = new RelayCommand(ExecuteLoadRoles);
-        SearchCommand = new RelayCommand(ExecuteSearch);
-        AddAccountCommand = new RelayCommand(ExecuteAddAccount, CanExecuteAddAccount);
-        UpdateAccountCommand = new RelayCommand(ExecuteUpdateAccount, CanExecuteUpdateAccount);
-        DeleteAccountCommand = new RelayCommand(ExecuteDeleteAccount, CanExecuteDelete);
-        ToggleFreezeCommand = new RelayCommand(ExecuteToggleFreeze, CanExecuteDelete);
-        ResetPasswordCommand = new RelayCommand(ExecuteResetPassword, CanExecuteDelete);
-        ClearFormCommand = new RelayCommand(ExecuteClearForm);
+        return ExecuteAsync(LoadAccountsPageAsync, ex => Debug.Error($"加载账户异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 加载账户列表
-    /// </summary>
-    private async void ExecuteLoadAccounts()
+    public Task LoadRolesAsync()
     {
-        await ExecuteAsync(async () =>
-        {
-            Debug.Info("开始加载账户列表");
-
-            var accounts = await _accountService.GetAllAccountsAsync();
-
-            Accounts.Clear();
-            foreach (var account in accounts)
-            {
-                Accounts.Add(account);
-            }
-
-            Debug.Info($"账户列表加载完成: Count={Accounts.Count}");
-        }, ex => Debug.Error($"加载账户异常: {ex.Message}", ex));
-    }
-
-    /// <summary>
-    /// 加载角色列表
-    /// </summary>
-    private async void ExecuteLoadRoles()
-    {
-        await ExecuteAsync(async () =>
+        return ExecuteAsync(async () =>
         {
             Debug.Info("开始加载角色列表");
 
@@ -233,41 +214,96 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"加载角色异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 搜索账户
-    /// </summary>
-    private async void ExecuteSearch()
+    public Task SearchAsync()
     {
-        if (string.IsNullOrWhiteSpace(SearchKeyword))
-        {
-            ExecuteLoadAccounts();
-            return;
-        }
-
-        await ExecuteAsync(async () =>
-        {
-            Debug.Info($"搜索账户: Keyword={SearchKeyword}");
-
-            // 搜索逻辑：从所有账户中筛选包含关键字的账户
-            var allAccounts = await _accountService.GetAllAccountsAsync();
-            var filteredAccounts = allAccounts.Where(a =>
-                (a.SysAccountName?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.SysNickname?.Contains(SearchKeyword, StringComparison.OrdinalIgnoreCase) ?? false)
-            );
-
-            Accounts.Clear();
-            foreach (var account in filteredAccounts)
-            {
-                Accounts.Add(account);
-            }
-
-            Debug.Info($"搜索完成: Count={Accounts.Count}");
-        }, ex => Debug.Error($"搜索异常: {ex.Message}", ex));
+        CurrentPage = 1;
+        return LoadAccountsAsync();
     }
 
-    /// <summary>
-    /// 是否可以添加账户
-    /// </summary>
+    public Task GoToPageAsync(int page)
+    {
+        CurrentPage = Math.Clamp(page, 1, TotalPages);
+        return LoadAccountsAsync();
+    }
+
+    public Task SetPageSizeAsync(int pageSize)
+    {
+        PageSize = pageSize;
+        CurrentPage = 1;
+        return LoadAccountsAsync();
+    }
+
+    public override void Initialize()
+    {
+        _ = InitializeAccountPageAsync();
+    }
+
+    public override Task InitializeAsync()
+    {
+        return InitializeAccountPageAsync();
+    }
+
+    private async Task InitializeAccountPageAsync()
+    {
+        await LoadRolesAsync();
+        await LoadAccountsAsync();
+    }
+
+    private async void ExecuteLoadAccounts()
+    {
+        await LoadAccountsAsync();
+    }
+
+    private async void ExecuteLoadRoles()
+    {
+        await LoadRolesAsync();
+    }
+
+    private async void ExecuteSearch()
+    {
+        await SearchAsync();
+    }
+
+    private async void ExecutePreviousPage()
+    {
+        await GoToPageAsync(CurrentPage - 1);
+    }
+
+    private async void ExecuteNextPage()
+    {
+        await GoToPageAsync(CurrentPage + 1);
+    }
+
+    private async Task LoadAccountsPageAsync()
+    {
+        Debug.Info($"加载账户: Keyword={SearchKeyword}, Page={CurrentPage}, PageSize={PageSize}");
+
+        var result = await QueryCurrentPageAsync();
+        var lastPage = CalculateTotalPages(result.Total, PageSize);
+        if (CurrentPage > lastPage)
+        {
+            CurrentPage = lastPage;
+            result = await QueryCurrentPageAsync();
+        }
+
+        Accounts.Clear();
+        foreach (var account in result.Items)
+        {
+            Accounts.Add(account);
+        }
+
+        TotalCount = result.Total;
+        StatusMessage = $"已加载 {Accounts.Count}/{TotalCount} 个账户";
+
+        Debug.Info($"账户列表加载完成: Count={Accounts.Count}, Total={TotalCount}, Page={CurrentPage}");
+    }
+
+    private Task<PagedResult<SysAccountModel>> QueryCurrentPageAsync()
+    {
+        var keyword = string.IsNullOrWhiteSpace(SearchKeyword) ? null : SearchKeyword.Trim();
+        return _accountService.QueryAccountsAsync(keyword, CurrentPage, PageSize);
+    }
+
     private bool CanExecuteAddAccount()
     {
         return !string.IsNullOrWhiteSpace(EditUsername)
@@ -275,9 +311,6 @@ public class AccountManagementViewModel : BaseViewModel
                && !IsBusy;
     }
 
-    /// <summary>
-    /// 添加账户
-    /// </summary>
     private async void ExecuteAddAccount()
     {
         await ExecuteAsync(async () =>
@@ -297,11 +330,11 @@ public class AccountManagementViewModel : BaseViewModel
 
             if (result)
             {
-                Debug.Info($"账户添加成功");
+                Debug.Info("账户添加成功");
                 OperationSucceeded?.Invoke(this, "账户添加成功");
 
                 ClearForm();
-                ExecuteLoadAccounts();
+                await LoadAccountsPageAsync();
             }
             else
             {
@@ -311,9 +344,6 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"添加账户异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 是否可以更新账户
-    /// </summary>
     private bool CanExecuteUpdateAccount()
     {
         return EditAccountId > 0
@@ -321,9 +351,6 @@ public class AccountManagementViewModel : BaseViewModel
                && !IsBusy;
     }
 
-    /// <summary>
-    /// 更新账户
-    /// </summary>
     private async void ExecuteUpdateAccount()
     {
         await ExecuteAsync(async () =>
@@ -339,7 +366,6 @@ public class AccountManagementViewModel : BaseViewModel
                 SysStatus = EditStatus
             };
 
-            // 如果密码不为空，则更新密码
             if (!string.IsNullOrWhiteSpace(EditPassword))
             {
                 account.SysPassword = EditPassword;
@@ -353,7 +379,7 @@ public class AccountManagementViewModel : BaseViewModel
                 OperationSucceeded?.Invoke(this, "账户更新成功");
 
                 ClearForm();
-                ExecuteLoadAccounts();
+                await LoadAccountsPageAsync();
             }
             else
             {
@@ -363,26 +389,23 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"更新账户异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 是否可以删除
-    /// </summary>
     private bool CanExecuteDelete()
     {
         return SelectedAccount != null && !IsBusy;
     }
 
-    /// <summary>
-    /// 删除账户
-    /// </summary>
     private async void ExecuteDeleteAccount()
     {
-        if (SelectedAccount == null) return;
+        if (SelectedAccount == null)
+        {
+            return;
+        }
 
         await ExecuteAsync(async () =>
         {
             Debug.Info($"删除账户: AccountId={SelectedAccount.SysId}");
 
-            var result = await _accountService.DeleteAccountAsync((int)SelectedAccount.SysId);
+            var result = await _accountService.DeleteAccountAsync(SelectedAccount.SysId);
 
             if (result)
             {
@@ -390,7 +413,7 @@ public class AccountManagementViewModel : BaseViewModel
                 OperationSucceeded?.Invoke(this, "账户删除成功");
 
                 ClearForm();
-                ExecuteLoadAccounts();
+                await LoadAccountsPageAsync();
             }
             else
             {
@@ -400,12 +423,12 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"删除账户异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 冻结/解冻账户
-    /// </summary>
     private async void ExecuteToggleFreeze()
     {
-        if (SelectedAccount == null) return;
+        if (SelectedAccount == null)
+        {
+            return;
+        }
 
         await ExecuteAsync(async () =>
         {
@@ -415,11 +438,11 @@ public class AccountManagementViewModel : BaseViewModel
             bool result;
             if (isFrozen)
             {
-                result = await _accountService.FreezeAccountAsync((int)SelectedAccount.SysId);
+                result = await _accountService.FreezeAccountAsync(SelectedAccount.SysId);
             }
             else
             {
-                result = await _accountService.UnfreezeAccountAsync((int)SelectedAccount.SysId);
+                result = await _accountService.UnfreezeAccountAsync(SelectedAccount.SysId);
             }
 
             if (result)
@@ -428,7 +451,7 @@ public class AccountManagementViewModel : BaseViewModel
                 Debug.Info($"{message}: AccountId={SelectedAccount.SysId}");
                 OperationSucceeded?.Invoke(this, message);
 
-                ExecuteLoadAccounts();
+                await LoadAccountsPageAsync();
             }
             else
             {
@@ -438,23 +461,30 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"操作异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 重置密码
-    /// </summary>
     private async void ExecuteResetPassword()
     {
-        if (SelectedAccount == null) return;
+        if (SelectedAccount == null)
+        {
+            return;
+        }
 
         await ExecuteAsync(async () =>
         {
             Debug.Info($"重置密码: AccountId={SelectedAccount.SysId}");
 
-            // 创建一个账户副本用于更新密码
             var account = new SysAccountModel
             {
                 SysId = SelectedAccount.SysId,
                 SysAccountName = SelectedAccount.SysAccountName,
-                SysPassword = "123456"
+                SysPassword = "123456",
+                SysNickname = SelectedAccount.SysNickname,
+                SysLevel = SelectedAccount.SysLevel,
+                SysRoleId = SelectedAccount.SysRoleId,
+                SysExtendId = SelectedAccount.SysExtendId,
+                SysStatus = SelectedAccount.SysStatus,
+                SysReserved1 = SelectedAccount.SysReserved1,
+                SysReserved2 = SelectedAccount.SysReserved2,
+                SysReserved3 = SelectedAccount.SysReserved3
             };
 
             var result = await _accountService.UpdateAccountAsync(account);
@@ -472,17 +502,11 @@ public class AccountManagementViewModel : BaseViewModel
         }, ex => Debug.Error($"重置密码异常: {ex.Message}", ex));
     }
 
-    /// <summary>
-    /// 清空表单
-    /// </summary>
     private void ExecuteClearForm()
     {
         ClearForm();
     }
 
-    /// <summary>
-    /// 加载账户到编辑表单
-    /// </summary>
     private void LoadAccountForEdit()
     {
         if (SelectedAccount == null)
@@ -493,16 +517,13 @@ public class AccountManagementViewModel : BaseViewModel
 
         EditAccountId = SelectedAccount.SysId;
         EditUsername = SelectedAccount.SysAccountName ?? string.Empty;
-        EditPassword = string.Empty; // 不显示密码
+        EditPassword = string.Empty;
         EditNickname = SelectedAccount.SysNickname ?? string.Empty;
         EditRoleId = SelectedAccount.SysRoleId;
         EditStatus = SelectedAccount.SysStatus ?? true;
         EditRemark = string.Empty;
     }
 
-    /// <summary>
-    /// 清空表单
-    /// </summary>
     private void ClearForm()
     {
         EditAccountId = 0;
@@ -515,12 +536,15 @@ public class AccountManagementViewModel : BaseViewModel
         SelectedAccount = null;
     }
 
-    /// <summary>
-    /// 初始化加载
-    /// </summary>
-    public new void Initialize()
+    private static int CalculateTotalPages(int totalCount, int pageSize)
     {
-        LoadRolesCommand.Execute(null);
-        LoadAccountsCommand.Execute(null);
+        return Math.Max(1, (int)Math.Ceiling(Math.Max(0, totalCount) / (double)Math.Max(pageSize, 1)));
+    }
+
+    private void RaisePagingPropertiesChanged()
+    {
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(HasPreviousPage));
+        OnPropertyChanged(nameof(HasNextPage));
     }
 }

@@ -112,11 +112,11 @@ public class MainViewModel : BaseViewModel
             var menus = await _permissionService.GetAccessibleMenuTreeAsync(CurrentAccount.SysId);
 
             // 更新菜单集合
-            MenuItems.Clear();
-            foreach (var menu in menus.OrderBy(m => m.SmSort))
-            {
-                MenuItems.Add(menu);
-            }
+            MenuItems = new ObservableCollection<SysMenuModel>(
+                menus
+                    .OrderBy(m => m.SmLevel ?? 0)
+                    .ThenBy(m => m.SmSort ?? int.MaxValue)
+                    .ThenBy(m => m.SmId));
 
             Debug.Info($"菜单加载完成: Count={MenuItems.Count}");
         }, ex =>

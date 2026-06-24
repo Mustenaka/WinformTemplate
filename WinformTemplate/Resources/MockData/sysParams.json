@@ -1,0 +1,15 @@
+[
+  {
+    "SpId": 1,
+    "SpParamKey": "app.title",
+    "SpParamValue": "WinformTemplate Local",
+    "SpType": false,
+    "SpSort": 1,
+    "SpStatus": false,
+    "SrCreateAt": "2026-06-23T00:00:00",
+    "SrUpdateAt": "2026-06-23T00:00:00",
+    "SrReserved1": "",
+    "SrReserved2": "",
+    "SysReserved3": ""
+  }
+]

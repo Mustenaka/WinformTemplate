@@ -266,6 +266,11 @@ ServiceFabricBackup/
 *.ldf
 *.ndf
 
+# SQLite runtime databases
+*.db
+*.db-shm
+*.db-wal
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
@@ -407,4 +412,10 @@ FodyWeavers.xsd
 /WinformTemplate/obj/project.assets.json
 /WinformTemplate/obj/project.nuget.cache
 /WinformTemplate/obj/WinformTemplate.csproj.nuget.dgspec.json
-/.claude
+/.claude/*
+!/.claude/skills/
+!/.claude/skills/winform-template-dev/
+!/.claude/skills/winform-template-dev/SKILL.md
+
+# Local runtime configuration. Keep config.example.json committed.
+/WinformTemplate/Resources/Config/config.json

@@ -13,21 +13,21 @@ public class SysMenuModel : BaseModel
 {
     private long _smId;
     private long _smParentId;
-    private string _smName;
-    private string _smEnName;
+    private string _smName = string.Empty;
+    private string _smEnName = string.Empty;
     private short _smType;
-    private string _smUrl;
-    private string _smTarget;
+    private string _smUrl = string.Empty;
+    private string _smTarget = string.Empty;
     private long? _smLevel;
     private int? _smSort;
-    private string _smIcon;
-    private string _smRemark;
+    private string _smIcon = string.Empty;
+    private string _smRemark = string.Empty;
     private bool? _sysStatus;
     private DateTime? _sysCreateAt;
     private DateTime? _sysUpdateAt;
-    private string _sysReserved1;
-    private string _sysReserved2;
-    private string _sysReserved3;
+    private string _sysReserved1 = string.Empty;
+    private string _sysReserved2 = string.Empty;
+    private string _sysReserved3 = string.Empty;
 
     /// <summary>
     /// 菜单主键id

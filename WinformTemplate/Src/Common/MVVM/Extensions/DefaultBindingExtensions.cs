@@ -19,7 +19,8 @@ public static class DefaultBindingExtensions
     public static void BindTo<T>(this TextBox textBox, T viewModel, Func<T, string> propertySelector,
         DataSourceUpdateMode updateMode = DataSourceUpdateMode.OnPropertyChanged) where T : INotifyPropertyChanged
     {
-        var property = propertySelector.Target.GetType().GetProperty(propertySelector.Method.Name.Substring(4));
+        var target = propertySelector.Target ?? throw new ArgumentException("Invalid property selector");
+        var property = target.GetType().GetProperty(propertySelector.Method.Name.Substring(4));
         if (property == null)
             throw new ArgumentException("Invalid property selector");
 
@@ -38,7 +39,8 @@ public static class DefaultBindingExtensions
     public static void BindTo<T>(this CheckBox checkBox, T viewModel, Func<T, bool> propertySelector,
         DataSourceUpdateMode updateMode = DataSourceUpdateMode.OnPropertyChanged) where T : INotifyPropertyChanged
     {
-        var property = propertySelector.Target.GetType().GetProperty(propertySelector.Method.Name.Substring(4));
+        var target = propertySelector.Target ?? throw new ArgumentException("Invalid property selector");
+        var property = target.GetType().GetProperty(propertySelector.Method.Name.Substring(4));
         if (property == null)
             throw new ArgumentException("Invalid property selector");
 
@@ -81,7 +83,8 @@ public static class DefaultBindingExtensions
     public static void BindTo<T, TItem>(this DataGridView dataGridView, T viewModel,
         Func<T, IEnumerable<TItem>> collectionSelector) where T : INotifyPropertyChanged
     {
-        var property = collectionSelector.Target.GetType().GetProperty(collectionSelector.Method.Name.Substring(4));
+        var target = collectionSelector.Target ?? throw new ArgumentException("Invalid property selector");
+        var property = target.GetType().GetProperty(collectionSelector.Method.Name.Substring(4));
         if (property == null)
             throw new ArgumentException("Invalid property selector");
 

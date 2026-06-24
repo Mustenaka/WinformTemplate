@@ -1,4 +1,5 @@
 using WinformTemplate.Business.Sys.Model;
+using WinformTemplate.Common.DataAccess;
 
 namespace WinformTemplate.Business.Sys.Service;
 
@@ -18,9 +19,16 @@ public interface ISysAccountService
     Task<IEnumerable<SysAccountModel>> GetAllAccountsAsync();
 
     /// <summary>
+    /// 搜索账户
+    /// </summary>
+    Task<IEnumerable<SysAccountModel>> SearchAccountsAsync(string keyword);
+
+    Task<PagedResult<SysAccountModel>> QueryAccountsAsync(string? keyword = null, int page = 1, int pageSize = 20);
+
+    /// <summary>
     /// 根据ID获取账户
     /// </summary>
-    Task<SysAccountModel?> GetAccountByIdAsync(int id);
+    Task<SysAccountModel?> GetAccountByIdAsync(long id);
 
     /// <summary>
     /// 根据用户名获取账户
@@ -40,30 +48,30 @@ public interface ISysAccountService
     /// <summary>
     /// 删除账户
     /// </summary>
-    Task<bool> DeleteAccountAsync(int id);
+    Task<bool> DeleteAccountAsync(long id);
 
     /// <summary>
     /// 修改密码
     /// </summary>
-    Task<bool> ChangePasswordAsync(int accountId, string oldPassword, string newPassword);
+    Task<bool> ChangePasswordAsync(long accountId, string oldPassword, string newPassword);
 
     /// <summary>
     /// 冻结账户
     /// </summary>
-    Task<bool> FreezeAccountAsync(int accountId);
+    Task<bool> FreezeAccountAsync(long accountId);
 
     /// <summary>
     /// 解冻账户
     /// </summary>
-    Task<bool> UnfreezeAccountAsync(int accountId);
+    Task<bool> UnfreezeAccountAsync(long accountId);
 
     /// <summary>
     /// 验证账户权限
     /// </summary>
-    Task<bool> HasPermissionAsync(int accountId, int menuId);
+    Task<bool> HasPermissionAsync(long accountId, long menuId);
 
     /// <summary>
     /// 获取账户的所有权限菜单
     /// </summary>
-    Task<IEnumerable<SysMenuModel>> GetAccountMenusAsync(int accountId);
+    Task<IEnumerable<SysMenuModel>> GetAccountMenusAsync(long accountId);
 }

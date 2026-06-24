@@ -1,31 +1,41 @@
 using AntdUI;
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Common.MVVM.Extensions;
 
 namespace WinformTemplate.UI.Business.Sys.Login;
 
 /// <summary>
-/// 账户管理用户控件
+/// 账户管理页。
 /// </summary>
 public partial class AccountManagementControl : UserControl
 {
-    private readonly AccountManagementViewModel _viewModel;
+    private const int DesiredPanel1MinWidth = 420;
+    private const int DesiredPanel2MinWidth = 320;
+    private const int DesiredRightWidth = 380;
 
-    // 控件
-    private System.Windows.Forms.Panel pnlTop = null!;
+    private readonly AccountManagementViewModel _viewModel;
+    private bool _initialized;
+    private bool _updatingPageSize;
+    private bool _updatingRole;
+
+    private FlowLayoutPanel pnlTop = null!;
     private System.Windows.Forms.Panel pnlMain = null!;
+    private SplitContainer splitMain = null!;
     private System.Windows.Forms.Panel pnlLeft = null!;
     private System.Windows.Forms.Panel pnlRight = null!;
+    private FlowLayoutPanel pnlPager = null!;
 
-    // 搜索区域
     private Input txtSearch = null!;
     private AntdUI.Button btnSearch = null!;
     private AntdUI.Button btnRefresh = null!;
+    private AntdUI.Button btnPrev = null!;
+    private AntdUI.Button btnNext = null!;
+    private Select selPageSize = null!;
+    private System.Windows.Forms.Label lblPageInfo = null!;
 
-    // 列表
     private Table tblAccounts = null!;
 
-    // 编辑区域
     private System.Windows.Forms.Label lblEditTitle = null!;
     private System.Windows.Forms.Label lblUsername = null!;
     private Input txtUsername = null!;
@@ -40,7 +50,6 @@ public partial class AccountManagementControl : UserControl
     private System.Windows.Forms.Label lblRemark = null!;
     private Input txtRemark = null!;
 
-    // 操作按钮
     private AntdUI.Button btnAdd = null!;
     private AntdUI.Button btnUpdate = null!;
     private AntdUI.Button btnDelete = null!;
@@ -55,57 +64,36 @@ public partial class AccountManagementControl : UserControl
         InitializeComponent();
         InitializeDataBindings();
 
-        // 订阅事件
         _viewModel.OperationSucceeded += OnOperationSucceeded;
         _viewModel.OperationFailed += OnOperationFailed;
-
-        // 初始化加载
-        _viewModel.Initialize();
     }
 
     private void InitializeComponent()
     {
-        // 主面板
-        pnlTop = new System.Windows.Forms.Panel
+        SuspendLayout();
+
+        BackColor = Color.FromArgb(240, 242, 245);
+        Padding = new Padding(12);
+        MinimumSize = new Size(860, 520);
+
+        pnlTop = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
             Height = 60,
-            BackColor = Color.White
-        };
-
-        pnlMain = new System.Windows.Forms.Panel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = Color.FromArgb(240, 242, 245)
-        };
-
-        // 左侧列表面板
-        pnlLeft = new System.Windows.Forms.Panel
-        {
-            Dock = DockStyle.Left,
-            Width = (int)(Width * 0.6),
             BackColor = Color.White,
-            Padding = new Padding(10)
+            Padding = new Padding(12),
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false
         };
 
-        // 右侧编辑面板
-        pnlRight = new System.Windows.Forms.Panel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = Color.White,
-            Padding = new Padding(10),
-            Margin = new Padding(10, 0, 0, 0)
-        };
-
-        // 搜索区域
         txtSearch = new Input
         {
-            Location = new Point(20, 15),
-            Size = new Size(300, 35),
+            Size = new Size(300, 36),
             PlaceholderText = "搜索用户名或昵称",
-            PrefixSvg = "SearchOutlined"
+            PrefixSvg = "SearchOutlined",
+            Margin = new Padding(0, 0, 8, 0)
         };
-        txtSearch.KeyPress += (s, e) =>
+        txtSearch.KeyPress += (_, e) =>
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
@@ -115,195 +103,243 @@ public partial class AccountManagementControl : UserControl
 
         btnSearch = new AntdUI.Button
         {
-            Location = new Point(330, 15),
-            Size = new Size(80, 35),
+            Size = new Size(88, 36),
             Text = "搜索",
-            Type = TTypeMini.Primary
+            Type = TTypeMini.Primary,
+            Margin = new Padding(0, 0, 8, 0)
         };
-        btnSearch.Click += (s, e) => _viewModel.SearchCommand.Execute(null);
+        btnSearch.Click += (_, _) => _viewModel.SearchCommand.Execute(null);
 
         btnRefresh = new AntdUI.Button
         {
-            Location = new Point(420, 15),
-            Size = new Size(80, 35),
+            Size = new Size(88, 36),
             Text = "刷新",
-            Type = TTypeMini.Default
+            Type = TTypeMini.Default,
+            Margin = new Padding(0)
         };
-        btnRefresh.Click += (s, e) => _viewModel.LoadAccountsCommand.Execute(null);
+        btnRefresh.Click += (_, _) => _viewModel.LoadAccountsCommand.Execute(null);
+        pnlTop.Controls.AddRange(new Control[] { txtSearch, btnSearch, btnRefresh });
 
-        // 账户列表表格
+        pnlMain = new System.Windows.Forms.Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.FromArgb(240, 242, 245),
+            Padding = new Padding(0, 10, 0, 0)
+        };
+
+        splitMain = new SplitContainer
+        {
+            Dock = DockStyle.Fill,
+            Orientation = Orientation.Vertical,
+            FixedPanel = FixedPanel.Panel2,
+            SplitterWidth = 8,
+            Panel1MinSize = 1,
+            Panel2MinSize = 1
+        };
+        splitMain.SizeChanged += (_, _) => EnsureSplitDistance();
+
+        pnlLeft = new System.Windows.Forms.Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.White,
+            Padding = new Padding(12)
+        };
+
         tblAccounts = new Table
         {
             Dock = DockStyle.Fill,
-            Margin = new Padding(0, 10, 0, 0)
+            Margin = new Padding(0)
         };
         tblAccounts.Columns = new ColumnCollection
         {
             new Column("SysId", "ID", ColumnAlign.Center) { Width = "80" },
-            new Column("SysAccountName", "用户名", ColumnAlign.Left) { Width = "120" },
-            new Column("SysNickname", "昵称", ColumnAlign.Left) { Width = "120" },
-            new Column("RoleName", "角色", ColumnAlign.Left) { Width = "100" },
+            new Column("SysAccountName", "用户名", ColumnAlign.Left) { Width = "140" },
+            new Column("SysNickname", "昵称", ColumnAlign.Left) { Width = "140" },
+            new Column("RoleName", "角色", ColumnAlign.Left) { Width = "120" },
             new Column("StatusText", "状态", ColumnAlign.Center) { Width = "80" }
         };
         tblAccounts.CellClick += OnTableCellClick;
 
-        // 编辑区域标题
+        pnlPager = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 48,
+            BackColor = Color.White,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            Padding = new Padding(0, 8, 0, 0)
+        };
+
+        btnPrev = new AntdUI.Button
+        {
+            Size = new Size(88, 32),
+            Text = "上一页",
+            Type = TTypeMini.Default,
+            Margin = new Padding(0, 0, 8, 0)
+        };
+        btnPrev.Click += (_, _) => _viewModel.PreviousPageCommand.Execute(null);
+
+        btnNext = new AntdUI.Button
+        {
+            Size = new Size(88, 32),
+            Text = "下一页",
+            Type = TTypeMini.Default,
+            Margin = new Padding(0, 0, 12, 0)
+        };
+        btnNext.Click += (_, _) => _viewModel.NextPageCommand.Execute(null);
+
+        lblPageInfo = new System.Windows.Forms.Label
+        {
+            AutoSize = false,
+            Size = new Size(260, 32),
+            TextAlign = ContentAlignment.MiddleLeft,
+            Margin = new Padding(0, 0, 12, 0)
+        };
+
+        selPageSize = new Select
+        {
+            Size = new Size(118, 32),
+            Margin = new Padding(0)
+        };
+        selPageSize.Items.Add(new SelectItem("10 / 页", 10));
+        selPageSize.Items.Add(new SelectItem("20 / 页", 20));
+        selPageSize.Items.Add(new SelectItem("50 / 页", 50));
+        selPageSize.SelectedValue = 20;
+        selPageSize.SelectedValueChanged += async (_, _) =>
+        {
+            if (_updatingPageSize)
+            {
+                return;
+            }
+
+            if (TryInt(selPageSize.SelectedValue, out var size))
+            {
+                await _viewModel.SetPageSizeAsync(size);
+            }
+        };
+
+        pnlPager.Controls.AddRange(new Control[] { btnPrev, btnNext, lblPageInfo, selPageSize });
+        pnlLeft.Controls.AddRange(new Control[] { tblAccounts, pnlPager });
+
+        pnlRight = new System.Windows.Forms.Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.White,
+            Padding = new Padding(12),
+            AutoScroll = true
+        };
+        BuildEditor();
+
+        splitMain.Panel1.Controls.Add(pnlLeft);
+        splitMain.Panel2.Controls.Add(pnlRight);
+        pnlMain.Controls.Add(splitMain);
+
+        Controls.AddRange(new Control[] { pnlMain, pnlTop });
+
+        ResumeLayout(false);
+        HandleCreated += (_, _) => EnsureSplitDistance();
+        SizeChanged += (_, _) => EnsureSplitDistance();
+    }
+
+    private void BuildEditor()
+    {
+        var editorLayout = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            BackColor = Color.White,
+            ColumnCount = 2,
+            RowCount = 8,
+            Padding = new Padding(0)
+        };
+        editorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 86));
+        editorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
+        editorLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
+
         lblEditTitle = new System.Windows.Forms.Label
         {
             Text = "账户信息",
+            Dock = DockStyle.Fill,
             Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Bold),
-            Location = new Point(10, 10),
-            Size = new Size(200, 30)
+            TextAlign = ContentAlignment.MiddleLeft
         };
+        editorLayout.Controls.Add(lblEditTitle, 0, 0);
+        editorLayout.SetColumnSpan(lblEditTitle, 2);
 
-        int yPos = 50;
-        int labelWidth = 80;
-        int inputWidth = 240;
-        int rowHeight = 50;
+        lblUsername = CreateFieldLabel("用户名");
+        txtUsername = CreateInput();
+        AddEditorRow(editorLayout, 1, lblUsername, txtUsername);
 
-        // 用户名
-        lblUsername = new System.Windows.Forms.Label
-        {
-            Text = "用户名",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
-        };
-        txtUsername = new Input
-        {
-            Location = new Point(100, yPos),
-            Size = new Size(inputWidth, 35)
-        };
-        txtUsername.TextChanged += (s, e) => _viewModel.EditUsername = txtUsername.Text;
-        yPos += rowHeight;
+        lblPassword = CreateFieldLabel("密码");
+        txtPassword = CreateInput();
+        txtPassword.UseSystemPasswordChar = true;
+        txtPassword.PlaceholderText = "编辑时留空则不修改";
+        AddEditorRow(editorLayout, 2, lblPassword, txtPassword);
 
-        // 密码
-        lblPassword = new System.Windows.Forms.Label
-        {
-            Text = "密码",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
-        };
-        txtPassword = new Input
-        {
-            Location = new Point(100, yPos),
-            Size = new Size(inputWidth, 35),
-            UseSystemPasswordChar = true,
-            PlaceholderText = "编辑时留空则不修改"
-        };
-        txtPassword.TextChanged += (s, e) => _viewModel.EditPassword = txtPassword.Text;
-        yPos += rowHeight;
+        lblNickname = CreateFieldLabel("昵称");
+        txtNickname = CreateInput();
+        AddEditorRow(editorLayout, 3, lblNickname, txtNickname);
 
-        // 昵称
-        lblNickname = new System.Windows.Forms.Label
-        {
-            Text = "昵称",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
-        };
-        txtNickname = new Input
-        {
-            Location = new Point(100, yPos),
-            Size = new Size(inputWidth, 35)
-        };
-        txtNickname.TextChanged += (s, e) => _viewModel.EditNickname = txtNickname.Text;
-        yPos += rowHeight;
-
-        // 角色
-        lblRole = new System.Windows.Forms.Label
-        {
-            Text = "角色",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
-        };
+        lblRole = CreateFieldLabel("角色");
         selRole = new Select
         {
-            Location = new Point(100, yPos),
-            Size = new Size(inputWidth, 35),
-            PlaceholderText = "选择角色"
+            Dock = DockStyle.Fill,
+            PlaceholderText = "选择角色",
+            Margin = new Padding(4, 6, 0, 6)
         };
-        selRole.SelectedValueChanged += (s, e) =>
+        selRole.SelectedValueChanged += (_, _) =>
         {
-            if (selRole.SelectedValue is long roleId)
+            if (_updatingRole)
             {
-                _viewModel.EditRoleId = roleId;
+                return;
             }
-            else if (selRole.SelectedValue != null && long.TryParse(selRole.SelectedValue.ToString(), out var parsedId))
-            {
-                _viewModel.EditRoleId = parsedId;
-            }
-        };
-        yPos += rowHeight;
 
-        // 状态
-        lblStatus = new System.Windows.Forms.Label
-        {
-            Text = "启用状态",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
+            _viewModel.EditRoleId = TryLong(selRole.SelectedValue, out var roleId) ? roleId : null;
         };
+        AddEditorRow(editorLayout, 4, lblRole, selRole);
+
+        lblStatus = CreateFieldLabel("启用状态");
         swStatus = new Switch
         {
-            Location = new Point(100, yPos + 5),
-            Checked = true
+            Checked = true,
+            Margin = new Padding(4, 10, 0, 6),
+            Anchor = AnchorStyles.Left
         };
-        swStatus.CheckedChanged += (s, e) => _viewModel.EditStatus = swStatus.Checked;
-        yPos += rowHeight;
+        AddEditorRow(editorLayout, 5, lblStatus, swStatus);
 
-        // 备注
-        lblRemark = new System.Windows.Forms.Label
-        {
-            Text = "备注",
-            Location = new Point(10, yPos + 10),
-            Size = new Size(labelWidth, 25)
-        };
-        txtRemark = new Input
-        {
-            Location = new Point(100, yPos),
-            Size = new Size(inputWidth, 70),
-            Multiline = true
-        };
-        txtRemark.TextChanged += (s, e) => _viewModel.EditRemark = txtRemark.Text;
-        yPos += 90;
+        lblRemark = CreateFieldLabel("备注");
+        txtRemark = CreateInput();
+        txtRemark.Multiline = true;
+        AddEditorRow(editorLayout, 6, lblRemark, txtRemark);
 
-        // 操作按钮
-        int btnY = yPos;
-        btnAdd = new AntdUI.Button
+        var actionPanel = new FlowLayoutPanel
         {
-            Location = new Point(10, btnY),
-            Size = new Size(100, 35),
-            Text = "添加",
-            Type = TTypeMini.Primary
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            BackColor = Color.White,
+            Padding = new Padding(0, 6, 0, 0)
         };
-        btnAdd.Click += (s, e) => _viewModel.AddAccountCommand.Execute(null);
 
-        btnUpdate = new AntdUI.Button
-        {
-            Location = new Point(120, btnY),
-            Size = new Size(100, 35),
-            Text = "更新",
-            Type = TTypeMini.Success
-        };
-        btnUpdate.Click += (s, e) => _viewModel.UpdateAccountCommand.Execute(null);
+        btnAdd = CreateActionButton("添加", TTypeMini.Primary);
+        btnAdd.Click += (_, _) => _viewModel.AddAccountCommand.Execute(null);
 
-        btnClear = new AntdUI.Button
-        {
-            Location = new Point(230, btnY),
-            Size = new Size(100, 35),
-            Text = "清空",
-            Type = TTypeMini.Default
-        };
-        btnClear.Click += (s, e) => _viewModel.ClearFormCommand.Execute(null);
+        btnUpdate = CreateActionButton("更新", TTypeMini.Success);
+        btnUpdate.Click += (_, _) => _viewModel.UpdateAccountCommand.Execute(null);
 
-        btnY += 45;
+        btnClear = CreateActionButton("清空", TTypeMini.Default);
+        btnClear.Click += (_, _) => _viewModel.ClearFormCommand.Execute(null);
 
-        btnDelete = new AntdUI.Button
-        {
-            Location = new Point(10, btnY),
-            Size = new Size(100, 35),
-            Text = "删除",
-            Type = TTypeMini.Error
-        };
-        btnDelete.Click += (s, e) =>
+        btnDelete = CreateActionButton("删除", TTypeMini.Error);
+        btnDelete.Click += (_, _) =>
         {
             if (MessageBox.Show("确定要删除该账户吗？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
@@ -311,23 +347,11 @@ public partial class AccountManagementControl : UserControl
             }
         };
 
-        btnToggleFreeze = new AntdUI.Button
-        {
-            Location = new Point(120, btnY),
-            Size = new Size(100, 35),
-            Text = "冻结/解冻",
-            Type = TTypeMini.Warn
-        };
-        btnToggleFreeze.Click += (s, e) => _viewModel.ToggleFreezeCommand.Execute(null);
+        btnToggleFreeze = CreateActionButton("冻结/解冻", TTypeMini.Warn);
+        btnToggleFreeze.Click += (_, _) => _viewModel.ToggleFreezeCommand.Execute(null);
 
-        btnResetPassword = new AntdUI.Button
-        {
-            Location = new Point(230, btnY),
-            Size = new Size(100, 35),
-            Text = "重置密码",
-            Type = TTypeMini.Warn
-        };
-        btnResetPassword.Click += (s, e) =>
+        btnResetPassword = CreateActionButton("重置密码", TTypeMini.Warn);
+        btnResetPassword.Click += (_, _) =>
         {
             if (MessageBox.Show("确定要重置密码为 123456 吗？", "确认重置", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
@@ -335,29 +359,26 @@ public partial class AccountManagementControl : UserControl
             }
         };
 
-        // 组装控件
-        pnlTop.Controls.AddRange(new Control[] { txtSearch, btnSearch, btnRefresh });
-        pnlLeft.Controls.Add(tblAccounts);
-        pnlRight.Controls.AddRange(new Control[] {
-            lblEditTitle, lblUsername, txtUsername, lblPassword, txtPassword,
-            lblNickname, txtNickname, lblRole, selRole, lblStatus, swStatus,
-            lblRemark, txtRemark, btnAdd, btnUpdate, btnClear, btnDelete,
-            btnToggleFreeze, btnResetPassword
+        actionPanel.Controls.AddRange(new Control[]
+        {
+            btnAdd, btnUpdate, btnClear, btnDelete, btnToggleFreeze, btnResetPassword
         });
+        editorLayout.Controls.Add(actionPanel, 0, 7);
+        editorLayout.SetColumnSpan(actionPanel, 2);
 
-        pnlMain.Controls.AddRange(new Control[] { pnlRight, pnlLeft });
-
-        Controls.AddRange(new Control[] { pnlMain, pnlTop });
-        BackColor = Color.FromArgb(240, 242, 245);
-        Padding = new Padding(10);
+        pnlRight.Controls.Add(editorLayout);
     }
 
-    /// <summary>
-    /// 初始化数据绑定
-    /// </summary>
     private void InitializeDataBindings()
     {
-        _viewModel.PropertyChanged += (s, e) =>
+        txtSearch.BindText(_viewModel, nameof(AccountManagementViewModel.SearchKeyword));
+        txtUsername.BindText(_viewModel, nameof(AccountManagementViewModel.EditUsername));
+        txtPassword.BindText(_viewModel, nameof(AccountManagementViewModel.EditPassword));
+        txtNickname.BindText(_viewModel, nameof(AccountManagementViewModel.EditNickname));
+        txtRemark.BindText(_viewModel, nameof(AccountManagementViewModel.EditRemark));
+        swStatus.BindChecked(_viewModel, nameof(AccountManagementViewModel.EditStatus));
+
+        _viewModel.PropertyChanged += (_, e) =>
         {
             if (InvokeRequired)
             {
@@ -370,78 +391,122 @@ public partial class AccountManagementControl : UserControl
         };
     }
 
-    /// <summary>
-    /// 处理属性变化
-    /// </summary>
     private void HandlePropertyChanged(string? propertyName)
     {
         switch (propertyName)
         {
-            case nameof(_viewModel.Accounts):
+            case nameof(AccountManagementViewModel.Accounts):
                 UpdateAccountsTable();
                 break;
-            case nameof(_viewModel.Roles):
+            case nameof(AccountManagementViewModel.Roles):
                 UpdateRolesDropdown();
                 break;
-            case nameof(_viewModel.EditUsername):
-                if (txtUsername.Text != _viewModel.EditUsername)
-                    txtUsername.Text = _viewModel.EditUsername;
+            case nameof(AccountManagementViewModel.EditRoleId):
+                UpdateSelectedRole();
                 break;
-            case nameof(_viewModel.EditNickname):
-                if (txtNickname.Text != _viewModel.EditNickname)
-                    txtNickname.Text = _viewModel.EditNickname;
-                break;
-            case nameof(_viewModel.EditPassword):
-                if (txtPassword.Text != _viewModel.EditPassword)
-                    txtPassword.Text = _viewModel.EditPassword;
-                break;
-            case nameof(_viewModel.EditStatus):
-                swStatus.Checked = _viewModel.EditStatus;
-                break;
-            case nameof(_viewModel.EditRemark):
-                if (txtRemark.Text != _viewModel.EditRemark)
-                    txtRemark.Text = _viewModel.EditRemark;
+            case nameof(AccountManagementViewModel.CurrentPage):
+            case nameof(AccountManagementViewModel.TotalCount):
+            case nameof(AccountManagementViewModel.TotalPages):
+            case nameof(AccountManagementViewModel.HasPreviousPage):
+            case nameof(AccountManagementViewModel.HasNextPage):
+            case nameof(AccountManagementViewModel.PageSize):
+            case nameof(AccountManagementViewModel.IsBusy):
+                UpdatePager();
+                UpdateBusyState();
                 break;
         }
     }
 
-    /// <summary>
-    /// 更新账户表格
-    /// </summary>
     private void UpdateAccountsTable()
     {
-        var data = _viewModel.Accounts.Select(a => new
+        var data = _viewModel.Accounts.Select(account => new
         {
-            a.SysId,
-            a.SysAccountName,
-            a.SysNickname,
-            RoleName = "角色",  // TODO: 需要关联查询角色信息
-            StatusText = a.SysStatus ?? false ? "启用" : "冻结"
+            account.SysId,
+            account.SysAccountName,
+            account.SysNickname,
+            RoleName = GetRoleName(account.SysRoleId),
+            StatusText = account.SysStatus ?? false ? "启用" : "冻结"
         }).ToArray();
 
         tblAccounts.DataSource = data;
+        UpdatePager();
     }
 
-    /// <summary>
-    /// 更新角色下拉框
-    /// </summary>
     private void UpdateRolesDropdown()
     {
-        selRole.Items.Clear();
-        foreach (var role in _viewModel.Roles)
+        _updatingRole = true;
+        try
         {
-            selRole.Items.Add(new SelectItem(role.SrName ?? "", role.SrId));
+            selRole.Items.Clear();
+            selRole.Items.Add(new SelectItem("未指定", string.Empty));
+            foreach (var role in _viewModel.Roles)
+            {
+                selRole.Items.Add(new SelectItem(role.SrName ?? $"角色 {role.SrId}", role.SrId));
+            }
+        }
+        finally
+        {
+            _updatingRole = false;
+        }
+
+        UpdateSelectedRole();
+        UpdateAccountsTable();
+    }
+
+    private void UpdateSelectedRole()
+    {
+        _updatingRole = true;
+        try
+        {
+            selRole.SelectedValue = _viewModel.EditRoleId.HasValue ? _viewModel.EditRoleId.Value : string.Empty;
+        }
+        finally
+        {
+            _updatingRole = false;
         }
     }
 
-    /// <summary>
-    /// 表格单元格点击
-    /// </summary>
+    private void UpdatePager()
+    {
+        lblPageInfo.Text = $"第 {_viewModel.CurrentPage}/{_viewModel.TotalPages} 页，共 {_viewModel.TotalCount} 条";
+        btnPrev.Enabled = _viewModel.HasPreviousPage && !_viewModel.IsBusy;
+        btnNext.Enabled = _viewModel.HasNextPage && !_viewModel.IsBusy;
+
+        _updatingPageSize = true;
+        try
+        {
+            selPageSize.SelectedValue = _viewModel.PageSize;
+        }
+        finally
+        {
+            _updatingPageSize = false;
+        }
+    }
+
+    private void UpdateBusyState()
+    {
+        var enabled = !_viewModel.IsBusy;
+        txtSearch.Enabled = enabled;
+        btnSearch.Enabled = enabled;
+        btnRefresh.Enabled = enabled;
+        selPageSize.Enabled = enabled;
+    }
+
+    private string GetRoleName(long? roleId)
+    {
+        if (roleId == null)
+        {
+            return "未指定";
+        }
+
+        return _viewModel.Roles.FirstOrDefault(role => role.SrId == roleId.Value)?.SrName ?? $"角色 {roleId.Value}";
+    }
+
     private void OnTableCellClick(object? sender, TableClickEventArgs e)
     {
-        if (e.Record is { } && e.Record.GetType().GetProperty("SysId")?.GetValue(e.Record) is long accountId)
+        if (e.Record?.GetType().GetProperty("SysId")?.GetValue(e.Record) is long accountId)
         {
-            var account = _viewModel.Accounts.FirstOrDefault(a => a.SysId == accountId);
+            var account = _viewModel.Accounts.FirstOrDefault(item => item.SysId == accountId);
             if (account != null)
             {
                 _viewModel.SelectedAccount = account;
@@ -449,9 +514,6 @@ public partial class AccountManagementControl : UserControl
         }
     }
 
-    /// <summary>
-    /// 操作成功处理
-    /// </summary>
     private void OnOperationSucceeded(object? sender, string message)
     {
         if (InvokeRequired)
@@ -463,9 +525,6 @@ public partial class AccountManagementControl : UserControl
         MessageBox.Show(message, "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
-    /// <summary>
-    /// 操作失败处理
-    /// </summary>
     private void OnOperationFailed(object? sender, string message)
     {
         if (InvokeRequired)
@@ -477,9 +536,6 @@ public partial class AccountManagementControl : UserControl
         MessageBox.Show(message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 
-    /// <summary>
-    /// 控件卸载时清理
-    /// </summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -487,6 +543,132 @@ public partial class AccountManagementControl : UserControl
             _viewModel.OperationSucceeded -= OnOperationSucceeded;
             _viewModel.OperationFailed -= OnOperationFailed;
         }
+
         base.Dispose(disposing);
+    }
+
+    protected override async void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        EnsureSplitDistance();
+
+        if (_initialized)
+        {
+            return;
+        }
+
+        _initialized = true;
+        await _viewModel.InitializeAsync();
+    }
+
+    private void EnsureSplitDistance()
+    {
+        if (splitMain.IsDisposed || splitMain.Width <= splitMain.SplitterWidth + 2)
+        {
+            return;
+        }
+
+        var canUseDesiredMinSizes = splitMain.Width >= DesiredPanel1MinWidth + DesiredPanel2MinWidth + splitMain.SplitterWidth;
+        var panel1Min = canUseDesiredMinSizes ? DesiredPanel1MinWidth : 1;
+        var panel2Min = canUseDesiredMinSizes ? DesiredPanel2MinWidth : 1;
+        var maxDistance = splitMain.Width - panel2Min - splitMain.SplitterWidth;
+        if (maxDistance < panel1Min)
+        {
+            return;
+        }
+
+        var rightWidth = Math.Min(DesiredRightWidth, splitMain.Width - panel1Min - splitMain.SplitterWidth);
+        rightWidth = Math.Max(panel2Min, rightWidth);
+
+        var distance = splitMain.Width - rightWidth - splitMain.SplitterWidth;
+        distance = Math.Clamp(distance, panel1Min, maxDistance);
+
+        SetSafeMinimumSizes(1, 1);
+        SetSplitterDistanceIfValid(distance);
+        SetSafeMinimumSizes(panel1Min, panel2Min);
+        SetSplitterDistanceIfValid(distance);
+    }
+
+    private void SetSafeMinimumSizes(int panel1Min, int panel2Min)
+    {
+        if (splitMain.Panel1MinSize != panel1Min)
+        {
+            splitMain.Panel1MinSize = panel1Min;
+        }
+
+        if (splitMain.Panel2MinSize != panel2Min)
+        {
+            splitMain.Panel2MinSize = panel2Min;
+        }
+    }
+
+    private void SetSplitterDistanceIfValid(int distance)
+    {
+        var maxDistance = splitMain.Width - splitMain.Panel2MinSize - splitMain.SplitterWidth;
+        if (distance >= splitMain.Panel1MinSize
+            && distance <= maxDistance
+            && splitMain.SplitterDistance != distance)
+        {
+            splitMain.SplitterDistance = distance;
+        }
+    }
+
+    private static System.Windows.Forms.Label CreateFieldLabel(string text)
+    {
+        return new System.Windows.Forms.Label
+        {
+            Text = text,
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleRight,
+            Margin = new Padding(0, 0, 8, 0)
+        };
+    }
+
+    private static Input CreateInput()
+    {
+        return new Input
+        {
+            Dock = DockStyle.Fill,
+            Margin = new Padding(4, 6, 0, 6)
+        };
+    }
+
+    private static AntdUI.Button CreateActionButton(string text, TTypeMini type)
+    {
+        return new AntdUI.Button
+        {
+            Size = new Size(96, 34),
+            Text = text,
+            Type = type,
+            Margin = new Padding(0, 0, 8, 8)
+        };
+    }
+
+    private static void AddEditorRow(TableLayoutPanel layout, int row, Control label, Control editor)
+    {
+        layout.Controls.Add(label, 0, row);
+        layout.Controls.Add(editor, 1, row);
+    }
+
+    private static bool TryInt(object? value, out int result)
+    {
+        if (value is int intValue)
+        {
+            result = intValue;
+            return true;
+        }
+
+        return int.TryParse(Convert.ToString(value), out result);
+    }
+
+    private static bool TryLong(object? value, out long result)
+    {
+        if (value is long longValue)
+        {
+            result = longValue;
+            return true;
+        }
+
+        return long.TryParse(Convert.ToString(value), out result);
     }
 }

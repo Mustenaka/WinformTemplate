@@ -1,5 +1,6 @@
 using WinformTemplate.Business.Sys.Model;
 using WinformTemplate.Business.Sys.Repositories;
+using WinformTemplate.Common.DataAccess;
 using Debug = WinformTemplate.Logger.Debug;
 
 namespace WinformTemplate.Business.Sys.Service;
@@ -34,8 +35,12 @@ public class SysMenuService : ISysMenuService
         try
         {
             Debug.Info("获取所有菜单");
-            var menus = await _menuRepository.GetAllAsync();
-            return menus;
+            var result = await _menuRepository.QueryAsync(new QueryRequest
+            {
+                Page = 1,
+                PageSize = int.MaxValue
+            });
+            return result.Items;
         }
         catch (Exception ex)
         {
@@ -52,13 +57,7 @@ public class SysMenuService : ISysMenuService
         try
         {
             Debug.Info("获取菜单树");
-            var allMenus = await _menuRepository.GetAllAsync();
-
-            // 过滤有效菜单（SysStatus=false表示有效）
-            var validMenus = allMenus.Where(m => m.SysStatus == false).ToList();
-
-            // 按排序规则排序
-            validMenus = validMenus.OrderBy(m => m.SmSort ?? int.MaxValue).ToList();
+            var validMenus = await _menuRepository.GetActiveMenusAsync();
 
             Debug.Info($"菜单树获取成功，有效菜单数量：{validMenus.Count}");
             return validMenus;
@@ -81,13 +80,8 @@ public class SysMenuService : ISysMenuService
 
             var menus = await _roleRepository.GetMenusByRoleIdAsync(roleId);
 
-            // 过滤有效菜单
-            var validMenus = menus.Where(m => m.SysStatus == false)
-                                  .OrderBy(m => m.SmSort ?? int.MaxValue)
-                                  .ToList();
-
-            Debug.Info($"角色菜单获取成功，角色ID：{roleId}，菜单数量：{validMenus.Count}");
-            return validMenus;
+            Debug.Info($"角色菜单获取成功，角色ID：{roleId}，菜单数量：{menus.Count}");
+            return menus;
         }
         catch (Exception ex)
         {
@@ -308,10 +302,7 @@ public class SysMenuService : ISysMenuService
         {
             Debug.Info($"获取子菜单，父菜单ID：{parentId}");
 
-            var allMenus = await _menuRepository.GetAllAsync();
-            var childMenus = allMenus.Where(m => m.SmParentId == parentId)
-                                    .OrderBy(m => m.SmSort ?? int.MaxValue)
-                                    .ToList();
+            var childMenus = await _menuRepository.GetByParentIdAsync(parentId);
 
             Debug.Info($"子菜单获取成功，父菜单ID：{parentId}，子菜单数量：{childMenus.Count}");
             return childMenus;

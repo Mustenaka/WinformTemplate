@@ -1,16 +1,16 @@
 using AntdUI;
 using WinformTemplate.Business.Sys.ViewModel;
+using WinformTemplate.Common.MVVM.Extensions;
 
 namespace WinformTemplate.UI.Business.Sys.Login;
 
 /// <summary>
-/// 登录窗体
+/// 登录窗体。
 /// </summary>
 public partial class LoginForm : Window
 {
     private readonly LoginViewModel _viewModel;
 
-    // 控件
     private System.Windows.Forms.Label lblTitle = null!;
     private System.Windows.Forms.Label lblUsername = null!;
     private Input txtUsername = null!;
@@ -26,79 +26,68 @@ public partial class LoginForm : Window
         InitializeComponent();
         InitializeDataBindings();
 
-        // 订阅登录成功事件
         _viewModel.LoginSucceeded += OnLoginSucceeded;
     }
 
     private void InitializeComponent()
     {
-        // 窗体设置
+        SuspendLayout();
+
         Text = "系统登录";
-        Size = new Size(450, 350);
+        Size = new Size(460, 390);
+        MinimumSize = new Size(460, 390);
         StartPosition = FormStartPosition.CenterScreen;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
+        FormBorderStyle = FormBorderStyle.Sizable;
+        MaximizeBox = true;
+        MinimizeBox = true;
         BackColor = Color.White;
 
-        // 标题
+        var root = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.White,
+            Padding = new Padding(44, 28, 44, 28),
+            ColumnCount = 3,
+            RowCount = 11
+        };
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 360F));
+        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 18F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 12F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 42F));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+
         lblTitle = new System.Windows.Forms.Label
         {
             Text = "欢迎登录",
+            Dock = DockStyle.Fill,
             Font = new Font("Microsoft YaHei UI", 20F, FontStyle.Bold),
             ForeColor = Color.FromArgb(22, 119, 255),
-            Location = new Point(0, 40),
-            Size = new Size(450, 40),
             TextAlign = ContentAlignment.MiddleCenter
         };
 
-        // 用户名标签
-        lblUsername = new System.Windows.Forms.Label
+        lblUsername = CreateFieldLabel("用户名");
+        txtUsername = CreateInput("请输入用户名");
+        txtUsername.KeyPress += (_, e) =>
         {
-            Text = "用户名",
-            Font = new Font("Microsoft YaHei UI", 10F),
-            Location = new Point(70, 110),
-            Size = new Size(60, 25),
-            TextAlign = ContentAlignment.MiddleLeft
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                txtPassword.Focus();
+            }
         };
 
-        // 用户名输入框
-        txtUsername = new Input
-        {
-            Location = new Point(70, 140),
-            Size = new Size(310, 40),
-            PlaceholderText = "请输入用户名",
-            Font = new Font("Microsoft YaHei UI", 10F)
-        };
-        txtUsername.TextChanged += (s, e) =>
-        {
-            _viewModel.Username = txtUsername.Text;
-        };
-
-        // 密码标签
-        lblPassword = new System.Windows.Forms.Label
-        {
-            Text = "密码",
-            Font = new Font("Microsoft YaHei UI", 10F),
-            Location = new Point(70, 190),
-            Size = new Size(60, 25),
-            TextAlign = ContentAlignment.MiddleLeft
-        };
-
-        // 密码输入框
-        txtPassword = new Input
-        {
-            Location = new Point(70, 220),
-            Size = new Size(310, 40),
-            PlaceholderText = "请输入密码",
-            Font = new Font("Microsoft YaHei UI", 10F),
-            UseSystemPasswordChar = true
-        };
-        txtPassword.TextChanged += (s, e) =>
-        {
-            _viewModel.Password = txtPassword.Text;
-        };
-        txtPassword.KeyPress += (s, e) =>
+        lblPassword = CreateFieldLabel("密码");
+        txtPassword = CreateInput("请输入密码");
+        txtPassword.UseSystemPasswordChar = true;
+        txtPassword.KeyPress += (_, e) =>
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
@@ -106,100 +95,81 @@ public partial class LoginForm : Window
             }
         };
 
-        // 错误消息标签
         lblError = new System.Windows.Forms.Label
         {
-            Text = "",
+            Dock = DockStyle.Fill,
             Font = new Font("Microsoft YaHei UI", 9F),
             ForeColor = Color.FromArgb(255, 77, 79),
-            Location = new Point(70, 265),
-            Size = new Size(310, 20),
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.MiddleLeft,
+            AutoEllipsis = true
         };
 
-        // 登录按钮
         btnLogin = new AntdUI.Button
         {
-            Text = "登 录",
-            Location = new Point(70, 290),
-            Size = new Size(310, 40),
+            Text = "登录",
+            Dock = DockStyle.Fill,
             Font = new Font("Microsoft YaHei UI", 11F, FontStyle.Bold),
             Type = TTypeMini.Primary,
             BorderWidth = 0,
             Radius = 6
         };
-        btnLogin.Click += (s, e) => ExecuteLogin();
 
-        // 添加控件到窗体
-        Controls.Add(lblTitle);
-        Controls.Add(lblUsername);
-        Controls.Add(txtUsername);
-        Controls.Add(lblPassword);
-        Controls.Add(txtPassword);
-        Controls.Add(lblError);
-        Controls.Add(btnLogin);
+        root.Controls.Add(lblTitle, 1, 1);
+        root.Controls.Add(lblUsername, 1, 3);
+        root.Controls.Add(txtUsername, 1, 4);
+        root.Controls.Add(lblPassword, 1, 6);
+        root.Controls.Add(txtPassword, 1, 7);
+        root.Controls.Add(lblError, 1, 8);
+        root.Controls.Add(btnLogin, 1, 9);
+
+        Controls.Add(root);
+
+        ResumeLayout(false);
     }
 
-    /// <summary>
-    /// 初始化数据绑定
-    /// </summary>
     private void InitializeDataBindings()
     {
-        // 监听 ViewModel 属性变化
-        _viewModel.PropertyChanged += (s, e) =>
+        txtUsername.BindText(_viewModel, nameof(LoginViewModel.Username));
+        txtPassword.BindText(_viewModel, nameof(LoginViewModel.Password));
+        btnLogin.BindCommand(_viewModel.LoginCommand);
+
+        _viewModel.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(_viewModel.ErrorMessage))
+            if (e.PropertyName == nameof(LoginViewModel.ErrorMessage))
             {
                 UpdateErrorMessage();
             }
-            else if (e.PropertyName == nameof(_viewModel.IsBusy))
+            else if (e.PropertyName == nameof(LoginViewModel.IsBusy))
             {
                 UpdateButtonState();
             }
         };
     }
 
-    /// <summary>
-    /// 更新错误消息显示
-    /// </summary>
     private void UpdateErrorMessage()
     {
         if (InvokeRequired)
         {
-            Invoke(new Action(UpdateErrorMessage));
+            Invoke((MethodInvoker)UpdateErrorMessage);
             return;
         }
 
         lblError.Text = _viewModel.ErrorMessage;
     }
 
-    /// <summary>
-    /// 更新按钮状态
-    /// </summary>
     private void UpdateButtonState()
     {
         if (InvokeRequired)
         {
-            Invoke(new Action(UpdateButtonState));
+            Invoke((MethodInvoker)UpdateButtonState);
             return;
         }
 
         btnLogin.Enabled = !_viewModel.IsBusy;
         btnLogin.Loading = _viewModel.IsBusy;
-
-        if (_viewModel.IsBusy)
-        {
-            btnLogin.Text = "登录中...";
-        }
-        else
-        {
-            btnLogin.Text = "登 录";
-        }
+        btnLogin.Text = _viewModel.IsBusy ? "登录中..." : "登录";
     }
 
-    /// <summary>
-    /// 执行登录
-    /// </summary>
     private void ExecuteLogin()
     {
         if (_viewModel.LoginCommand.CanExecute(null))
@@ -208,14 +178,11 @@ public partial class LoginForm : Window
         }
     }
 
-    /// <summary>
-    /// 登录成功处理
-    /// </summary>
     private void OnLoginSucceeded(object? sender, WinformTemplate.Business.Sys.Model.SysAccountModel account)
     {
         if (InvokeRequired)
         {
-            Invoke(new Action(() => OnLoginSucceeded(sender, account)));
+            Invoke((MethodInvoker)(() => OnLoginSucceeded(sender, account)));
             return;
         }
 
@@ -223,12 +190,30 @@ public partial class LoginForm : Window
         Close();
     }
 
-    /// <summary>
-    /// 窗体关闭时清理资源
-    /// </summary>
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         _viewModel.LoginSucceeded -= OnLoginSucceeded;
         base.OnFormClosing(e);
+    }
+
+    private static System.Windows.Forms.Label CreateFieldLabel(string text)
+    {
+        return new System.Windows.Forms.Label
+        {
+            Text = text,
+            Dock = DockStyle.Fill,
+            Font = new Font("Microsoft YaHei UI", 10F),
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+    }
+
+    private static Input CreateInput(string placeholder)
+    {
+        return new Input
+        {
+            Dock = DockStyle.Fill,
+            PlaceholderText = placeholder,
+            Font = new Font("Microsoft YaHei UI", 10F)
+        };
     }
 }

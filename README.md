@@ -1,420 +1,180 @@
 # WinformTemplate
 
-<div align="center">
+WinformTemplate 是一个 .NET 8 + WinForms + AntdUI 的客户端模板。当前目标是开箱即用、便于二次开发，并提供一个完整 Product 模块作为新增业务模块范例。
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![C#](https://img.shields.io/badge/Language-C%23-239120?logo=csharp)](https://docs.microsoft.com/en-us/dotnet/csharp/)
+## 当前能力
 
-一个功能完善的 Windows Forms 应用程序参考架构模板，采用现代化设计模式和最佳实践。
+- WinForms 桌面客户端，UI 使用 AntdUI。
+- 自造 MVVM 基础设施：`ObservableObject`、`BaseViewModel`、`RelayCommand`，未引入第三方 MVVM 框架。
+- 按模块可插拔数据源：每个业务模块通过 `IXxxRepository` 抽象访问数据，可在 `Ef`、`WebApi`、`Local` 三种实现之间切换。
+- 默认 SQLite 首次运行自动建库和种子，直接登录进入菜单。
+- 权限导航：菜单按角色过滤，页面按 `SysMenu.SmUrl` 作为 key 解析，导航时二次鉴权。
+- Product 管理范例：列表分页、搜索、排序、增删改和 Excel 导出。
 
-[English](README_EN.md) | 简体中文
+## 快速开始
 
-</div>
+环境要求：
 
-## 📋 目录
+- Windows
+- .NET 8 SDK
 
-- [项目简介](#-项目简介)
-- [核心特性](#-核心特性)
-- [技术栈](#-技术栈)
-- [快速开始](#-快速开始)
-- [项目架构](#-项目架构)
-- [配置说明](#-配置说明)
-- [开发指南](#-开发指南)
-- [数据库设计](#-数据库设计)
-- [贡献指南](#-贡献指南)
-- [许可证](#-许可证)
+命令：
 
-## 🎯 项目简介
-
-WinformTemplate 是一个基于 .NET 8.0 的 Windows Forms 企业级应用程序模板，集成了现代化的架构设计和常用功能模块。本项目旨在为 WinForms 开发者提供一个开箱即用的参考架构，遵循 SOLID 原则和企业级开发规范。
-
-### 适用场景
-
-- 企业管理系统（ERP、CRM、MES 等）
-- 桌面工具应用开发
-- 数据采集与分析平台
-- 系统集成应用
-- WinForms 项目的二次开发基础
-
-## ✨ 核心特性
-
-### 架构特性
-
-- **🏗️ 分层架构** - UI层、业务层、数据层清晰分离
-- **🎨 MVVM 模式** - 完整的 Model-View-ViewModel 实现
-- **📦 Repository 模式** - 统一的数据访问接口
-- **💉 依赖注入** - 支持 DI 容器和服务管理
-- **🔄 异步编程** - 全面的异步/等待支持
-
-### 功能特性
-
-- **🎯 现代化UI** - 集成 AntdUI 美观控件库
-- **📊 数据可视化** - LiveCharts 图表支持
-- **📝 日志系统** - log4net 四级日志（Info/Warn/Error/Fatal）
-- **🗄️ ORM 支持** - Entity Framework Core 8.0
-- **🔐 加密工具** - DES/AES/RSA 加密算法
-- **📄 文件操作** - Excel (NPOI)、CSV (CsvHelper) 支持
-- **⚙️ 配置管理** - JSON/XML/INI 配置文件加载
-- **🧪 单元测试** - NUnit 测试框架
-
-## 🛠️ 技术栈
-
-### 核心框架
-
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| .NET | 8.0 | 目标框架 |
-| Windows Forms | net8.0-windows | UI 框架 |
-| C# | 12.0 | 编程语言 |
-
-### 第三方库
-
-| 包名 | 版本 | 用途 |
-|------|------|------|
-| [AntdUI](https://github.com/AntdUI/AntdUI) | 2.2.3 | 现代化 UI 控件库 |
-| [Entity Framework Core](https://docs.microsoft.com/ef/core/) | 8.0.13 | ORM 数据访问框架 |
-| [MySqlConnector](https://mysqlconnector.net/) | 2.4.0 | MySQL 数据库连接器 |
-| [log4net](https://logging.apache.org/log4net/) | 3.2.0 | 日志记录框架 |
-| [NPOI](https://github.com/nissl-lab/npoi) | 2.7.5 | Excel 文件处理 |
-| [CsvHelper](https://joshclose.github.io/CsvHelper/) | 33.1.0 | CSV 文件处理 |
-| [Newtonsoft.Json](https://www.newtonsoft.com/json) | 13.0.4 | JSON 序列化 |
-| [LiveCharts](https://livecharts.dev/) | 0.9.8 | 数据可视化图表 |
-| [NUnit](https://nunit.org/) | 3.14.0 | 单元测试框架 |
-
-## 🚀 快速开始
-
-### 前置要求
-
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) 或更高版本
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) (推荐) 或 Visual Studio Code
-- [MySQL 8.0+](https://dev.mysql.com/downloads/mysql/) 数据库服务器
-
-### 安装步骤
-
-1. **克隆仓库**
-
-```bash
-git clone https://github.com/yourusername/WinformTemplate.git
-cd WinformTemplate
-```
-
-2. **配置数据库**
-
-编辑 `WinformTemplate/Resources/Config/config.json` 文件：
-
-```json
-{
-  "DB": "server=127.0.0.1;port=3306;user=root;database=base;password=your_password;"
-}
-```
-
-3. **初始化数据库**
-
-项目首次运行会自动创建数据库表和初始化种子数据：
-- 默认管理员账户：`admin`
-- 默认密码：`123456`
-
-4. **构建项目**
-
-```bash
+```powershell
 dotnet restore
-dotnet build
-```
-
-5. **运行应用**
-
-```bash
+dotnet build WinformTemplate.sln -warnaserror
+dotnet test WinformTemplate.sln
 dotnet run --project WinformTemplate
 ```
 
-或在 Visual Studio 中按 `F5` 启动调试。
+首次运行时，程序会从 `WinformTemplate/Resources/Config/config.example.json` 复制生成本地 `config.json`。真实 `config.json` 不入库，数据库密码等凭据应只保存在本地文件里。
 
-## 📐 项目架构
+## 演示账号
 
-本项目采用清晰的分层架构，详细架构说明请参阅 [ARCHITECTURE.md](ARCHITECTURE.md)。
+默认种子账号：
 
-### 目录结构
+| 账号 | 密码 | 权限 |
+| --- | --- | --- |
+| `admin` | `123456` | 可访问 `/sys/user`、`/sys/role`、`/template/product` |
+| `operator` | `123456` | 只可访问 `/sys/user` |
 
-```
-WinformTemplate/
-├── Src/                          # 核心源代码
-│   ├── Business/                 # 业务逻辑层
-│   │   └── Sys/                 # 系统业务模块
-│   │       ├── Context/         # EF Core 数据库上下文
-│   │       ├── Model/           # 数据模型
-│   │       ├── Repositories/    # 数据仓储
-│   │       └── Service/         # 业务服务
-│   ├── Common/                   # 公共模块
-│   │   ├── MVVM/                # MVVM 框架
-│   │   ├── Command/             # 命令模式
-│   │   ├── Repository/          # 仓储基类
-│   │   └── Patterns/            # 设计模式
-│   ├── Config/                   # 配置管理
-│   ├── FIO/                      # 文件 I/O
-│   │   └── Excel/               # Excel 处理
-│   ├── Logger/                   # 日志系统
-│   ├── Tools/                    # 工具库
-│   │   ├── Encryption/          # 加密工具
-│   │   ├── Files/               # 文件操作
-│   │   └── DataConvert/         # 数据转换
-│   └── UIComponent/              # UI 组件
-├── UI/                           # 用户界面层
-│   ├── Activate/                # 激活窗体
-│   ├── TestPage/                # 测试页面
-│   └── Verify/                  # 验证页面
-├── Resources/                    # 资源文件
-│   ├── Config/                  # 配置文件
-│   └── Log4net/                 # 日志配置
-├── MainForm.cs                  # 主窗体
-└── Program.cs                   # 应用入口
-```
+生产环境必须修改默认密码。密码使用 PBKDF2 加盐哈希；配置项 `Security.UpgradeLegacyPasswordHashOnLogin` 用于兼容并迁移旧哈希。
 
-### 架构层次
+## 数据源切换
 
-```
-┌─────────────────────────────────────┐
-│         UI Layer (WinForms)         │  ← 用户界面层
-├─────────────────────────────────────┤
-│       ViewModel (MVVM Pattern)      │  ← 视图模型层
-├─────────────────────────────────────┤
-│      Service Layer (Business)       │  ← 业务逻辑层
-├─────────────────────────────────────┤
-│   Repository (Data Access Layer)    │  ← 数据访问层
-├─────────────────────────────────────┤
-│    DbContext (Entity Framework)     │  ← ORM 层
-├─────────────────────────────────────┤
-│         Database (MySQL)            │  ← 数据库层
-└─────────────────────────────────────┘
-```
-
-详细的架构设计请查看 **[架构文档](ARCHITECTURE.md)**。
-
-## ⚙️ 配置说明
-
-### 数据库配置
-
-文件位置：`Resources/Config/config.json`
+数据源配置在 `Resources/Config/config.json`：
 
 ```json
 {
-  "DB": "server=127.0.0.1;port=3306;user=root;database=base;password=123456;"
+  "DataSource": {
+    "Default": "Ef",
+    "Modules": {
+      "Sys": "Ef",
+      "Template": "Ef"
+    }
+  },
+  "Ef": {
+    "DbType": "SQLite",
+    "SQLitePath": "./Resources/Database",
+    "MySqlConnection": "server=127.0.0.1;port=3306;user=root;database=base;password=__SET_ME__;"
+  },
+  "WebApi": {
+    "BaseUrl": "https://localhost:5001",
+    "TimeoutSeconds": 30
+  },
+  "Local": {
+    "SeedPath": "./Resources/MockData"
+  }
 }
 ```
 
-### 日志配置
+`DataSource.Modules` 可按模块切换：
 
-文件位置：`Resources/Log4net/log4net.config`
+- `Ef`：直连 EF Core，支持 SQLite 和 MySQL。默认 SQLite。
+- `Local`：从 `Resources/MockData/*.json` 读取本地内存数据，CRUD 只在进程内生效。
+- `WebApi`：按 `docs/api-contract.md` 调用 REST 端点。后端本仓库暂未实现，当前只有客户端仓储和契约。
 
-支持四级日志：
-- **Info** - 信息日志 (`Log/LogInfo/`)
-- **Warn** - 警告日志 (`Log/LogWarn/`)
-- **Error** - 错误日志 (`Log/LogError/`)
-- **Fatal** - 致命错误日志 (`Log/LogFatal/`)
+示例：只把 Template 切到 Local：
 
-日志特性：
-- 按日期自动分割 (yyyyMMdd 格式)
-- HTML 格式输出
-- 最大单文件 10MB
-- 保留最近 100 个备份
-
-### 使用日志
-
-```csharp
-using WinformTemplate.Logger;
-
-// 记录信息日志
-Debug.Info("应用程序启动成功");
-
-// 记录警告
-Debug.Warn("配置文件未找到，使用默认配置");
-
-// 记录错误
-Debug.Error("数据库连接失败", exception);
-
-// 记录致命错误
-Debug.Fatal("应用程序崩溃", exception);
+```json
+"Modules": {
+  "Sys": "Ef",
+  "Template": "Local"
+}
 ```
 
-## 👨‍💻 开发指南
+## SQLite 分库设计
 
-### 添加新功能模块
+默认 SQLite 下，每个 EF 模块使用独立数据库文件：
 
-1. **创建数据模型** (`Src/Business/YourModule/Model/`)
-2. **定义 DbContext** (`Src/Business/YourModule/Context/`)
-3. **实现 Repository** (`Src/Business/YourModule/Repositories/`)
-4. **编写 Service** (`Src/Business/YourModule/Service/`)
-5. **创建 ViewModel** (继承 `BaseViewModel`)
-6. **设计 UI** (使用 AntdUI 控件)
+- Sys 模块：`Resources/Database/sys.db`
+- Template 模块：`Resources/Database/template.db`
 
-### MVVM 绑定示例
+原因：EF Core `EnsureCreated` 不支持多个 `DbContext` 共用同一个数据库文件。若 `SysDbContext` 先用 `EnsureCreated` 建了库，`TemplateDbContext` 再执行时会认为数据库已存在，不会创建自己的表，随后访问 `product_category` 等表会失败。模板选择“每个 EF 模块一个 SQLite 文件”，保持首次运行自动建库和种子简单可靠。
 
-```csharp
-// ViewModel
-public class UserViewModel : BaseViewModel
-{
-    private string _username;
-    public string Username
-    {
-        get => _username;
-        set => SetProperty(ref _username, value);
-    }
+如果二开项目必须使用单一数据库文件，应改用 EF Migrations 统一建表，而不是继续使用多个 DbContext 的 `EnsureCreated`。
 
-    public ICommand SaveCommand { get; }
+## 错误模型
 
-    public UserViewModel()
-    {
-        SaveCommand = new RelayCommand(Save, CanSave);
-    }
+仓储区分两类失败：
 
-    private async void Save()
-    {
-        await ExecuteAsync(async () =>
-        {
-            // 保存逻辑
-            await _repository.AddAsync(new User { Name = Username });
-        });
-    }
+- 正常业务未命中：返回 `null`、`false` 或空集合。例如找不到记录、删除影响 0 行。
+- 数据源不可达：抛 `DataSourceUnavailableException`。例如 WebApi 后端未启动、连接超时、传输失败。
 
-    private bool CanSave() => !string.IsNullOrEmpty(Username);
-}
+`BaseViewModel.ExecuteAsync` 会统一捕获 `DataSourceUnavailableException` 并呈现“未连接后端”。因此读操作返回空集合只表示“确实没数据”，不会被用来伪装后端不可达。
 
-// View 绑定
-var viewModel = new UserViewModel();
-textBox.DataBindings.Add("Text", viewModel, nameof(viewModel.Username));
-button.Click += (s, e) => viewModel.SaveCommand.Execute(null);
+## 菜单与页面 key
+
+菜单 key 使用 `SysMenu.SmUrl`。当前已注册页面：
+
+| key | 页面 |
+| --- | --- |
+| `/sys/user` | `AccountManagementControl` |
+| `/sys/role` | 角色占位页 |
+| `/template/product` | `ProductManagementControl` |
+
+EF 种子、Local MockData、页面注册表必须保持一致。守卫测试 `SysMenuSeedUrls_AreConsistentAcrossEfLocalAndRegisteredPages` 会检查这一点。
+
+## 主要目录
+
+```text
+WinformTemplate/
+  Program.cs
+  MainForm.cs
+  Resources/
+    Config/config.example.json
+    MockData/*.json
+  Src/
+    Bootstrap/AppServiceRegistration.cs
+    Common/DataAccess/
+    Common/MVVM/
+    Business/Sys/
+    Business/Template/
+    FIO/Excel/
+    Navigation/
+  UI/
+    Business/Sys/
+    Business/Template/Product/
+WinformTemplate.Tests/
+  Navigation/
+  Startup/
+  Business/
+docs/
+  REFACTOR_PLAN.md
+  api-contract.md
+  二开指南.md
 ```
 
-### 使用 Repository 模式
+## 二开入口
 
-```csharp
-// 1. 定义接口
-public interface IUserRepository : IBaseRepository<UserModel>
-{
-    Task<UserModel> GetByUsernameAsync(string username);
-}
+新增业务模块请从 Product 模块对照：
 
-// 2. 实现接口
-public class UserRepository : BaseRepository<UserModel>, IUserRepository
-{
-    public UserRepository(YourDbContext context) : base(context) { }
+- Model：`Src/Business/Template/Model/ProductModel.cs`
+- 仓储契约：`Src/Business/Template/Repositories/IProductRepository.cs`
+- 三种实现：`Repositories/EfCore/`、`Repositories/WebApi/`、`Repositories/Local/`
+- Service：`Src/Business/Template/Service/ProductService.cs`
+- ViewModel：`Src/Business/Template/ViewModel/ProductManagementViewModel.cs`
+- UI：`UI/Business/Template/Product/ProductManagementControl.cs`
+- 注册：`Src/Bootstrap/AppServiceRegistration.cs`
+- 页面：`Src/Navigation/PageRegistryDefaultPages.cs`
 
-    public async Task<UserModel> GetByUsernameAsync(string username)
-    {
-        return await _dbSet.FirstOrDefaultAsync(u => u.Username == username);
-    }
-}
+完整步骤见 [docs/二开指南.md](docs/二开指南.md)。
 
-// 3. 使用仓储
-var user = await _userRepository.GetByUsernameAsync("admin");
-var allUsers = await _userRepository.GetAllAsync();
-```
+## 测试
 
-### 快速与 AI 沟通
+关键测试：
 
-为了使 ChatGPT/Claude 等 AI 更好地理解本项目进行二次开发，可以使用以下提示词：
+- `NavigationPermissionTests`：权限菜单、页面 key、EF/Local 菜单种子一致性。
+- `AppStartupIntegrationTests`：用真实 DI 和初始化顺序验证 Sys + Template EF 首次启动、登录、Product 查询。
+- `TemplateRepositoryDataSourceTests`：Product 仓储 Ef/Local 契约一致。
+- `ProductManagementViewModelTests`：Product 分页、CRUD 和导出逻辑。
 
-> 接下来我有一系列 C# WinForm 程序的开发问题。为了使你的回复更加准确，我使用如下技术栈：
-> 1. .NET 8.0 Windows Forms 应用程序
-> 2. AntdUI (2.2.3) - 现代化 UI 控件库
-> 3. Entity Framework Core (8.0.13) - ORM 框架操作 MySQL
-> 4. MySqlConnector (2.4.0) - MySQL 数据库连接
-> 5. NPOI (2.7.5) - Excel 文件交互
-> 6. CsvHelper (33.1.0) - CSV 文件交互
-> 7. log4net (3.2.0) - 日志处理
-> 8. Newtonsoft.Json (13.0.4) - JSON 序列化
-> 9. LiveCharts (0.9.8) - 数据可视化图表
-> 10. NUnit (3.14.0) - 单元测试框架
-> 11. MVVM 设计模式 + Repository 模式 + 依赖注入
->
-> 在你理解我使用的技术栈之后，请直接且准确地回复我的开发问题。
+## 已知限制 / TODO
 
-## 🗄️ 数据库设计
+- 窗口布局尚未做完整自适应/响应式优化；功能可用，视觉和小屏体验待优化。
+- SysRole、SysMenu、SysParam 的管理列表仍是简单全量管理入口，后续可参考 Product 页补分页 UI。
+- WebApi 后端未在本仓库实现；当前仅提供客户端仓储和 `docs/api-contract.md`。
 
-### 核心表结构
+## 许可证
 
-#### SysAccount (系统账户表)
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| SysId | int | 主键 (自增) |
-| SysUuid | string | 外部 UUID |
-| SysAccountName | string | 账户名 |
-| SysPassword | string | 密码 (MD5) |
-| SysNickname | string | 昵称 |
-| SysLevel | int | 账户级别 (0=最高) |
-| SysRoleId | int | 角色ID (外键) |
-| SysStatus | int | 状态 (0=有效, 1=无效) |
-
-#### SysRole (系统角色表)
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| SrId | int | 主键 (自增) |
-| SrName | string | 角色名称 |
-| SrEnName | string | 英文名称 |
-| SrStatus | int | 状态 |
-
-#### SysMenu (系统菜单表)
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| SmId | int | 主键 (自增) |
-| SmParentId | int | 父级菜单ID |
-| SmName | string | 菜单名称 |
-| SmType | int | 类型 (0=菜单, 1=内容) |
-| SmUrl | string | 链接地址 |
-| SmLevel | int | 菜单级别 |
-
-#### SysRoleAuth (角色权限关联表)
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| SraRoleId | int | 角色ID (复合主键) |
-| SraMenuId | int | 菜单ID (复合主键) |
-
-### 初始数据
-
-项目首次运行会自动创建以下种子数据：
-- 管理员角色 (Admin)
-- 管理员账户 (admin/123456)
-- 系统管理菜单结构
-- 角色权限分配
-
-## 🤝 贡献指南
-
-欢迎贡献代码！请遵循以下步骤：
-
-1. Fork 本仓库
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
-
-### 代码规范
-
-- 遵循 C# 编码规范和命名约定
-- 使用有意义的变量和方法名
-- 添加必要的注释和 XML 文档
-- 确保所有单元测试通过
-- 保持代码整洁和可维护性
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
-
-## 📞 联系方式
-
-- 作者: Mustenaka
-- 项目地址: [https://github.com/yourusername/WinformTemplate](https://github.com/yourusername/WinformTemplate)
-- 问题反馈: [Issues](https://github.com/yourusername/WinformTemplate/issues)
-
-## 🙏 致谢
-
-感谢以下开源项目：
-- [AntdUI](https://github.com/AntdUI/AntdUI) - 提供美观的 UI 控件
-- [Entity Framework Core](https://github.com/dotnet/efcore) - 强大的 ORM 框架
-- [log4net](https://logging.apache.org/log4net/) - 可靠的日志框架
-- [NPOI](https://github.com/nissl-lab/npoi) - Excel 文件处理
-
----
-
-<div align="center">
-Made with ❤️ by Mustenaka
-</div>
+MIT。见 [LICENSE](LICENSE)。
