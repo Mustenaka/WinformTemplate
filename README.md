@@ -128,10 +128,10 @@ DemoNote 是教学对照模块，三个页面固定绑定三种仓储：
 服务端位于相邻仓库：
 
 ```text
-D:\Work\Code\CSharp\WinformTemplateServer
+../WinformTemplateServer
 ```
 
-它是独立 .NET 8 ASP.NET Core Minimal API 服务，当前实现 DemoNote CRUD、分页、搜索和排序，默认地址：
+它是独立 .NET 8 ASP.NET Core Minimal API 服务。建议和客户端仓库放在同一个父目录下，当前实现 DemoNote CRUD、分页、搜索和排序，默认地址：
 
 - `https://localhost:5001`
 - `http://localhost:5000`
@@ -141,6 +141,8 @@ D:\Work\Code\CSharp\WinformTemplateServer
 ## 主要目录
 
 ```text
+.claude/
+  skills/winform-template-dev/
 .codex/
   skills/winformtemplate-business-modifier/
 WinformTemplate/
@@ -171,7 +173,6 @@ docs/
   api-contract.md
   二开指南.md
   项目架构与文件结构.md
-  局部skill评估.md
 ```
 
 ## 二开入口
@@ -194,6 +195,7 @@ docs/
 本仓库已经内置项目局部 skill：
 
 ```text
+.claude/skills/winform-template-dev/SKILL.md
 .codex/skills/winformtemplate-business-modifier/SKILL.md
 ```
 
@@ -207,8 +209,10 @@ Use $winformtemplate-business-modifier，根据下面业务要求修改项目：
 如果当前环境没有自动发现仓库局部 skill，可以在提示词中直接写：
 
 ```text
-使用 D:\Work\Code\CSharp\WinformTemplate\.codex\skills\winformtemplate-business-modifier\SKILL.md 的规则。
+使用当前仓库 .codex/skills/winformtemplate-business-modifier/SKILL.md 的规则。
 ```
+
+在 Claude Code 中打开项目时，`.claude/skills/winform-template-dev/SKILL.md` 会提供同一套二开规则；`.claude/settings.local.json` 属于本机权限文件，已由 `.gitignore` 排除，不作为跨设备配置。
 
 推荐把业务要求写成短规格，而不是贴大量架构 prompt：
 
@@ -245,7 +249,6 @@ Use $winformtemplate-business-modifier，新增一个订单管理模块：
 - [docs/项目架构与文件结构.md](docs/项目架构与文件结构.md)：当前架构、调用链、文件结构和变更入口。
 - [docs/二开指南.md](docs/二开指南.md)：按现有模式新增业务模块的步骤。
 - [docs/api-contract.md](docs/api-contract.md)：客户端和服务端共用的 REST 契约。
-- [docs/局部skill评估.md](docs/局部skill评估.md)：是否适合制作项目局部 skill 的评估和建议。
 - [ARCHITECTURE.md](ARCHITECTURE.md)：Phase II 架构细节和守卫测试说明。
 
 ## 测试

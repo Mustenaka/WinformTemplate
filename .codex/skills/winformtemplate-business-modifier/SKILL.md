@@ -7,15 +7,15 @@ description: Modify the WinformTemplate .NET 8 WinForms client and optional Winf
 
 Use this skill to implement business changes in:
 
-- Client: `D:\Work\Code\CSharp\WinformTemplate`
-- Server: `D:\Work\Code\CSharp\WinformTemplateServer`
+- Client: the current `WinformTemplate` repository root.
+- Server: a sibling repository named `WinformTemplateServer` when present; if it is not present, ask the user for the backend location before editing server code.
 
 ## Load Context First
 
 Before editing, read the relevant files:
 
 - Always read `README.md`, `docs/项目架构与文件结构.md`, `docs/二开指南.md`, and `docs/api-contract.md`.
-- For service/API work, also read `D:\Work\Code\CSharp\WinformTemplateServer\README.md` and `src/WinformTemplateServer/Program.cs`.
+- For service/API work, also read the sibling server `README.md` and `src/WinformTemplateServer/Program.cs`.
 - For UI or workflow changes, inspect the closest existing page before coding: Product for normal modules, DemoNote for data-source comparisons, Sys pages for account/role/permission behavior.
 
 ## Core Architecture Rules
@@ -68,7 +68,7 @@ When adding or changing API behavior:
 
 1. Update `docs/api-contract.md` first.
 2. Update or add the client `ApiXxxRepository`.
-3. Implement matching server endpoints in `D:\Work\Code\CSharp\WinformTemplateServer`.
+3. Implement matching server endpoints in the sibling `WinformTemplateServer` repository.
 4. Keep all responses wrapped in `ApiResponse<T>`.
 5. Return business failures with `success=false` and `isTransportError=false`.
 6. Add server integration tests with temporary SQLite files.
@@ -94,7 +94,7 @@ dotnet test WinformTemplate.sln
 For server changes:
 
 ```powershell
-cd D:\Work\Code\CSharp\WinformTemplateServer
+cd ..\WinformTemplateServer
 dotnet test WinformTemplateServer.sln
 ```
 
