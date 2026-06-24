@@ -141,6 +141,8 @@ D:\Work\Code\CSharp\WinformTemplateServer
 ## 主要目录
 
 ```text
+.codex/
+  skills/winformtemplate-business-modifier/
 WinformTemplate/
   Program.cs
   MainForm.cs
@@ -186,6 +188,57 @@ docs/
 - 菜单与页面注册：`Src/Navigation/PageRegistryDefaultPages.cs`
 
 想对照三种数据源差异时看 DemoNote；想做真实业务模块时看 Product。
+
+## AI Agent 二开 / Vibe Coding
+
+本仓库已经内置项目局部 skill：
+
+```text
+.codex/skills/winformtemplate-business-modifier/SKILL.md
+```
+
+在 Codex 中进行二开时，建议显式触发：
+
+```text
+Use $winformtemplate-business-modifier，根据下面业务要求修改项目：
+...
+```
+
+如果当前环境没有自动发现仓库局部 skill，可以在提示词中直接写：
+
+```text
+使用 D:\Work\Code\CSharp\WinformTemplate\.codex\skills\winformtemplate-business-modifier\SKILL.md 的规则。
+```
+
+推荐把业务要求写成短规格，而不是贴大量架构 prompt：
+
+```text
+Use $winformtemplate-business-modifier，新增一个订单管理模块：
+- 字段：订单号、客户名、金额、状态、创建时间、更新时间
+- 功能：分页、关键字搜索、状态筛选、按金额/创建时间排序、新增、修改、删除
+- 数据源：先支持 EF 和 Local；WebAPI 先更新契约和客户端仓储
+- 菜单：放在业务管理下，仅 admin 可见
+- 测试：补 Repository、ViewModel、菜单一致性测试
+```
+
+一次高效的 AI agent 二开流程：
+
+1. 先描述业务对象、字段、页面操作、筛选排序、权限和数据源范围。
+2. 让 agent 先阅读 skill 和现有样例，再实现，不要让它重新设计架构。
+3. 小步提交需求：先新增最小可运行模块，再追加导入导出、批量操作、服务端端点等增强。
+4. 每轮修改后要求 agent 运行相关测试，并说明未运行的测试和原因。
+5. 涉及 WebAPI 时，先改 `docs/api-contract.md`，再改客户端仓储和服务端端点。
+
+更适合 vibe coding 的需求格式：
+
+```text
+我要把【模块/页面】改成【目标行为】。
+业务字段是【字段列表】。
+用户可以做【操作列表】。
+数据源需要【EF/WebAPI/Local 范围】。
+权限和菜单是【谁可见，菜单放哪里】。
+完成后请补测试并更新必要文档。
+```
 
 ## 文档
 

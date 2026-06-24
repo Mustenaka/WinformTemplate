@@ -1,0 +1,6 @@
+interface:
+  display_name: "WinformTemplate Modifier"
+  short_description: "Modify WinformTemplate business modules"
+  default_prompt: "Use $winformtemplate-business-modifier to implement a WinformTemplate business change from my requirements."
+policy:
+  allow_implicit_invocation: true

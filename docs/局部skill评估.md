@@ -1,6 +1,12 @@
 # 项目局部 Skill 评估
 
-结论：可以，而且建议制作一个 WinformTemplate 项目局部 skill。当前项目已经形成稳定的模块边界、重复文件结构和守卫测试，适合把“按业务要求新增或修改模块”的流程固化成 skill。
+结论：可以，而且已经创建 WinformTemplate 项目局部 skill。当前项目已经形成稳定的模块边界、重复文件结构和守卫测试，适合把“按业务要求新增或修改模块”的流程固化成 skill。
+
+当前 skill 位置：
+
+```text
+D:\Work\Code\CSharp\WinformTemplate\.codex\skills\winformtemplate-business-modifier\SKILL.md
+```
 
 ## 适合制作的原因
 
@@ -64,9 +70,24 @@ description: Modify the WinformTemplate WinForms client and optional WinformTemp
 - WebAPI 变更先更新契约，再改客户端仓储和服务端端点。
 - 修改完成后运行相关测试，至少说明未运行的测试及原因。
 
-## 推荐落地位置
+## 使用方式
 
-如果当前 Codex 环境支持仓库局部 skill，可以放在：
+在 Codex 中建议显式触发：
+
+```text
+Use $winformtemplate-business-modifier，根据下面业务要求修改项目：
+...
+```
+
+如果当前环境没有自动发现仓库局部 skill，可以直接引用文件路径：
+
+```text
+使用 D:\Work\Code\CSharp\WinformTemplate\.codex\skills\winformtemplate-business-modifier\SKILL.md 的规则。
+```
+
+## 落地位置
+
+当前已放在：
 
 ```text
 D:\Work\Code\CSharp\WinformTemplate\.codex\skills\winformtemplate-business-modifier\SKILL.md
