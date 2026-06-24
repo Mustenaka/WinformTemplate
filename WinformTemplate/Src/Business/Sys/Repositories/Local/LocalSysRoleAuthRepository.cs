@@ -72,7 +72,11 @@ public sealed class LocalSysRoleAuthRepository : LocalRepositoryBase<SysRoleAuth
 
     public Task<bool> ClearRolePermissionsAsync(long roleId)
     {
-        return Task.FromResult(Write(items => items.RemoveAll(roleAuth => roleAuth.SraRoleId == roleId) > 0));
+        return Task.FromResult(Write(items =>
+        {
+            items.RemoveAll(roleAuth => roleAuth.SraRoleId == roleId);
+            return true;
+        }));
     }
 
     protected override object? GetEntityId(SysRoleAuthModel entity)

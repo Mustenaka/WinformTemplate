@@ -12,16 +12,19 @@ public class SysRoleService : ISysRoleService
 {
     private readonly ISysRoleRepository _roleRepository;
     private readonly ISysMenuRepository _menuRepository;
+    private readonly ISysRoleAuthRepository _roleAuthRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     public SysRoleService(
         ISysRoleRepository roleRepository,
-        ISysMenuRepository menuRepository)
+        ISysMenuRepository menuRepository,
+        ISysRoleAuthRepository roleAuthRepository)
     {
         _roleRepository = roleRepository;
         _menuRepository = menuRepository;
+        _roleAuthRepository = roleAuthRepository;
     }
 
     /// <summary>
@@ -201,7 +204,8 @@ public class SysRoleService : ISysRoleService
     {
         try
         {
-            Debug.Info($"批量分配菜单权限，角色ID：{roleId}，菜单数量：{menuIds.Count()}");
+            var distinctMenuIds = menuIds.Distinct().ToArray();
+            Debug.Info($"批量分配菜单权限，角色ID：{roleId}，菜单数量：{distinctMenuIds.Length}");
 
             // 检查角色是否存在
             var role = await _roleRepository.GetByIdAsync(roleId);
@@ -211,9 +215,31 @@ public class SysRoleService : ISysRoleService
                 return false;
             }
 
-            foreach (var menuId in menuIds)
+            foreach (var menuId in distinctMenuIds)
             {
-                await AssignMenuToRoleAsync(roleId, menuId);
+                var menu = await _menuRepository.GetByIdAsync(menuId);
+                if (menu == null)
+                {
+                    Debug.Warn($"批量分配菜单权限失败：菜单不存在，ID：{menuId}");
+                    return false;
+                }
+            }
+
+            var cleared = await _roleAuthRepository.ClearRolePermissionsAsync(roleId);
+            if (!cleared)
+            {
+                Debug.Warn($"批量分配菜单权限失败：清除旧权限失败，ID：{roleId}");
+                return false;
+            }
+
+            if (distinctMenuIds.Length > 0)
+            {
+                var assigned = await _roleAuthRepository.AssignPermissionsBatchAsync(roleId, distinctMenuIds);
+                if (!assigned)
+                {
+                    Debug.Warn($"批量分配菜单权限失败：写入新权限失败，ID：{roleId}");
+                    return false;
+                }
             }
 
             Debug.Info($"批量分配菜单权限成功，角色ID：{roleId}");

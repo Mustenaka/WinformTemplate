@@ -15,11 +15,13 @@ This repository is a .NET 8 WinForms template using AntdUI, a homegrown MVVM lay
 UI/Form/UserControl -> ViewModel -> Service -> IRepository -> Ef/WebApi/Local implementation
 ```
 
-The backend demo is a separate project and separate git repository:
+The backend demo is a separate project and separate git repository. Prefer a sibling directory next to the client repository:
 
 ```text
-D:\Work\Code\CSharp\WinformTemplateServer
+../WinformTemplateServer
 ```
+
+If the sibling backend repository is not present, ask the user for its location before editing backend code.
 
 The client/backend REST contract source of truth is:
 
@@ -117,7 +119,7 @@ Client rules:
 
 Backend rules:
 
-- Implement in `D:\Work\Code\CSharp\WinformTemplateServer`.
+- Implement in the sibling `WinformTemplateServer` repository.
 - Keep .NET 8.
 - Default local addresses: `https://localhost:5001` and `http://localhost:5000`.
 - Add endpoint integration tests with `WebApplicationFactory`.

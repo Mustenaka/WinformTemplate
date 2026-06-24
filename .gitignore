@@ -417,5 +417,11 @@ FodyWeavers.xsd
 !/.claude/skills/winform-template-dev/
 !/.claude/skills/winform-template-dev/SKILL.md
 
+# Keep portable Codex skills, ignore local Codex runtime/config files.
+/.codex/*
+!/.codex/skills/
+!/.codex/skills/winformtemplate-business-modifier/
+!/.codex/skills/winformtemplate-business-modifier/**
+
 # Local runtime configuration. Keep config.example.json committed.
 /WinformTemplate/Resources/Config/config.json

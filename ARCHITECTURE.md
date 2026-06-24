@@ -1,6 +1,6 @@
 # Architecture
 
-本文描述 Phase II 结束时的实际实现。若旧文档与本文冲突，以 [docs/PHASE2_PLAN.md](docs/PHASE2_PLAN.md) 和 [docs/api-contract.md](docs/api-contract.md) 为准。
+本文描述当前实际实现。若旧文档与本文冲突，以 [docs/项目架构与文件结构.md](docs/项目架构与文件结构.md) 和 [docs/api-contract.md](docs/api-contract.md) 为准。
 
 ## Overall Shape
 
@@ -92,7 +92,7 @@ WebApi 仓储继承 [ApiRepositoryBase](WinformTemplate/Src/Common/DataAccess/Ap
 独立后端位于：
 
 ```text
-D:\Work\Code\CSharp\WinformTemplateServer
+../WinformTemplateServer
 ```
 
 后端是独立 git 仓库、独立 solution、.NET 8 ASP.NET Core Minimal API + EF Core + SQLite。默认监听：
